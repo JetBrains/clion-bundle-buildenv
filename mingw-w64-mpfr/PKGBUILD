@@ -34,7 +34,7 @@ build() {
   mkdir -p build-${MINGW_CHOST} && cd build-${MINGW_CHOST}
 
   ../${_realname}-${_pkgver}/configure \
-    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
     --prefix=${MINGW_PREFIX} \
     --enable-static \
     --disable-shared \

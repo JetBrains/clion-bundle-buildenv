@@ -21,7 +21,7 @@ build() {
   # Build static version
   mkdir -p "${srcdir}/static-${MINGW_CHOST}" && cd "${srcdir}/static-${MINGW_CHOST}"
   ../${_realname}-${pkgver}/configure \
-    --build=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
     --prefix=${MINGW_PREFIX} \
     --enable-cxx \
     --enable-static \
@@ -30,7 +30,8 @@ build() {
 
   # Build shared version
   mkdir -p "${srcdir}/shared-${MINGW_CHOST}" && cd "${srcdir}/shared-${MINGW_CHOST}"
-  ../${_realname}-${pkgver}/configure --build=${MINGW_CHOST} \
+  ../${_realname}-${pkgver}/configure \
+    --host=${MINGW_CHOST} \
     --prefix=${MINGW_PREFIX} \
     --enable-cxx \
     --disable-static \

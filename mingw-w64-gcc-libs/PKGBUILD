@@ -5,12 +5,14 @@
 
 _realname=gcc
 pkgbase=mingw-w64-${_realname}
-pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgname=(
+         # "${MINGW_PACKAGE_PREFIX}-${_realname}"
          "${MINGW_PACKAGE_PREFIX}-${_realname}-libs"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}-ada"
-         "${MINGW_PACKAGE_PREFIX}-${_realname}-objc")
+         # "${MINGW_PACKAGE_PREFIX}-${_realname}-libgfortran"
+         # "${MINGW_PACKAGE_PREFIX}-${_realname}-fortran"
+         # "${MINGW_PACKAGE_PREFIX}-${_realname}-ada"
+         # "${MINGW_PACKAGE_PREFIX}-${_realname}-objc"
+         )
 pkgver=7.1.0
 pkgrel=2
 pkgdesc="GCC for the MinGW-w64"
@@ -18,17 +20,18 @@ arch=('any')
 url="https://gcc.gnu.org"
 license=('GPL' 'LGPL' 'FDL' 'custom')
 groups=("${MINGW_PACKAGE_PREFIX}-toolchain")
-makedepends=("${MINGW_PACKAGE_PREFIX}-${_realname}"
-             "${MINGW_PACKAGE_PREFIX}-${_realname}-ada"
-             "${MINGW_PACKAGE_PREFIX}-binutils"
-             "${MINGW_PACKAGE_PREFIX}-crt"
-             "${MINGW_PACKAGE_PREFIX}-headers"
+makedepends=(
+             # "${MINGW_PACKAGE_PREFIX}-${_realname}"
+             # "${MINGW_PACKAGE_PREFIX}-${_realname}-ada"
+             # "${MINGW_PACKAGE_PREFIX}-binutils"
+             # "${MINGW_PACKAGE_PREFIX}-crt"
+             # "${MINGW_PACKAGE_PREFIX}-headers"
              "${MINGW_PACKAGE_PREFIX}-gmp"
              "${MINGW_PACKAGE_PREFIX}-isl"
              "${MINGW_PACKAGE_PREFIX}-libiconv"
              "${MINGW_PACKAGE_PREFIX}-mpc"
              "${MINGW_PACKAGE_PREFIX}-mpfr"
-             "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
+             # "${MINGW_PACKAGE_PREFIX}-windows-default-manifest"
              "${MINGW_PACKAGE_PREFIX}-winpthreads"
              "${MINGW_PACKAGE_PREFIX}-zlib")
 #checkdepends=('dejagnu')
@@ -171,7 +174,6 @@ build() {
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
     --with-local-prefix=${MINGW_PREFIX}/local \
-    --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
     --with-native-system-header-dir=${MINGW_PREFIX}/${MINGW_CHOST}/include \
@@ -179,7 +181,7 @@ build() {
     --enable-bootstrap \
     --with-arch=${_arch} \
     --with-tune=generic \
-    --enable-languages=c,lto,c++,objc,obj-c++,fortran,ada \
+    --enable-languages=c,lto,c++ \
     --enable-shared --enable-static \
     --enable-libatomic \
     --enable-threads=${_threads} \
@@ -198,8 +200,8 @@ build() {
     --disable-nls \
     --disable-werror \
     --disable-symvers \
-    --with-libiconv \
-    --with-system-zlib \
+    --with-libiconv=${MINGW_PREFIX} \
+    --with-zlib=${MINGW_PREFIX} \
     --with-{gmp,mpfr,mpc,isl}=${MINGW_PREFIX} \
     --with-pkgversion="Rev${pkgrel}, Built by MSYS2 project" \
     --with-bugurl="https://sourceforge.net/projects/msys2" \
