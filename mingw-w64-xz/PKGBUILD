@@ -14,8 +14,8 @@ url="http://tukaani.org/xz"
 # removal of LGPL from this field
 license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
 
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
-depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs" "${MINGW_PACKAGE_PREFIX}-gettext")
+#makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+#depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs" "${MINGW_PACKAGE_PREFIX}-gettext")
 options=('staticlibs' 'strip')
 source=("${url}/${_realname}-${pkgver}.tar.gz")
 sha256sums=('71928b357d0a09a12a4b4c5fafca8c31c19b0e7d3b8ebb19622e96f26dbf28cb')
@@ -25,13 +25,12 @@ build() {
   mkdir -p ${srcdir}/build-${CARCH} && cd ${srcdir}/build-${CARCH}
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
-    --build=${MINGW_CHOST} \
-    --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
+    --host=${MINGW_CHOST} \
     --disable-rpath \
     --disable-lzma-links
 
-  make
+  make ${MAKEFLAGS}
 }
 
 package() {

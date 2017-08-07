@@ -4,8 +4,6 @@
 _realname=gdb
 pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
-# Until https://gcc.gnu.org/bugzilla/show_bug.cgi?id=62279 is
-# fixed, we will stick with 7.6.2 which hasn't got this bug..
 pkgver=8.0
 pkgrel=2
 pkgdesc="GNU Debugger (mingw-w64)"
@@ -15,13 +13,13 @@ license=('GPL')
 groups=("${MINGW_PACKAGE_PREFIX}-toolchain")
 depends=("${MINGW_PACKAGE_PREFIX}-expat"
          "${MINGW_PACKAGE_PREFIX}-libiconv"
-         "${MINGW_PACKAGE_PREFIX}-python2"
+         #"${MINGW_PACKAGE_PREFIX}-python2"
          "${MINGW_PACKAGE_PREFIX}-zlib")
 checkdepends=('dejagnu' 'bc')
-makedepends=("${MINGW_PACKAGE_PREFIX}-iconv"
-             "${MINGW_PACKAGE_PREFIX}-ncurses"
+makedepends=("${MINGW_PACKAGE_PREFIX}-libiconv"
+#             "${MINGW_PACKAGE_PREFIX}-ncurses"
              "${MINGW_PACKAGE_PREFIX}-xz")
-options=('staticlibs' '!distcc' '!ccache')
+options=('!staticlibs' 'strip')
 source=(https://ftp.gnu.org/gnu/gdb/${_realname}-${pkgver}.tar.xz{,.sig}
         'gdb-fix-display-tabs-on-mingw.patch'
         #'gdb-mingw-gcc-4.7.patch'
@@ -64,25 +62,57 @@ build() {
   mkdir ${srcdir}/build-${MINGW_CHOST}
   cd ${srcdir}/build-${MINGW_CHOST}
 
+  local _enable_targets=(
+    "i686-pc-mingw32"
+
+    "i686-linux-gnu"
+    "i686-w64-mingw32"
+    "x86_64-linux-gnu"
+    "x86_64-w64-mingw32"
+
+    "aarch64-linux-gnu"
+    "alpha-linux-gnu"
+    "arm-linux-gnu"
+    "arm-linux-gnueabi"
+    "arm-linux-gnueabihf"
+    "hppa-linux-gnu"
+    "ia64-linux-gnu"
+    "m68k-linux-gnu"
+    "m68k-rtems"
+    "mips-linux-gnu"
+    "mipsel-linux-gnu"
+    "mips64-linux-gnu"
+    "mips64el-linux-gnu"
+    "powerpc-linux-gnu"
+    "powerpc-linux-gnuspe"
+    "powerpc64le-linux-gnu"
+    "powerpc64-linux-gnu"
+    "s390-linux-gnu"
+    "s390x-linux-gnu"
+    "sh-linux-gnu"
+    "sparc-linux-gnu"
+    "sparc64-linux-gnu"
+    "m32r-linux-gnu"
+  )
+
   ../${_realname}-${pkgver}/configure \
-    --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
     --prefix=${MINGW_PREFIX} \
-    --enable-targets="i686-w64-mingw32,x86_64-w64-mingw32" \
+    --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
+    --enable-gdbserver=no \
     --enable-64-bit-bfd \
+    --disable-sim \
     --disable-werror \
     --disable-win32-registry \
     --disable-rpath \
     --with-system-gdbinit=${MINGW_PREFIX}/etc/gdbinit \
-    --with-python=${MINGW_PREFIX}/bin/python-config-u.sh \
-    --with-expat \
-    --with-libiconv-prefix=${MINGW_PREFIX} \
-    --with-zlib \
-    --with-lzma \
-    --enable-tui
+    --without-python \
+    --without-guile \
+    --with-lib{expat,iconv,zlib,lzma}-prefix=${MINGW_PREFIX} \
+    --disable-tui
 
-  make
+  make ${MAKEFLAGS}
 }
 
 package() {

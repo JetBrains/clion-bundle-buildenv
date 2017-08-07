@@ -3,8 +3,9 @@
 
 _realname=libiconv
 pkgbase=mingw-w64-${_realname}
-pkgname=(${MINGW_PACKAGE_PREFIX}-${_realname}
-         ${MINGW_PACKAGE_PREFIX}-iconv)
+# pkgname=(${MINGW_PACKAGE_PREFIX}-${_realname}
+#          ${MINGW_PACKAGE_PREFIX}-iconv)
+pkgname=${MINGW_PACKAGE_PREFIX}-${_realname}
 pkgver=1.15
 pkgrel=1
 arch=('any')
@@ -16,7 +17,7 @@ sha256sums=('ccf536620a45458d26ba83887a983b96827001e92a13847b45e4925cc8913178'
             '7e905d21d670672b8a6a3bd80e5b8244b38bb7021a15fc7bdd0229125a3a68ee'
             'a649f925223addc44966624c5fe630fdb46e04ceaf94ed6b965a8d18ca55b5a0')
 options=('!libtool' 'staticlibs')
-makedepends=(${MINGW_PACKAGE_PREFIX}-gcc)
+#makedepends=(${MINGW_PACKAGE_PREFIX}-gcc)
 
 prepare() {
   cd $srcdir/${_realname}-${pkgver}
@@ -29,19 +30,18 @@ build() {
   mkdir build-${MINGW_CHOST} && cd build-${MINGW_CHOST}
 
   ../${_realname}-${pkgver}/configure --prefix=${MINGW_PREFIX} \
-    --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
     --docdir=${MINGW_PREFIX}/share/doc/libiconv \
     --enable-static \
-    --enable-shared \
+    --disable-shared \
     --enable-extra-encodings \
     --enable-relocatable \
     --disable-rpath \
     --enable-silent-rules \
     --enable-nls
 
-  make
+  make ${MAKEFLAGS}
 }
 
 check() {
@@ -70,8 +70,8 @@ _package_libiconv() {
 
 _package_iconv() {
   pkgdesc='Character encoding conversion utility (mingw-w64)'
-  depends=("${MINGW_PACKAGE_PREFIX}-libiconv=${pkgver}-${pkgrel}"
-           "${MINGW_PACKAGE_PREFIX}-gettext")
+  # depends=("${MINGW_PACKAGE_PREFIX}-libiconv=${pkgver}-${pkgrel}"
+  #          "${MINGW_PACKAGE_PREFIX}-gettext")
   license=('GPL3')
 
   cd "${srcdir}/build-${MINGW_CHOST}"
@@ -87,7 +87,7 @@ _package_iconv() {
   install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/iconv/COPYING"
 }
 
-package_mingw-w64-i686-iconv()      { _package_iconv;    }
+# package_mingw-w64-i686-iconv()      { _package_iconv;    }
 package_mingw-w64-i686-libiconv()   { _package_libiconv; }
-package_mingw-w64-x86_64-iconv()    { _package_iconv;    }
+# package_mingw-w64-x86_64-iconv()    { _package_iconv;    }
 package_mingw-w64-x86_64-libiconv() { _package_libiconv; }

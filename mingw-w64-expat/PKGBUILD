@@ -10,7 +10,7 @@ pkgdesc="An XML parser library (mingw-w64)"
 arch=('any')
 url="https://libexpat.github.io/"
 license=(MIT)
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
+#makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
 options=('strip' 'staticlibs')
 source=("https://downloads.sourceforge.net/${_realname}/${_realname}-${pkgver}.tar.bz2"
         001-fix-extension.patch
@@ -33,13 +33,12 @@ build() {
 
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
-    --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
-    --enable-shared \
+    --disable-shared \
     --enable-static
 
-  make
+  make ${MAKEFLAGS}
 }
 
 check() {

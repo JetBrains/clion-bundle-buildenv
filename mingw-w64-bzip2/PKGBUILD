@@ -10,8 +10,8 @@ pkgdesc="A high-quality data compression program (mingw-w64)"
 arch=('any')
 url="http://www.bzip.org"
 license=("custom")
-depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc")
+#depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
+#makedepends=("${MINGW_PACKAGE_PREFIX}-gcc")
 options=('strip' 'staticlibs')
 source=("http://www.bzip.org/${pkgver}/bzip2-${pkgver}.tar.gz"
         "bzip2-1.0.5-slash.patch"
@@ -55,12 +55,11 @@ build() {
   cd "${srcdir}/build-${CARCH}"
   ../${_realname}-${pkgver}/configure \
     --prefix=${MINGW_PREFIX} \
-    --build=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
     --enable-shared
 
-  make all-dll-shared
+  make ${MAKEFLAGS} all-dll-shared
 }
 
 check() {
