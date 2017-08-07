@@ -207,3 +207,50 @@ deploy_enabled() {
 failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}." "${items[@]}"; exit 1; }
 success() { local status="${1}"; local items=("${@:2}"); _status success "${status}." "${items[@]}"; exit 0; }
 message() { local status="${1}"; local items=("${@:2}"); _status message "${status}"  "${items[@]}"; }
+
+# Add package to build after required dependencies
+_package_dll() {
+    local pkgdir=${1}
+    local dlldir=${2}
+    local prog="${3}"
+
+    [ -f "${prog}" ] && [ -x "${prog}" ] || return 0
+    [ ! -e ${dlldir}${MINGW_PREFIX}/bin/$(basename "${prog}") ] || return 0
+
+    # https://stackoverflow.com/a/33174211/545027
+    local dll_names=$(${MINGW_CHOST}-strings ${prog} | grep -i '\.dll$')
+
+    message "binary ${prog}" ${dll_names}
+
+    if [ $(realpath -m "${prog}") != $(realpath -m "${pkgdir}${MINGW_PREFIX}/bin/$(basename "$prog")") ]; then
+        mkdir -p ${dlldir}${MINGW_PREFIX}/bin/
+        cp "${prog}" ${dlldir}${MINGW_PREFIX}/bin/ || failure "Couldn't copy ${prog}"
+    fi
+
+    for dll_name in ${dll_names}; do
+        for host_dll in /usr/${MINGW_CHOST}/bin/"${dll_name}" \
+                            ${MINGW_PREFIX}/bin/"${dll_name}"; do
+            if [ -f "${host_dll}" ] && [ -x "${host_dll}" ]; then
+                _package_dll ${pkgdir} ${dlldir} "${host_dll}"
+            fi
+        done
+    done
+}
+
+package_runtime_dependencies() {
+    for package in "$@"; do
+        _package_info "${package}" pkgname pkgver pkgrel
+        local pkgdir=$(pwd)/${package}/pkg/${MINGW_PACKAGE_PREFIX}-${pkgname#mingw-w64-}
+        local dlldir=${TMPDIR}/${package}-dll
+
+        message "Resolving runtime DLL dependencies"
+        mkdir -p ${dlldir}
+
+        for prog in ${pkgdir}${MINGW_PREFIX}/bin/*; do
+            _package_dll ${pkgdir} ${dlldir} "${prog}"
+        done
+
+        tar -Jcf ${package}/${MINGW_PACKAGE_PREFIX}-${pkgname#mingw-w64-}-${pkgver}-${pkgrel}-dll-dependencies.tar.xz -C ${dlldir} . --xform='s:^\./::'
+        rm -rf ${dlldir}
+    done
+}

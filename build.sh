@@ -49,6 +49,12 @@ for package in "${packages[@]}"; do
     execute 'Installing' "$PACMAN" --noconfirm --upgrade *.pkg.tar.xz
     deploy_enabled && mv "${package}"/*.pkg.tar.xz artifacts
     # deploy_enabled && mv "${package}"/*.src.tar.gz artifacts
+    for package_arg in "$@"; do
+        if [ ${package} == ${package_arg} ]; then
+            package_runtime_dependencies ${package}
+            deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
+        fi
+    done
     unset package
 done
 
