@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Author: Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
+
+# This work is derived from: https://github.com/Alexpux/MINGW-packages
+#
 # Continuous Integration Library for MSYS2
 # Author: Renato Silva <br.renatosilva@gmail.com>
 # Author: Qian Hong <fracting@gmail.com>
@@ -27,32 +31,6 @@ _status() {
     printf "%s\n" "${nameref_color}${title}${normal} ${status}"
     printf "${items:+\t%s\n}" "${items:+${items[@]}}"
 }
-
-# # Convert lines to array
-# _as_list() {
-#     local -n nameref_list="${1}"
-#     local filter="${2}"
-#     local strip="${3}"
-#     local lines="${4}"
-#     local result=1
-#     nameref_list=()
-#     while IFS= read -r line; do
-#         test -z "${line}" && continue
-#         result=0
-#         [[ "${line}" = ${filter} ]] && nameref_list+=("${line/${strip}/}")
-#     done <<< "${lines}"
-#     return "${result}"
-# }
-
-# # Changes since master or from head
-# _list_changes() {
-#     local list_name="${1}"
-#     local filter="${2}"
-#     local strip="${3}"
-#     local git_options=("${@:4}")
-#     _as_list "${list_name}" "${filter}" "${strip}" "$(git log "${git_options[@]}" upstream/master.. | sort -u)" ||
-#     _as_list "${list_name}" "${filter}" "${strip}" "$(git log "${git_options[@]}" HEAD^.. | sort -u)"
-# }
 
 # Get package information
 _package_info() {
@@ -99,27 +77,14 @@ _build_add() {
     sorted_packages+=("${package}")
 }
 
-# # Download previous artifact
-# _download_previous() {
-#     local filenames=("${@}")
-#     [[ "${DEPLOY_PROVIDER}" = bintray ]] || return 1
-#     for filename in "${filenames[@]}"; do
-#         if ! wget --no-verbose "https://dl.bintray.com/${BINTRAY_ACCOUNT}/${BINTRAY_REPOSITORY}/${filename}"; then
-#             rm -f "${filenames[@]}"
-#             return 1
-#         fi
-#     done
-#     return 0
-# }
-
-# # Git configuration
-# git_config() {
-#     local name="${1}"
-#     local value="${2}"
-#     test -n "$(git config ${name})" && return 0
-#     git config --global "${name}" "${value}" && return 0
-#     failure 'Could not configure Git for makepkg'
-# }
+# Git configuration
+git_config() {
+    local name="${1}"
+    local value="${2}"
+    test -n "$(git config ${name})" && return 0
+    git config --global "${name}" "${value}" && return 0
+    failure 'Could not configure Git for makepkg'
+}
 
 # Run command with status
 execute(){
@@ -135,14 +100,6 @@ execute(){
     cd - > /dev/null
 }
 
-# # Update system
-# update_system() {
-#     repman add ci.msys 'https://dl.bintray.com/alexpux/msys2' || return 1
-#     pacman --noconfirm --noprogressbar --sync --refresh --refresh --sysupgrade --sysupgrade || return 1
-#     test -n "${DISABLE_QUALITY_CHECK}" && return 0 # TODO: remove this option when not anymore needed
-#     pacman --noconfirm --needed --noprogressbar --sync ci.msys/pactoys
-# }
-
 # Sort packages by dependency
 define_build_order() {
     local sorted_packages=()
@@ -151,19 +108,6 @@ define_build_order() {
     done
     packages=("${sorted_packages[@]}")
 }
-
-# # Associate artifacts with this build
-# create_build_references() {
-#     local repository_name="${1}"
-#     local references="${repository_name}.builds"
-#     _download_previous "${references}" || touch "${references}"
-#     for file in *; do
-#         sed -i "/^${file}.*/d" "${references}"
-#         printf '%-80s%s\n' "${file}" "${BUILD_URL}" >> "${references}"
-#     done
-#     sort "${references}" | tee "${references}.sorted" | sed -r 's/(\S+)\s.*\/([^/]+)/\2\t\1/'
-#     mv "${references}.sorted" "${references}"
-# }
 
 # Add packages to repository
 create_pacman_repository() {
@@ -177,38 +121,12 @@ deploy_enabled() {
     true
 }
 
-# # Added commits
-# list_commits()  {
-#     _list_changes commits '*' '#*::' --pretty=format:'%ai::[%h] %s'
-# }
-
-# # Changed recipes
-# list_packages() {
-#     local _packages
-#     _list_changes _packages '*/PKGBUILD' '%/PKGBUILD' --pretty=format: --name-only || return 1
-#     for _package in "${_packages[@]}"; do
-#         local find_case_sensitive="$(find -name "${_package}" -type d -print -quit)"
-#         test -n "${find_case_sensitive}" && packages+=("${_package}")
-#     done
-#     return 0
-# }
-
-# # Recipe quality
-# check_recipe_quality() {
-#     # TODO: remove this option when not anymore needed
-#     if test -n "${DISABLE_QUALITY_CHECK}"; then
-#         echo 'This feature is disabled.'
-#         return 0
-#     fi
-#     saneman --format='\t%l:%c %p:%c %m' --verbose --no-terminal "${packages[@]}"
-# }
-
 # Status functions
 failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}." "${items[@]}"; exit 1; }
 success() { local status="${1}"; local items=("${@:2}"); _status success "${status}." "${items[@]}"; exit 0; }
 message() { local status="${1}"; local items=("${@:2}"); _status message "${status}"  "${items[@]}"; }
 
-# Add package to build after required dependencies
+# Add runtime dependencies of a binary
 _package_dll() {
     local pkgdir=${1}
     local dlldir=${2}
