@@ -4,16 +4,16 @@
 # Author: Renato Silva <br.renatosilva@gmail.com>
 # Author: Qian Hong <fracting@gmail.com>
 
-if [ "$#" -lt 3 ]; then
+if [ "$#" -lt 2 ]; then
     echo "Usage: $0 makepkg.conf package..." >&2
     exit 1
 fi
 
-MAKEPKG_CONF="${1}"; shift
-if [ ! -f "${MAKEPKG_CONF}" ]; then
-    echo "${MAKEPKG_CONF}: No such file" >&2
+if [ ! -f "${1}" ]; then
+    echo "${1}: No such file" >&2
     exit 1
 fi
+MAKEPKG_CONF=$(realpath "${1}"); shift
 
 # Configure
 DIR="$(dirname "$0")"
@@ -22,8 +22,8 @@ source "${MAKEPKG_CONF}"
 deploy_enabled && [ -d artifacts ] || mkdir -p artifacts
 # git_config user.email 'ci@msys2.org'
 # git_config user.name  'MSYS2 Continuous Integration'
-git config --global user.email 'Eldar.Abusalimov@jetbrains.com'
-git config --global user.name  'Eldar Abusalimov'
+# git config --global user.email 'Eldar.Abusalimov@jetbrains.com'
+# git config --global user.name  'Eldar Abusalimov'
 # git remote add upstream 'https://github.com/Alexpux/MINGW-packages'
 # git fetch --quiet upstream
 
