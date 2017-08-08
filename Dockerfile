@@ -10,13 +10,13 @@ RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
       /README \
       /etc/pacman.d/mirrorlist.pacnew
 
-RUN mkdir -p /opt \
- && chmod a+w /opt
-
 RUN groupadd -r build \
  && useradd --no-log-init -r -m -g build build \
  && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build && \
     chmod 0440 /etc/sudoers.d/build
+
+RUN mkdir -p /opt \
+ && chown build:build /opt
 
 WORKDIR /home/build
 

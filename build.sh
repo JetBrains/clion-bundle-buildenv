@@ -46,7 +46,7 @@ for package in "${packages[@]}"; do
     execute 'Building binary' makepkg --noconfirm --skippgpcheck --nocheck --nodeps \
        --cleanbuild --config "${MAKEPKG_CONF}"
 
-    execute 'Installing' tar xvf *.pkg.tar.xz ${MINGW_PREFIX#/} -C /
+    execute 'Installing' tar xvf *.pkg.tar.xz -C / ${MINGW_PREFIX#/}
     deploy_enabled && mv "${package}"/*.pkg.tar.xz artifacts
 
     for package_arg in "$@"; do
