@@ -1,0 +1,35 @@
+_realname=python2
+pkgbase=mingw-w64-${_realname}-prebuilt-win32
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-prebuilt-win32"
+pkgver=2.7.13
+pkgrel=1
+_pybasever=${pkgver%.*}
+pkgdesc="A high-level scripting language (prebuilt; win32)"
+arch=('any')
+license=('PSF')
+url="https://www.python.org/"
+makedepends=('msitools')
+options=('!staticlibs' 'strip')
+source=(https://www.python.org/ftp/python/${pkgver}/python-${pkgver}$([ "${CARCH}" == x86_64 ] && echo .amd64).msi)
+sha256sums=('SKIP')
+
+build() {
+  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  mkdir ${srcdir}/build-${MINGW_CHOST}
+
+  msiextract -C ${srcdir}/build-${MINGW_CHOST} python-${pkgver}*.msi
+}
+
+package() {
+  cd ${srcdir}/build-${MINGW_CHOST}
+
+  mkdir -p ${pkgdir}${MINGW_PREFIX}
+
+  cp -rT include ${pkgdir}${MINGW_PREFIX}/include
+
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
+  cp -T python27.dll ${pkgdir}${MINGW_PREFIX}/bin/python27.dll
+
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib
+  cp -rT Lib ${pkgdir}${MINGW_PREFIX}/lib/python2.7
+}

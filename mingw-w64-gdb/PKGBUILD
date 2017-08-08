@@ -14,6 +14,7 @@ groups=("${MINGW_PACKAGE_PREFIX}-toolchain")
 depends=("${MINGW_PACKAGE_PREFIX}-expat"
          "${MINGW_PACKAGE_PREFIX}-libiconv"
          #"${MINGW_PACKAGE_PREFIX}-python2"
+         "${MINGW_PACKAGE_PREFIX}-python2-prebuilt-win32"
          "${MINGW_PACKAGE_PREFIX}-zlib")
 checkdepends=('dejagnu' 'bc')
 makedepends=("${MINGW_PACKAGE_PREFIX}-libiconv"
@@ -107,7 +108,7 @@ build() {
     --disable-win32-registry \
     --disable-rpath \
     --with-system-gdbinit=${MINGW_PREFIX}/etc/gdbinit \
-    --without-python \
+    --with-python-prefix=${MINGW_PREFIX} \
     --without-guile \
     --with-lib{expat,iconv,zlib,lzma}-prefix=${MINGW_PREFIX} \
     --disable-tui
