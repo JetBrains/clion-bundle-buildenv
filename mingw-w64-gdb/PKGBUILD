@@ -110,7 +110,7 @@ build() {
     --with-system-gdbinit=${MINGW_PREFIX}/etc/gdbinit \
     --with-python=${MINGW_PREFIX}/bin/python-config-u.sh \
     --without-guile \
-    --with-lib{expat,iconv,zlib,lzma}-prefix=${MINGW_PREFIX} \
+    --with-lib{expat,iconv,zlib,lzma}=${MINGW_PREFIX} \
     --disable-tui
 
   make ${MAKEFLAGS}
