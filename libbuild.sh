@@ -65,15 +65,19 @@ _build_add() {
     for sorted_package in "${sorted_packages[@]}"; do
         [[ "${sorted_package}" = "${package}" ]] && return 0
     done
-    message "Resolving dependencies"
-    _package_info "${package}" depends makedepends
-    for dependency in "${depends[@]}" "${makedepends[@]}"; do
-        # for unsorted_package in "${packages[@]}"; do
-        #     [[ "${package}" = "${unsorted_package}" ]] && continue
-        #     _package_provides "${unsorted_package}" "${dependency}" && _build_add "${unsorted_package}"
-        # done
-        _build_add "${dependency}"
-    done
+    if [[ "${package}" != mingw-w64-* ]]; then
+        message "A host prerequisity"
+    else
+        message "Resolving dependencies"
+        _package_info "${package}" depends makedepends
+        for dependency in "${depends[@]}" "${makedepends[@]}"; do
+            # for unsorted_package in "${packages[@]}"; do
+            #     [[ "${package}" = "${unsorted_package}" ]] && continue
+            #     _package_provides "${unsorted_package}" "${dependency}" && _build_add "${unsorted_package}"
+            # done
+            _build_add "${dependency}"
+        done
+    fi
     sorted_packages+=("${package}")
 }
 

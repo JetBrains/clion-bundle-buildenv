@@ -10,6 +10,8 @@ RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
       /README \
       /etc/pacman.d/mirrorlist.pacnew
 
+RUN pacman --quiet --noconfirm -Sy
+
 RUN groupadd -r build \
  && useradd --no-log-init -r -m -g build build \
  && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build && \
