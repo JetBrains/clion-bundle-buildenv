@@ -108,7 +108,7 @@ build() {
     --disable-win32-registry \
     --disable-rpath \
     --with-system-gdbinit=${MINGW_PREFIX}/etc/gdbinit \
-    --with-python-prefix=${MINGW_PREFIX} \
+    --with-python=${MINGW_PREFIX}/bin/python-config-u.sh \
     --without-guile \
     --with-lib{expat,iconv,zlib,lzma}-prefix=${MINGW_PREFIX} \
     --disable-tui
