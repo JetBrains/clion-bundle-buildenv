@@ -2,10 +2,13 @@ FROM base/devel
 
 
 RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
-  mingw-w64
-
-RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
-  git
+      mingw-w64 \
+      git \
+  && rm -f \
+      /var/cache/pacman/pkg/* \
+      /var/lib/pacman/sync/* \
+      /README \
+      /etc/pacman.d/mirrorlist.pacnew
 
 RUN mkdir -p /opt \
  && chmod a+w /opt
