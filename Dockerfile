@@ -10,7 +10,11 @@ RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
       /README \
       /etc/pacman.d/mirrorlist.pacnew
 
-RUN pacman --quiet --noconfirm -Sy
+RUN (echo ; \
+     echo "[multilib]"; \
+     echo "Include = /etc/pacman.d/mirrorlist";) >> /etc/pacman.conf \
+ && pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
+      wine
 
 RUN groupadd -r build \
  && useradd --no-log-init -r -m -g build build \
