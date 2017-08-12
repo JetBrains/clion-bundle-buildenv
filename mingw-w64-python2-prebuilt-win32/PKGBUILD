@@ -12,8 +12,10 @@ url="https://www.python.org/"
 options=('!staticlibs' 'strip')
 source=(https://www.python.org/ftp/python/${pkgver}/python-${pkgver}$([ "${CARCH}" == x86_64 ] && echo .amd64).msi
         'python-config.sh'
-        'python-config-u.sh')
+        'python-config-u.sh'
+        '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
 sha256sums=('SKIP'
+            'SKIP'
             'SKIP'
             'SKIP')
 
@@ -27,14 +29,19 @@ build() {
 package() {
   cd ${srcdir}/build-${MINGW_CHOST}
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}
+  patch -p1 -i ${srcdir}/0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch
 
-  cp -rT include ${pkgdir}${MINGW_PREFIX}/include
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/include
+  cp -rT include ${pkgdir}${MINGW_PREFIX}/include/python${_pybasever}
 
   mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
-  cp -T python27.dll ${pkgdir}${MINGW_PREFIX}/bin/python27.dll
+  cp -T python${_pybasever/./}.dll ${pkgdir}${MINGW_PREFIX}/bin/python${_pybasever}.dll
   cp ${srcdir}/python-config*.sh ${pkgdir}${MINGW_PREFIX}/bin/
+  chmod a+x ${pkgdir}${MINGW_PREFIX}/bin/*
 
   mkdir -p ${pkgdir}${MINGW_PREFIX}/lib
-  cp -rT Lib ${pkgdir}${MINGW_PREFIX}/lib/python2.7
+  cp -rT Lib ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}
+  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}/config
+  cp libs/libpython${_pybasever/./}.a ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}/config
+  ln -sT ../../../bin/python${_pybasever}.dll ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}/config/python${_pybasever}.dll.a
 }
