@@ -15,7 +15,7 @@ options=(!libtool)
 build() {
   cd $srcdir/${pkgname}-${pkgver}
   sed '/LD_RUN_PATH/d' -i Makefile.in
-  ./configure --prefix=/usr
+  ./configure --prefix=${PREFIX}
   cp -f /usr/include/stdio.h srclib/stdio.in.h
   make
 }

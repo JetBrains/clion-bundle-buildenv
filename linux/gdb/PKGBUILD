@@ -28,7 +28,7 @@ prepare() {
 build() {
   cd gdb-$pkgver
   
-  ./configure --prefix=/usr --disable-nls \
+  ./configure --prefix=${PREFIX} --disable-nls \
     --with-system-readline \
     --with-python=/usr/bin/python3 \
     --with-guile=guile-2.0 \

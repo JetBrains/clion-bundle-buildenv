@@ -23,14 +23,14 @@ prepare() {
 
 build() {
 	cd ${srcdir}/zlib-$pkgver
-	./configure --prefix=/usr
+	./configure --prefix=${PREFIX}
 	make
 
 	cd contrib/minizip
 	cp Makefile Makefile.orig
 	cp ../README.contrib readme.txt
 	autoreconf --install
-	./configure --prefix=/usr --enable-static=no
+	./configure --prefix=${PREFIX} --enable-static=no
 	make
 }
 

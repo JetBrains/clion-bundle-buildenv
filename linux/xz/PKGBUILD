@@ -18,7 +18,7 @@ validpgpkeys=('3690C240CE51B4670D30AD1C38EE757D69184620')
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
 
-	./configure --prefix=/usr \
+	./configure --prefix=${PREFIX} \
 		--disable-rpath \
 		--enable-werror
 	make
