@@ -26,7 +26,8 @@ RUN mkdir -p /opt \
 
 WORKDIR /home/build
 
-COPY . ./
+COPY common/ ./
+COPY mingw-w64/ ./
 
 RUN chown -R build:build . \
  && chmod a+x *.sh
