@@ -144,7 +144,7 @@ _package_dll() {
 
     message "binary ${prog}" ${dll_names}
 
-    if [ $(realpath -m "${prog}") != $(realpath -m "${pkgdir}${MINGW_PREFIX}/bin/$(basename "$prog")") ]; then
+    if [ $(readlink -m "${prog}") != $(realpath -m "${pkgdir}${MINGW_PREFIX}/bin/$(basename "$prog")") ]; then
         mkdir -p ${dlldir}${MINGW_PREFIX}/bin/
         cp "${prog}" ${dlldir}${MINGW_PREFIX}/bin/ || failure "Couldn't copy ${prog}"
     fi
