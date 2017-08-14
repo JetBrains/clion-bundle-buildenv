@@ -56,12 +56,14 @@ for package in "${packages[@]}"; do
         execute 'Installing' tar xvf *.pkg.tar.xz -C / ${MINGW_PREFIX#/}
         deploy_enabled && mv "${package}"/*.pkg.tar.xz artifacts
 
-        for package_arg in "$@"; do
-            if [[ "${package}" == "${package_arg}" ]]; then
-                package_runtime_dependencies ${package}
-                deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
-            fi
-        done
+        if [[ -n "${MINGW_CHOST}" ]]; then
+            for package_arg in "$@"; do
+                if [[ "${package}" == "${package_arg}" ]]; then
+                    package_runtime_dependencies ${package}
+                    deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
+                fi
+            done
+        fi
     fi
     unset package
 done
