@@ -27,6 +27,7 @@ build() {
     --prefix=${MINGW_PREFIX} \
     --target=${MINGW_CHOST} \
     --host=${MINGW_CHOST} \
+    --disable-shared \
     --disable-rpath \
     --disable-lzma-links
 
