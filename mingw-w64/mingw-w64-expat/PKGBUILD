@@ -32,7 +32,7 @@ build() {
   cd "${srcdir}/build-${MINGW_CHOST}"
 
   ../${_realname}-${pkgver}/configure \
-    --prefix=${MINGW_PREFIX} \
+    --prefix=${PREFIX} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
     --disable-shared \
@@ -49,5 +49,5 @@ check() {
 package() {
   cd "${srcdir}/build-${MINGW_CHOST}"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING"
 }

@@ -99,7 +99,7 @@ build() {
   ../${_realname}-${pkgver}/configure \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
-    --prefix=${MINGW_PREFIX} \
+    --prefix=${PREFIX} \
     --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
     --enable-gdbserver=no \
     --enable-64-bit-bfd \
@@ -107,10 +107,10 @@ build() {
     --disable-werror \
     --disable-win32-registry \
     --disable-rpath \
-    --with-system-gdbinit=${MINGW_PREFIX}/etc/gdbinit \
-    --with-python=${MINGW_PREFIX}/bin/python-config-u.sh \
+    --with-system-gdbinit=${PREFIX}/etc/gdbinit \
+    --with-python=${PREFIX}/bin/python-config-u.sh \
     --without-guile \
-    --with-lib{expat,iconv,zlib,lzma}=${MINGW_PREFIX} \
+    --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
     --disable-tui
 
   make ${MAKEFLAGS}
@@ -121,8 +121,8 @@ package() {
   make DESTDIR=${pkgdir} install
 
   # Remove unwanted files
-  rm -rf ${pkgdir}${MINGW_PREFIX}/share/{man,info}
+  rm -rf ${pkgdir}${PREFIX}/share/{man,info}
 
-  rm -f ${pkgdir}${MINGW_PREFIX}/include/*.h
-  rm -f ${pkgdir}${MINGW_PREFIX}/lib/*.a
+  rm -f ${pkgdir}${PREFIX}/include/*.h
+  rm -f ${pkgdir}${PREFIX}/lib/*.a
 }

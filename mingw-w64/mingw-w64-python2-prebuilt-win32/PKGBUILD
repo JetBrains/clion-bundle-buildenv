@@ -31,17 +31,17 @@ package() {
 
   patch -p1 -i ${srcdir}/0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/include
-  cp -rT include ${pkgdir}${MINGW_PREFIX}/include/python${_pybasever}
+  mkdir -p ${pkgdir}${PREFIX}/include
+  cp -rT include ${pkgdir}${PREFIX}/include/python${_pybasever}
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/bin
-  cp -T python${_pybasever/./}.dll ${pkgdir}${MINGW_PREFIX}/bin/python${_pybasever}.dll
-  cp ${srcdir}/python-config*.sh ${pkgdir}${MINGW_PREFIX}/bin/
-  chmod a+x ${pkgdir}${MINGW_PREFIX}/bin/*
+  mkdir -p ${pkgdir}${PREFIX}/bin
+  cp -T python${_pybasever/./}.dll ${pkgdir}${PREFIX}/bin/python${_pybasever}.dll
+  cp ${srcdir}/python-config*.sh ${pkgdir}${PREFIX}/bin/
+  chmod a+x ${pkgdir}${PREFIX}/bin/*
 
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib
-  cp -rT Lib ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}
-  mkdir -p ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}/config
-  cp libs/libpython${_pybasever/./}.a ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}/config
-  ln -sT ../../../bin/python${_pybasever}.dll ${pkgdir}${MINGW_PREFIX}/lib/python${_pybasever}/config/python${_pybasever}.dll.a
+  mkdir -p ${pkgdir}${PREFIX}/lib
+  cp -rT Lib ${pkgdir}${PREFIX}/lib/python${_pybasever}
+  mkdir -p ${pkgdir}${PREFIX}/lib/python${_pybasever}/config
+  cp libs/libpython${_pybasever/./}.a ${pkgdir}${PREFIX}/lib/python${_pybasever}/config
+  ln -sT ../../../bin/python${_pybasever}.dll ${pkgdir}${PREFIX}/lib/python${_pybasever}/config/python${_pybasever}.dll.a
 }

@@ -36,7 +36,7 @@ prepare() {
 build() {
   cd ${srcdir}/${_realname}-${pkgver}
   CHOST=${MINGW_CHOST} ./configure \
-    --prefix=${MINGW_PREFIX} \
+    --prefix=${PREFIX} \
     --static
 
   make -j1 all
@@ -50,5 +50,5 @@ check() {
 package() {
   cd ${srcdir}/${_realname}-${pkgver}
   make install DESTDIR="${pkgdir}"
-  install -Dm644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/LICENSE"
+  install -Dm644 LICENSE "${pkgdir}${PREFIX}/share/licenses/${_realname}/LICENSE"
 }

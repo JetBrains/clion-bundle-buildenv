@@ -132,21 +132,21 @@ _package_dll() {
     local prog="${3}"
 
     [ -f "${prog}" ] && [ -x "${prog}" ] || return 0
-    [ ! -e ${dlldir}${MINGW_PREFIX}/bin/$(basename "${prog}") ] || return 0
+    [ ! -e ${dlldir}${PREFIX}/bin/$(basename "${prog}") ] || return 0
 
     # https://stackoverflow.com/a/33174211/545027
     local dll_names=$(${MINGW_CHOST}-strings ${prog} | grep -i '\.dll$')
 
     message "binary ${prog}" ${dll_names}
 
-    if [ $(readlink -m "${prog}") != $(realpath -m "${pkgdir}${MINGW_PREFIX}/bin/$(basename "$prog")") ]; then
-        mkdir -p ${dlldir}${MINGW_PREFIX}/bin/
-        cp "${prog}" ${dlldir}${MINGW_PREFIX}/bin/ || failure "Couldn't copy ${prog}"
+    if [ $(readlink -m "${prog}") != $(realpath -m "${pkgdir}${PREFIX}/bin/$(basename "$prog")") ]; then
+        mkdir -p ${dlldir}${PREFIX}/bin/
+        cp "${prog}" ${dlldir}${PREFIX}/bin/ || failure "Couldn't copy ${prog}"
     fi
 
     for dll_name in ${dll_names}; do
         for host_dll in /usr/${MINGW_CHOST}/bin/"${dll_name}" \
-                            ${MINGW_PREFIX}/bin/"${dll_name}"; do
+                            ${PREFIX}/bin/"${dll_name}"; do
             if [ -f "${host_dll}" ] && [ -x "${host_dll}" ]; then
                 _package_dll ${pkgdir} ${dlldir} "${host_dll}"
             fi
@@ -163,7 +163,7 @@ package_runtime_dependencies() {
         message "Resolving runtime DLL dependencies"
         mkdir -p ${dlldir}
 
-        for prog in ${pkgdir}${MINGW_PREFIX}/bin/*; do
+        for prog in ${pkgdir}${PREFIX}/bin/*; do
             _package_dll ${pkgdir} ${dlldir} "${prog}"
         done
 

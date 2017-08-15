@@ -29,10 +29,10 @@ build() {
   [[ -d build-${MINGW_CHOST} ]] && rm -rf build-${MINGW_CHOST}
   mkdir build-${MINGW_CHOST} && cd build-${MINGW_CHOST}
 
-  ../${_realname}-${pkgver}/configure --prefix=${MINGW_PREFIX} \
+  ../${_realname}-${pkgver}/configure --prefix=${PREFIX} \
     --host=${MINGW_CHOST} \
     --target=${MINGW_CHOST} \
-    --docdir=${MINGW_PREFIX}/share/doc/libiconv \
+    --docdir=${PREFIX}/share/doc/libiconv \
     --enable-static \
     --disable-shared \
     --enable-extra-encodings \
@@ -55,17 +55,17 @@ _package_libiconv() {
 
   cd "${srcdir}/build-${MINGW_CHOST}"
   make install DESTDIR="${pkgdir}"
-  rm -fr "${pkgdir}${MINGW_PREFIX}"/bin/*.exe
-  rm -f  "${pkgdir}${MINGW_PREFIX}"/lib/charset.alias
-  rm -fr "${pkgdir}${MINGW_PREFIX}"/share/locale
-  rm -f  "${pkgdir}${MINGW_PREFIX}"/share/doc/libiconv/*.1.*
-  rm -fr "${pkgdir}${MINGW_PREFIX}"/share/man/man1
+  rm -fr "${pkgdir}${PREFIX}"/bin/*.exe
+  rm -f  "${pkgdir}${PREFIX}"/lib/charset.alias
+  rm -fr "${pkgdir}${PREFIX}"/share/locale
+  rm -f  "${pkgdir}${PREFIX}"/share/doc/libiconv/*.1.*
+  rm -fr "${pkgdir}${PREFIX}"/share/man/man1
 
   # Licenses
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README"                 "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/README"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING"                "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING.LIB"            "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING.LIB"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/libcharset/COPYING.LIB" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/libcharset/COPYING.LIB"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README"                 "${pkgdir}${PREFIX}/share/licenses/${_realname}/README"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING"                "${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING.LIB"            "${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING.LIB"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/libcharset/COPYING.LIB" "${pkgdir}${PREFIX}/share/licenses/${_realname}/libcharset/COPYING.LIB"
 }
 
 _package_iconv() {
@@ -76,15 +76,15 @@ _package_iconv() {
 
   cd "${srcdir}/build-${MINGW_CHOST}"
   make install DESTDIR="${pkgdir}"
-  rm -f  "${pkgdir}${MINGW_PREFIX}"/bin/*.dll
-  rm -fr "${pkgdir}${MINGW_PREFIX}"/include
-  rm -fr "${pkgdir}${MINGW_PREFIX}"/lib
-  rm -f  "${pkgdir}${MINGW_PREFIX}"/share/doc/libiconv/*.3.*
-  rm -fr "${pkgdir}${MINGW_PREFIX}"/share/man/man3
+  rm -f  "${pkgdir}${PREFIX}"/bin/*.dll
+  rm -fr "${pkgdir}${PREFIX}"/include
+  rm -fr "${pkgdir}${PREFIX}"/lib
+  rm -f  "${pkgdir}${PREFIX}"/share/doc/libiconv/*.3.*
+  rm -fr "${pkgdir}${PREFIX}"/share/man/man3
 
   # Licenses
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README"  "${pkgdir}${MINGW_PREFIX}/share/licenses/iconv/README"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/iconv/COPYING"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README"  "${pkgdir}${PREFIX}/share/licenses/iconv/README"
+  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${PREFIX}/share/licenses/iconv/COPYING"
 }
 
 # package_mingw-w64-i686-iconv()      { _package_iconv;    }
