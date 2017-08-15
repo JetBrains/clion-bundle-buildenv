@@ -24,11 +24,11 @@ _status() {
     local status="${package:+${package}: }${2}"
     local items=("${@:3}")
     case "${type}" in
-        failure) local -n nameref_color='red';   title='[BUILD] FAILURE:' ;;
-        success) local -n nameref_color='green'; title='[BUILD] SUCCESS:' ;;
-        message) local -n nameref_color='cyan';  title='[BUILD]'
+        failure) local color="${red}";   title='[BUILD] FAILURE:' ;;
+        success) local color="${green}"; title='[BUILD] SUCCESS:' ;;
+        message) local color="${cyan}";  title='[BUILD]'
     esac
-    printf "%s\n" "${nameref_color}${title}${normal} ${status}"
+    printf "%s\n" "${color}${title}${normal} ${status}"
     printf "${items:+\t%s\n}" "${items:+${items[@]}}"
 }
 
@@ -37,13 +37,12 @@ _package_info() {
     local package="${1}"
     local properties=("${@:2}")
     for property in "${properties[@]}"; do
-        local -n nameref_property="${property}"
-        nameref_property=()
+        eval "${property}=()"
         test -f "${package}/PKGBUILD" || failure "Unknown package"
-        nameref_property=($(
+        local value=($(
             MINGW_PACKAGE_PREFIX='mingw-w64' source "${package}/PKGBUILD"
-            declare -n nameref_property="${property}"
-            echo "${nameref_property[@]}"))
+            eval echo "\${${property}[@]}"))
+        eval "${property}=(\"\${value[@]}\")"
     done
 }
 
