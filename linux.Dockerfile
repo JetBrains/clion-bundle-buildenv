@@ -15,14 +15,10 @@ RUN yum -y update \
       nano \
  && yum clean all
 
-RUN cd /tmp \
- && curl https://sources.archlinux.org/other/pacman/pacman-5.0.2.tar.gz | tar xz \
- && cd pacman-5.0.2 \
- && ./configure \
- && make -C scripts \
- && make -C scripts install \
- && cd / \
- && rm -rf /tmp/pacman-5.0.2
+COPY linux/install-pacman.sh /tmp/install-pacman.sh
+RUN chmod a+x /tmp/install-pacman.sh \
+ && /tmp/install-pacman.sh \
+ && rm -f /tmp/install-pacman.sh
 
 RUN groupadd -r build \
  && useradd --no-log-init -r -m -g build build \
