@@ -26,6 +26,6 @@ check() {
 
 package() {
   cd $pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
-  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}${PREFIX}/share/licenses/$pkgname/COPYING"
 }

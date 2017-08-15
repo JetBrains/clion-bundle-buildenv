@@ -22,13 +22,13 @@ build() {
 
 package() {
   cd $srcdir/${pkgname}-${pkgver}
-  make DESTDIR="$pkgdir" LIBDIR="/usr/lib" install
-  mv "$pkgdir"/usr/include/{iconv.h,libiconv.h}
-  mv "$pkgdir"/usr/bin/{iconv,libiconv}
-  mv "$pkgdir"/usr/share/man/man1/{,lib}iconv.1
-  mv "$pkgdir"/usr/share/man/man3/{,libiconv_}iconv.3
-  mv "$pkgdir"/usr/share/man/man3/{,libiconv_}iconvctl.3
-  mv "$pkgdir"/usr/share/man/man3/{,libiconv_}iconv_open.3
-  mv "$pkgdir"/usr/share/man/man3/{,libiconv_}iconv_close.3
-  mv "$pkgdir"/usr/share/man/man3/{,libiconv_}iconv_open_into.3
+  make DESTDIR="${pkgdir}" LIBDIR="${PREFIX}/lib" install
+  mv "${pkgdir}${PREFIX}"/include/{iconv.h,libiconv.h}
+  mv "${pkgdir}${PREFIX}"/bin/{iconv,libiconv}
+  mv "${pkgdir}${PREFIX}"/share/man/man1/{,lib}iconv.1
+  mv "${pkgdir}${PREFIX}"/share/man/man3/{,libiconv_}iconv.3
+  mv "${pkgdir}${PREFIX}"/share/man/man3/{,libiconv_}iconvctl.3
+  mv "${pkgdir}${PREFIX}"/share/man/man3/{,libiconv_}iconv_open.3
+  mv "${pkgdir}${PREFIX}"/share/man/man3/{,libiconv_}iconv_close.3
+  mv "${pkgdir}${PREFIX}"/share/man/man3/{,libiconv_}iconv_open_into.3
 }
