@@ -10,14 +10,22 @@ url='http://www.gnu.org/software/libiconv/'
 license=('LGPL')
 source=("http://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
 md5sums=('ace8b5f2db42f7b3b3057585e80d9808')
-options=(!libtool)
+options=('!libtool' 'staticlibs')
 
 build() {
   cd $srcdir/${pkgname}-${pkgver}
   sed '/LD_RUN_PATH/d' -i Makefile.in
-  ./configure --prefix=${PREFIX}
+  ./configure --prefix=${PREFIX} \
+    --enable-static \
+    --disable-shared \
+    --enable-extra-encodings \
+    --enable-relocatable \
+    --disable-rpath \
+    --enable-silent-rules \
+    --enable-nls
+
   cp -f /usr/include/stdio.h srclib/stdio.in.h
-  make
+  make ${MAKEFLAGS}
 }
 
 package() {

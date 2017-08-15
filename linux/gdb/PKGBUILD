@@ -5,18 +5,17 @@
 pkgbase=gdb
 # gdb-common is a package that contains files common for all cross compiled versions
 # of gdb (for arm/avr/...)
-pkgname=(gdb gdb-common)
+pkgname=gdb
 pkgver=8.0
 pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
-makedepends=(texinfo python guile2.0 ncurses expat xz)
-source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz{,.sig})
-sha1sums=('148c8e783ebf9b281241d0566db59961191ec64d'
-          'SKIP')
-validpgpkeys=('F40ADB902B24264AA42E50BF92EDB04BFF325CF3') # Joel Brobecker
+makedepends=(libiconv expat xz zlib)
+source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
+sha1sums=('148c8e783ebf9b281241d0566db59961191ec64d')
+options=('!staticlibs' 'strip')
 
 prepare() {
   cd gdb-$pkgver
@@ -27,45 +26,29 @@ prepare() {
 
 build() {
   cd gdb-$pkgver
-  
-  ./configure --prefix=${PREFIX} --disable-nls \
-    --with-system-readline \
-    --with-python=/usr/bin/python3 \
-    --with-guile=guile-2.0 \
-    --with-system-gdbinit=/etc/gdb/gdbinit
-  make
+
+  ../gdb-${pkgver}/configure \
+    --prefix=${PREFIX} \
+    --enable-gdbserver=no \
+    --enable-64-bit-bfd \
+    --disable-sim \
+    --disable-werror \
+    --disable-rpath \
+    --with-system-gdbinit=${PREFIX}/etc/gdbinit \
+    --without-python \
+    --without-guile \
+    --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
+    --disable-tui
+
+  make ${MAKEFLAGS}
 }
 
-package_gdb-common() {
-  depends=(python guile2.0)
-
+package() {
   cd gdb-$pkgver
-  make DESTDIR=$pkgdir install
+  make DESTDIR=${pkgdir} install
 
-  # resolve conflicts with binutils
-  rm $pkgdir/usr/include/{ansidecl,bfd,bfdlink,dis-asm,plugin-api,symcat}.h
-  rm $pkgdir/usr/share/info/bfd.info
-  rm $pkgdir/usr/lib/{libbfd,libopcodes}.a
+  rm -rf ${pkgdir}${PREFIX}/share/{man,info}
 
-  rm -r $pkgdir/usr/{bin,include,lib,share/info,share/man}
-}
-
-package_gdb() {
-  depends=(ncurses expat xz gdb-common=$pkgver)
-  backup=(etc/gdb/gdbinit)
-
-  cd gdb-$pkgver
-  make DESTDIR=$pkgdir install
-
-  # install "custom" system gdbinit
-  install -dm755 $pkgdir/etc/gdb
-  touch $pkgdir/etc/gdb/gdbinit
-
-  # resolve conflicts with binutils
-  rm $pkgdir/usr/include/{ansidecl,bfd,bfdlink,dis-asm,plugin-api,symcat}.h
-  rm $pkgdir/usr/share/info/bfd.info
-  rm $pkgdir/usr/lib/{libbfd,libopcodes}.a
-
-  # comes from gdb-common
-  rm -r $pkgdir/usr/share/gdb/
+  rm -f ${pkgdir}${PREFIX}/include/*.h
+  rm -f ${pkgdir}${PREFIX}/lib/*.a
 }

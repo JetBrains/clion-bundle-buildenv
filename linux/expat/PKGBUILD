@@ -10,14 +10,17 @@ pkgdesc='An XML parser library'
 arch=(i686 x86_64)
 url='http://expat.sourceforge.net/'
 license=(custom)
-depends=(glibc)
+#depends=(glibc)
 source=(http://downloads.sourceforge.net/sourceforge/expat/$pkgname-$pkgver.tar.bz2)
 md5sums=('f053af63ef5f39bd9b78d01fbc203334')
+options=('staticlibs')
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=${PREFIX}
-  make
+  ./configure --prefix=${PREFIX} \
+    --disable-shared \
+    --enable-static
+  make ${MAKEFLAGS}
 }
 
 check() {

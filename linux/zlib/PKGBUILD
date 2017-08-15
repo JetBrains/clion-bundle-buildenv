@@ -3,7 +3,6 @@
 
 pkgbase=zlib
 pkgname=zlib
-epoch=1
 pkgver=1.2.11
 pkgrel=2
 pkgdesc='Compression library implementing the deflate compression method found in gzip and PKZIP'
@@ -14,7 +13,6 @@ url="https://www.zlib.net/"
 options=('staticlibs')  # needed by binutils testsuite
 source=("https://zlib.net/zlib-${pkgver}.tar.gz")
 md5sums=('1c9f62f0778697a09d36121ead88e08e')
-validpgpkeys=('5ED46A6721D365587791E2AA783FCD8E58BCAFBA')
 
 prepare() {
 	cd ${srcdir}/zlib-$pkgver
