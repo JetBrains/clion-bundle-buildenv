@@ -135,7 +135,7 @@ _package_dll() {
     [ ! -e ${dlldir}${PREFIX}/bin/$(basename "${prog}") ] || return 0
 
     # https://stackoverflow.com/a/33174211/545027
-    local dll_names=$(${MINGW_CHOST}-strings ${prog} | grep -i '\.dll$')
+    local dll_names=$(${CHOST}-strings ${prog} | grep -i '\.dll$')
 
     message "binary ${prog}" ${dll_names}
 
@@ -145,7 +145,7 @@ _package_dll() {
     fi
 
     for dll_name in ${dll_names}; do
-        for host_dll in /usr/${MINGW_CHOST}/bin/"${dll_name}" \
+        for host_dll in /usr/${CHOST}/bin/"${dll_name}" \
                             ${PREFIX}/bin/"${dll_name}"; do
             if [ -f "${host_dll}" ] && [ -x "${host_dll}" ]; then
                 _package_dll ${pkgdir} ${dlldir} "${host_dll}"

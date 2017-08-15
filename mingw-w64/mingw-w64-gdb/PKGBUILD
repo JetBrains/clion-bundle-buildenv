@@ -59,9 +59,9 @@ prepare() {
 }
 
 build() {
-  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
-  mkdir ${srcdir}/build-${MINGW_CHOST}
-  cd ${srcdir}/build-${MINGW_CHOST}
+  [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
+  mkdir ${srcdir}/build-${CHOST}
+  cd ${srcdir}/build-${CHOST}
 
   local _enable_targets=(
     "i686-pc-mingw32"
@@ -97,8 +97,8 @@ build() {
   )
 
   ../${_realname}-${pkgver}/configure \
-    --host=${MINGW_CHOST} \
-    --target=${MINGW_CHOST} \
+    --host=${CHOST} \
+    --target=${CHOST} \
     --prefix=${PREFIX} \
     --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
     --enable-gdbserver=no \
@@ -117,7 +117,7 @@ build() {
 }
 
 package() {
-  cd ${srcdir}/build-${MINGW_CHOST}
+  cd ${srcdir}/build-${CHOST}
   make DESTDIR=${pkgdir} install
 
   # Remove unwanted files

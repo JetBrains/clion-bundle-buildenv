@@ -21,12 +21,12 @@ source=("${url}/${_realname}-${pkgver}.tar.gz")
 sha256sums=('71928b357d0a09a12a4b4c5fafca8c31c19b0e7d3b8ebb19622e96f26dbf28cb')
 
 build() {
-  [[ -d ${srcdir}/build-${MINGW_CHOST} ]] && rm -rf ${srcdir}/build-${MINGW_CHOST}
+  [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
   mkdir -p ${srcdir}/build-${CARCH} && cd ${srcdir}/build-${CARCH}
   ../${_realname}-${pkgver}/configure \
     --prefix=${PREFIX} \
-    --target=${MINGW_CHOST} \
-    --host=${MINGW_CHOST} \
+    --target=${CHOST} \
+    --host=${CHOST} \
     --disable-shared \
     --disable-rpath \
     --disable-lzma-links
