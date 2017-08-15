@@ -42,28 +42,20 @@ define_build_order "$@" || failure 'Could not determine build order'
 message 'Building packages' "${packages[@]}"
 
 for package in "${packages[@]}"; do
-    if [[ "${package}" != mingw-w64-* ]]; then
-        export PACMAN=pacman
-        execute 'Building prerequisity' makepkg --noconfirm --skippgpcheck --nocheck \
-            --syncdeps --cleanbuild --force "${package}"
-        execute 'Installing prerequisity' sudo pacman --noconfirm -U *.pkg.tar.xz
-        continue
-    else
-        export PACMAN=false  # just to be sure makepkg won't call it
-        execute 'Building binary' makepkg --noconfirm --skippgpcheck --nocheck --nodeps \
-           --cleanbuild --config "${MAKEPKG_CONF}"
+    export PACMAN=false  # just to be sure makepkg won't call it
+    execute 'Building binary' makepkg --noconfirm --skippgpcheck --nocheck --nodeps \
+       --cleanbuild --config "${MAKEPKG_CONF}"
 
-        execute 'Installing' tar xvf *.pkg.tar.xz -C / ${MINGW_PREFIX#/}
-        deploy_enabled && mv "${package}"/*.pkg.tar.xz artifacts
+    execute 'Installing' tar xvf *.pkg.tar.xz -C / ${PREFIX#/}
+    deploy_enabled && mv -f "${package}"/*.pkg.tar.xz artifacts
 
-        if [[ -n "${MINGW_CHOST}" ]]; then
-            for package_arg in "$@"; do
-                if [[ "${package}" == "${package_arg}" ]]; then
-                    package_runtime_dependencies ${package}
-                    deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
-                fi
-            done
-        fi
+    if [[ -n "${MINGW_CHOST}" ]]; then
+        for package_arg in "$@"; do
+            if [[ "${package}" == "${package_arg}" ]]; then
+                package_runtime_dependencies ${package}
+                deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
+            fi
+        done
     fi
     unset package
 done
