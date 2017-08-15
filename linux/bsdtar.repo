@@ -1,0 +1,6 @@
+[bsdtar-repo]
+#https://github.com/khrisrichardson/salt-states/pull/6/commits/311a78b837ba2fdd18e71f9f8c44549cd314550e
+name=pixz for CentOS and RHEL (CentOS_CentOS-6)
+baseurl=http://download.opensuse.org/repositories/home:/AndreasStieger:/branches:/Archiving/CentOS_CentOS-6/
+gpgcheck=1
+gpgkey=http://download.opensuse.org/repositories/home:/AndreasStieger:/branches:/Archiving/CentOS_CentOS-6/repodata/repomd.xml.key

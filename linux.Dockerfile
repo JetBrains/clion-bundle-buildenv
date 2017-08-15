@@ -17,9 +17,14 @@ RUN yum -y update \
       devtoolset-3-gcc-c++ \
  && yum clean all
 
-RUN yum -y update \
+COPY linux/bsdtar.repo /etc/yum.repos.d/bsdtar.repo
+RUN yum -y update --skip-broken \
  && yum -y install \
+      bsdtar \
+      fakeroot \
+      libarchive \
       libarchive-devel \
+      texinfo \
       nano \
  && yum clean all
 
