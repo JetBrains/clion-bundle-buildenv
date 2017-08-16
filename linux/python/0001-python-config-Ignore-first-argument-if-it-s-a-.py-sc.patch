@@ -1,0 +1,36 @@
+From 8088cf83980849904a7c9d06c79219f60fbb788c Mon Sep 17 00:00:00 2001
+From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
+Date: Wed, 16 Aug 2017 15:30:54 +0300
+Subject: [PATCH] python-config: Ignore first argument if it's a *.py script
+
+This is a workaround for GDB configure calling it with its own copy
+of python-config. The workaround is taken from MinGW-W64 packaging
+project.
+---
+ Misc/python-config.sh.in | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Misc/python-config.sh.in b/Misc/python-config.sh.in
+index 30c6927..344bde9 100644
+--- a/Misc/python-config.sh.in
++++ b/Misc/python-config.sh.in
+@@ -8,6 +8,16 @@ exit_with_usage ()
+     exit $1
+ }
+ 
++# Really, python-config.py (and thus .sh) should be called directly, but
++# sometimes software (e.g. GDB) calls python-config.sh as if it were the
++# Python executable, passing python-config.py as the first argument.
++# Work around that oddness by ignoring any .py passed as first arg.
++case "$1" in
++    *.py)
++        shift
++    ;;
++esac
++
+ if [ "$1" = "" ] ; then
+     exit_with_usage 1
+ fi
+-- 
+2.7.4
+
