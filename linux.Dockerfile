@@ -21,6 +21,7 @@ COPY linux/bsdtar.repo /etc/yum.repos.d/bsdtar.repo
 RUN yum -y update --skip-broken \
  && yum -y install \
       bsdtar \
+      chrpath \
       fakeroot \
       libarchive \
       libarchive-devel \
