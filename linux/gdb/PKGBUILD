@@ -75,7 +75,7 @@ build() {
     --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
     --disable-tui
 
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

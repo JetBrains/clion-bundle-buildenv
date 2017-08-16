@@ -38,7 +38,7 @@ build() {
     --disable-shared \
     --enable-static
 
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {

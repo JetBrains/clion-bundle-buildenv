@@ -21,7 +21,7 @@ build() {
 		--disable-shared \
 		--disable-rpath \
 		--enable-werror
-	make ${MAKEFLAGS}
+	make
 }
 
 check() {

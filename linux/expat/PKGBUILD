@@ -20,7 +20,7 @@ build() {
   ./configure --prefix=${PREFIX} \
     --disable-shared \
     --enable-static
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {

@@ -41,7 +41,7 @@ build() {
     --enable-silent-rules \
     --enable-nls
 
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {

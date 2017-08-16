@@ -31,7 +31,7 @@ build() {
     --disable-rpath \
     --disable-lzma-links
 
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
