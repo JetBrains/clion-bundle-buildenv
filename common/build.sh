@@ -49,7 +49,7 @@ for package in "${packages[@]}"; do
     execute 'Installing' tar xvf *.pkg.tar.xz -C / ${PREFIX#/}
     deploy_enabled && mv -f "${package}"/*.pkg.tar.xz artifacts
 
-    if [[ -n "${CHOST}" ]]; then
+    if [[ "${package}" == mingw-* ]]; then
         for package_arg in "$@"; do
             if [[ "${package}" == "${package_arg}" ]]; then
                 package_runtime_dependencies ${package}
