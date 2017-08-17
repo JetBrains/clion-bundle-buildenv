@@ -6,8 +6,8 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 _realname=xz
-pkgbase=mingw-w64-${_realname}
-pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgbase=${_realname}
+pkgname="${_realname}"
 pkgver=5.2.3
 pkgrel=1
 pkgdesc="Library and command line tools for XZ and LZMA compressed files (mingw-w64)"
@@ -18,8 +18,8 @@ url="http://tukaani.org/xz"
 # removal of LGPL from this field
 license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
 
-#makedepends=("${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-pkg-config")
-#depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs" "${MINGW_PACKAGE_PREFIX}-gettext")
+#makedepends=("gcc" "pkg-config")
+#depends=("gcc-libs" "gettext")
 options=('staticlibs' 'strip')
 source=("${url}/${_realname}-${pkgver}.tar.gz")
 sha256sums=('71928b357d0a09a12a4b4c5fafca8c31c19b0e7d3b8ebb19622e96f26dbf28cb')

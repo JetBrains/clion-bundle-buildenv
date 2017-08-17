@@ -1,8 +1,8 @@
 # Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
 _realname=python2
-pkgbase=mingw-w64-${_realname}-prebuilt-win32
-pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-prebuilt-win32"
+pkgbase=${_realname}-prebuilt-win32
+pkgname="${_realname}-prebuilt-win32"
 pkgver=2.7.13
 pkgrel=1
 _pybasever=${pkgver%.*}

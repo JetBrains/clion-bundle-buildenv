@@ -6,24 +6,24 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 _realname=gdb
-pkgbase=mingw-w64-${_realname}
-pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgbase=${_realname}
+pkgname="${_realname}"
 pkgver=8.0
 pkgrel=2
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
 url="https://www.gnu.org/software/gdb/"
 license=('GPL')
-groups=("${MINGW_PACKAGE_PREFIX}-toolchain")
-depends=("${MINGW_PACKAGE_PREFIX}-expat"
-         "${MINGW_PACKAGE_PREFIX}-libiconv"
-         #"${MINGW_PACKAGE_PREFIX}-python2"
-         "${MINGW_PACKAGE_PREFIX}-python2-prebuilt-win32"
-         "${MINGW_PACKAGE_PREFIX}-zlib")
+groups=("toolchain")
+depends=("expat"
+         "libiconv"
+         #"python2"
+         "python2-prebuilt-win32"
+         "zlib")
 checkdepends=('dejagnu' 'bc')
-makedepends=("${MINGW_PACKAGE_PREFIX}-libiconv"
-#             "${MINGW_PACKAGE_PREFIX}-ncurses"
-             "${MINGW_PACKAGE_PREFIX}-xz")
+makedepends=("libiconv"
+#             "ncurses"
+             "xz")
 options=('!staticlibs' 'strip')
 source=(https://ftp.gnu.org/gnu/gdb/${_realname}-${pkgver}.tar.xz{,.sig}
         'gdb-fix-display-tabs-on-mingw.patch'
