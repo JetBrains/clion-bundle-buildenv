@@ -7,9 +7,7 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
-_realname=zlib
-pkgbase=${_realname}
-pkgname=("${_realname}")
+pkgname=zlib
 pkgver=1.2.11
 pkgrel=1
 pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (mingw-w64)"
@@ -19,7 +17,7 @@ url="http://www.zlib.net/"
 #depends=("bzip2")
 #makedepends=('git')
 options=('staticlibs')
-source=("http://zlib.net/current/${_realname}-${pkgver}.tar.gz"
+source=("http://zlib.net/current/${pkgname}-${pkgver}.tar.gz"
         01-zlib-1.2.11-1-buildsys.mingw.patch
         03-dont-put-sodir-into-L.mingw.patch
         04-fix-largefile-support.patch)
@@ -29,7 +27,7 @@ sha256sums=('c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1'
             '3b36fe536a7458af2a9a494d70d24048da10c43423fd620ed93fa0a6ddd14f78')
 
 prepare() {
-  cd ${srcdir}/${_realname}-${pkgver}
+  cd ${srcdir}/${pkgname}-${pkgver}
   grep -A 24 '^  Copyright' zlib.h > LICENSE
 
   patch -p1 -i ${srcdir}/01-zlib-1.2.11-1-buildsys.mingw.patch
@@ -38,7 +36,7 @@ prepare() {
 }
 
 build() {
-  cd ${srcdir}/${_realname}-${pkgver}
+  cd ${srcdir}/${pkgname}-${pkgver}
   CHOST=${CHOST} ./configure \
     --prefix=${PREFIX} \
     --static
@@ -47,12 +45,12 @@ build() {
 }
 
 check() {
-  cd ${srcdir}/${_realname}-${pkgver}
+  cd ${srcdir}/${pkgname}-${pkgver}
   make test
 }
 
 package() {
-  cd ${srcdir}/${_realname}-${pkgver}
+  cd ${srcdir}/${pkgname}-${pkgver}
   make install DESTDIR="${pkgdir}"
-  install -Dm644 LICENSE "${pkgdir}${PREFIX}/share/licenses/${_realname}/LICENSE"
+  install -Dm644 LICENSE "${pkgdir}${PREFIX}/share/licenses/${pkgname}/LICENSE"
 }

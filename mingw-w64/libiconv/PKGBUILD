@@ -5,16 +5,12 @@
 # Maintainer: Alexey Pavlov <Alexpux@gmail.com>
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
-_realname=libiconv
-pkgbase=${_realname}
-# pkgname=(${_realname}
-#          iconv)
-pkgname=${_realname}
+pkgname=libiconv
 pkgver=1.15
 pkgrel=1
 arch=(i686 x86_64)
 url='https://www.gnu.org/software/libiconv/'
-source=("https://ftp.gnu.org/pub/gnu/${_realname}/${_realname}-${pkgver}.tar.gz"
+source=("https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
         0001-compile-relocatable-in-gnulib.mingw.patch
         0002-fix-cr-for-awk-in-configure.all.patch)
 sha256sums=('ccf536620a45458d26ba83887a983b96827001e92a13847b45e4925cc8913178'
@@ -24,7 +20,7 @@ options=('!libtool' 'staticlibs')
 #makedepends=(gcc)
 
 prepare() {
-  cd $srcdir/${_realname}-${pkgver}
+  cd $srcdir/${pkgname}-${pkgver}
   patch -p1 -i ${srcdir}/0001-compile-relocatable-in-gnulib.mingw.patch
   patch -p1 -i ${srcdir}/0002-fix-cr-for-awk-in-configure.all.patch
 }
@@ -33,7 +29,7 @@ build() {
   [[ -d build-${CHOST} ]] && rm -rf build-${CHOST}
   mkdir build-${CHOST} && cd build-${CHOST}
 
-  ../${_realname}-${pkgver}/configure --prefix=${PREFIX} \
+  ../${pkgname}-${pkgver}/configure --prefix=${PREFIX} \
     --host=${CHOST} \
     --target=${CHOST} \
     --docdir=${PREFIX}/share/doc/libiconv \
@@ -66,10 +62,10 @@ _package_libiconv() {
   rm -fr "${pkgdir}${PREFIX}"/share/man/man1
 
   # Licenses
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README"                 "${pkgdir}${PREFIX}/share/licenses/${_realname}/README"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING"                "${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING.LIB"            "${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING.LIB"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/libcharset/COPYING.LIB" "${pkgdir}${PREFIX}/share/licenses/${_realname}/libcharset/COPYING.LIB"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/README"                 "${pkgdir}${PREFIX}/share/licenses/${pkgname}/README"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING"                "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING.LIB"            "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.LIB"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/libcharset/COPYING.LIB" "${pkgdir}${PREFIX}/share/licenses/${pkgname}/libcharset/COPYING.LIB"
 }
 
 _package_iconv() {
@@ -87,8 +83,8 @@ _package_iconv() {
   rm -fr "${pkgdir}${PREFIX}"/share/man/man3
 
   # Licenses
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/README"  "${pkgdir}${PREFIX}/share/licenses/iconv/README"
-  install -Dm644 "${srcdir}/${_realname}-${pkgver}/COPYING" "${pkgdir}${PREFIX}/share/licenses/iconv/COPYING"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/README"  "${pkgdir}${PREFIX}/share/licenses/iconv/README"
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING" "${pkgdir}${PREFIX}/share/licenses/iconv/COPYING"
 }
 
 # package_i686-iconv()      { _package_iconv;    }

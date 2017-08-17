@@ -5,9 +5,7 @@
 # Maintainer: Alexey Pavlov <alexpux@gmail.com>
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
-_realname=xz
-pkgbase=${_realname}
-pkgname="${_realname}"
+pkgname=xz
 pkgver=5.2.3
 pkgrel=1
 pkgdesc="Library and command line tools for XZ and LZMA compressed files (mingw-w64)"
@@ -21,13 +19,13 @@ license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
 #makedepends=("gcc" "pkg-config")
 #depends=("gcc-libs" "gettext")
 options=('staticlibs' 'strip')
-source=("${url}/${_realname}-${pkgver}.tar.gz")
+source=("${url}/${pkgname}-${pkgver}.tar.gz")
 sha256sums=('71928b357d0a09a12a4b4c5fafca8c31c19b0e7d3b8ebb19622e96f26dbf28cb')
 
 build() {
   [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
   mkdir -p ${srcdir}/build-${CARCH} && cd ${srcdir}/build-${CARCH}
-  ../${_realname}-${pkgver}/configure \
+  ../${pkgname}-${pkgver}/configure \
     --prefix=${PREFIX} \
     --target=${CHOST} \
     --host=${CHOST} \
@@ -42,8 +40,8 @@ package() {
   cd "${srcdir}/build-${CARCH}"
   make DESTDIR="${pkgdir}" install
 
-  install -Dm644 ${srcdir}/${_realname}-${pkgver}/COPYING ${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING
-  install -Dm644 ${srcdir}/${_realname}-${pkgver}/COPYING.GPLv2 ${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING.GPLv2
-  install -Dm644 ${srcdir}/${_realname}-${pkgver}/COPYING.GPLv3 ${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING.GPLv3
-  install -Dm644 ${srcdir}/${_realname}-${pkgver}/COPYING.LGPLv2.1 ${pkgdir}${PREFIX}/share/licenses/${_realname}/COPYING.LGPLv2.1
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING.GPLv2 ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.GPLv2
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING.GPLv3 ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.GPLv3
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING.LGPLv2.1 ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.LGPLv2.1
 }

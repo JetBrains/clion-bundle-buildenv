@@ -5,9 +5,7 @@
 # Maintainer: Alexey Pavlov <alexpux@gmail.com>
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
-_realname=gdb
-pkgbase=${_realname}
-pkgname="${_realname}"
+pkgname=gdb
 pkgver=8.0
 pkgrel=2
 pkgdesc="GNU Debugger (mingw-w64)"
@@ -25,7 +23,7 @@ makedepends=("libiconv"
 #             "ncurses"
              "xz")
 options=('!staticlibs' 'strip')
-source=(https://ftp.gnu.org/gnu/gdb/${_realname}-${pkgver}.tar.xz{,.sig}
+source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz{,.sig}
         'gdb-fix-display-tabs-on-mingw.patch'
         #'gdb-mingw-gcc-4.7.patch'
         'gdb-7.8.1-mingw-gcc-4.7.patch'
@@ -43,7 +41,7 @@ sha256sums=('f6a24ffe4917e67014ef9273eb8b547cb96a13e5ca74895b06d683b391f3f4ee'
             '4398bd83a798baa15c0f91878391a0882239a682cf523ef6551766cba7b03699')
 
 prepare() {
-  cd ${srcdir}/${_realname}-${pkgver}
+  cd ${srcdir}/${pkgname}-${pkgver}
 
   # https://sourceware.org/ml/gdb-patches/2013-11/msg00224.html
   #patch -p1 -i ${srcdir}/gdb-fix-display-tabs-on-mingw.patch
@@ -100,7 +98,7 @@ build() {
     "m32r-linux-gnu"
   )
 
-  ../${_realname}-${pkgver}/configure \
+  ../${pkgname}-${pkgver}/configure \
     --host=${CHOST} \
     --target=${CHOST} \
     --prefix=${PREFIX} \
