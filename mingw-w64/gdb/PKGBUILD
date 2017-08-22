@@ -7,7 +7,7 @@
 
 pkgname=gdb
 pkgver=8.0
-pkgrel=2
+pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
 url="https://www.gnu.org/software/gdb/"

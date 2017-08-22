@@ -7,7 +7,7 @@
 
 pkgname=expat
 pkgver=2.2.1
-pkgrel=2
+pkgrel=1
 pkgdesc="An XML parser library (mingw-w64)"
 arch=(i686 x86_64)
 url="https://libexpat.github.io/"
