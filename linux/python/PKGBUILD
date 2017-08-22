@@ -87,13 +87,19 @@ package() {
   sed -i 's/^all:.*$/all: build_all/' Makefile
 
   make DESTDIR="${pkgdir}" install
+  find "${pkgdir}" -depth -type d -name __pycache__ -exec rm -rf -- '{}' +
+  find "${pkgdir}"${PREFIX}/lib/python${_pybasever} ! -type d \( -name "*.pyc" -o -name "*.pyo" -o -name "*.exe" \) -exec rm -f -- '{}' +
+
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/test
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/idlelib
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/ensurepip
 
   # Why are these not done by default...
   ln -s python3               "${pkgdir}"${PREFIX}/bin/python
   ln -s python3-config        "${pkgdir}"${PREFIX}/bin/python-config
-  ln -s idle3                 "${pkgdir}"${PREFIX}/bin/idle
-  ln -s pydoc3                "${pkgdir}"${PREFIX}/bin/pydoc
-  ln -s python${_pybasever}.1 "${pkgdir}"${PREFIX}/share/man/man1/python.1
+  # ln -s idle3                 "${pkgdir}"${PREFIX}/bin/idle
+  # ln -s pydoc3                "${pkgdir}"${PREFIX}/bin/pydoc
+  # ln -s python${_pybasever}.1 "${pkgdir}"${PREFIX}/share/man/man1/python.1
 
   # some useful "stuff" FS#46146
   install -dm755 "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/{i18n,scripts}
