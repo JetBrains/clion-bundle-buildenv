@@ -26,7 +26,8 @@ MAKEPKG_CONF=$(readlink -e "${1}"); shift
 
 source "${MAKEPKG_CONF}"
 
-deploy_enabled && [ -d artifacts ] || mkdir -p artifacts
+ARTIFACTS_DIR="$(readlink -m "artifacts")"
+deploy_enabled && [ -d "${ARTIFACTS_DIR}" ] || mkdir -p "${ARTIFACTS_DIR}"
 
 git_config user.name  "${GIT_COMMITTER_NAME}"
 git_config user.email "${GIT_COMMITTER_EMAIL}"
@@ -47,9 +48,9 @@ for package in "${packages[@]}"; do
        --cleanbuild --config "${MAKEPKG_CONF}"
 
     deploy_enabled && [[ -f "${package}"/*-debug-*${PKGEXT} ]] \
-                   && mv -f "${package}"/*-debug-*${PKGEXT} "artifacts"
+                   && mv -f "${package}"/*-debug-*${PKGEXT} "${ARTIFACTS_DIR}"
     execute_cd "${package}" 'Installing' tar xvf $(get_pkgfile "${package}") -C / ${PREFIX#/}
-    deploy_enabled && mv -f "${package}"/$(get_pkgfile "${package}") "artifacts"
+    deploy_enabled && mv -f "${package}"/$(get_pkgfile "${package}") "${ARTIFACTS_DIR}"
     if [[ "${package}" == mingw-* ]]; then
         for package_arg in "$@"; do
             if [[ "${package}" == "${package_arg}" ]]; then
