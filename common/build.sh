@@ -78,7 +78,7 @@ done
 if [[ "${CHOST}" == *-w64-mingw* ]]; then
     for package in "${target_packages[@]}"; do
         package_runtime_dependencies ${package}
-        deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
+        deploy_enabled && mv -f "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
         unset package
     done
 fi
