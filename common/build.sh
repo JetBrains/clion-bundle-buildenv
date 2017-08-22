@@ -43,12 +43,13 @@ message 'Building packages' "${packages[@]}"
 
 for package in "${packages[@]}"; do
     export PACMAN=false  # just to be sure makepkg won't call it
-    execute 'Building binary' makepkg --noconfirm --skippgpcheck --nocheck --nodeps \
+    execute_cd "${package}" 'Building binary' makepkg --noconfirm --skippgpcheck --nocheck --nodeps \
        --cleanbuild --config "${MAKEPKG_CONF}"
 
-    execute 'Installing' tar xvf *.pkg.tar.xz -C / ${PREFIX#/}
-    deploy_enabled && mv -f "${package}"/*.pkg.tar.xz artifacts
-
+    deploy_enabled && [[ -f "${package}"/*-debug-*${PKGEXT} ]] \
+                   && mv -f "${package}"/*-debug-*${PKGEXT} "artifacts"
+    execute_cd "${package}" 'Installing' tar xvf $(get_pkgfile "${package}") -C / ${PREFIX#/}
+    deploy_enabled && mv -f "${package}"/$(get_pkgfile "${package}") "artifacts"
     if [[ "${package}" == mingw-* ]]; then
         for package_arg in "$@"; do
             if [[ "${package}" == "${package_arg}" ]]; then

@@ -90,13 +90,19 @@ execute(){
     local status="${1}"
     local command="${2}"
     local arguments=("${@:3}")
-    cd "${package:-.}"
     message "${status}"
-    if [[ "${command}" != *:* ]]
-        then ${command} ${arguments[@]}
-        else ${command%%:*} | ${command#*:} ${arguments[@]}
-    fi || failure "${status} failed"
-    cd - > /dev/null
+    ${command} ${arguments[@]} || failure "${status} failed"
+}
+
+execute_cd(){
+    local d="${1}"
+    local status="${2}"
+    local command="${3}"
+    local arguments=("${@:4}")
+    pushd "${d}" > /dev/null
+    message "${status}"
+    ${command} ${arguments[@]} || failure "${status} failed"
+    popd > /dev/null
 }
 
 # Sort packages by dependency
