@@ -54,15 +54,16 @@ for package in "${packages[@]}"; do
                    && mv -f "${package}"/*-debug-*${PKGEXT} "${ARTIFACTS_DIR}"
     execute_cd "${package}" 'Installing' tar xvf $(get_pkgfile "${package}") -C / ${PREFIX#/}
     deploy_enabled && mv -f "${package}"/$(get_pkgfile "${package}") "${ARTIFACTS_DIR}"
-    if [[ "${package}" == mingw-* ]]; then
-        for package_arg in "${target_packages[@]}"; do
-            if [[ "${package}" == "${package_arg}" ]]; then
-                package_runtime_dependencies ${package}
-                deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
-            fi
-        done
-    fi
     unset package
 done
+
+
+if [[ "${CHOST}" == *-w64-mingw* ]]; then
+    for package in "${target_packages[@]}"; do
+        package_runtime_dependencies ${package}
+        deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
+        unset package
+    done
+fi
 
 success 'All packages built successfully'
