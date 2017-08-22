@@ -28,8 +28,8 @@ _status() {
         success) local color="${green}"; title='[BUILD] SUCCESS:' ;;
         message) local color="${cyan}";  title='[BUILD]'
     esac
-    printf "%s\n" "${color}${title}${normal} ${status}"
-    printf "${items:+\t%s\n}" "${items:+${items[@]}}"
+    printf "%s\n" "${color}${title}${normal} ${status}" >&2
+    printf "${items:+\t%s\n}" "${items:+${items[@]}}" >&2
 }
 
 # Get package information
