@@ -19,7 +19,7 @@ makedepends=(libiconv expat xz zlib)
 depends=(python)
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
 sha1sums=('148c8e783ebf9b281241d0566db59961191ec64d')
-options=('!staticlibs' 'strip')
+options=('!staticlibs')
 
 prepare() {
   cd gdb-$pkgver

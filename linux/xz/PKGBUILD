@@ -15,13 +15,14 @@ license=('GPL' 'LGPL' 'custom')
 #depends=('sh')
 source=("https://tukaani.org/${pkgname}/${pkgname}-${pkgver}.tar.gz")
 md5sums=('ef68674fb47a8b8e741b34e429d86e9d')
-options=('staticlibs' 'strip')
+options=('!staticlibs')
 
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
 
 	./configure --prefix=${PREFIX} \
-		--disable-shared \
+		--enable-shared \
+		--disable-static \
 		--disable-rpath \
 		--enable-werror
 	make

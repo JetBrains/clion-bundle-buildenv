@@ -14,14 +14,14 @@ url='http://www.gnu.org/software/libiconv/'
 license=('LGPL')
 source=("http://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
 md5sums=('ace8b5f2db42f7b3b3057585e80d9808')
-options=('!libtool' 'staticlibs')
+options=('!staticlibs')
 
 build() {
   cd $srcdir/${pkgname}-${pkgver}
   sed '/LD_RUN_PATH/d' -i Makefile.in
   ./configure --prefix=${PREFIX} \
-    --enable-static \
-    --disable-shared \
+    --enable-shared \
+    --disable-static \
     --enable-extra-encodings \
     --enable-relocatable \
     --disable-rpath \
@@ -35,6 +35,7 @@ build() {
 package() {
   cd $srcdir/${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" LIBDIR="${PREFIX}/lib" install
+  rm -f "${pkgdir}${PREFIX}"/lib/preloadable_libiconv.so
   mv "${pkgdir}${PREFIX}"/include/{iconv.h,libiconv.h}
   mv "${pkgdir}${PREFIX}"/bin/{iconv,libiconv}
   mv "${pkgdir}${PREFIX}"/share/man/man1/{,lib}iconv.1

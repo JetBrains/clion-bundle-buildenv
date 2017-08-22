@@ -13,7 +13,7 @@ arch=(i686 x86_64)
 license=('custom')
 url="https://www.zlib.net/"
 #depends=('glibc')
-options=('staticlibs')  # needed by binutils testsuite
+options=('!staticlibs')
 source=("https://zlib.net/zlib-${pkgver}.tar.gz")
 md5sums=('1c9f62f0778697a09d36121ead88e08e')
 
@@ -24,11 +24,10 @@ prepare() {
 
 build() {
 	cd ${srcdir}/zlib-$pkgver
-	./configure \
-		--prefix=${PREFIX} \
-		--static
+	CFLAGS="$CFLAGS -fPIC" ./configure --prefix=${PREFIX} \
+		--shared
 
-  make -j1 all
+	make -j1 all
 }
 
 check() {
