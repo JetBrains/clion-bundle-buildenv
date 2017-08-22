@@ -16,7 +16,7 @@ groups=("toolchain")
 depends=("expat"
          "libiconv"
          #"python2"
-         "python2-prebuilt-win32"
+         "python3-prebuilt-embed"
          "zlib")
 checkdepends=('dejagnu' 'bc')
 makedepends=("libiconv"
@@ -24,6 +24,7 @@ makedepends=("libiconv"
              "xz")
 options=('!staticlibs' 'strip')
 source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz{,.sig}
+        '0001-python_run_simple_file-Use-_Py_fopen-instead-of-PyFi.patch'
         'gdb-fix-display-tabs-on-mingw.patch'
         #'gdb-mingw-gcc-4.7.patch'
         'gdb-7.8.1-mingw-gcc-4.7.patch'
@@ -32,6 +33,7 @@ source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz{,.sig}
         'gdb-fix-using-gnu-print.patch'
         'gdb-7.12-dynamic-libs.patch')
 sha256sums=('f6a24ffe4917e67014ef9273eb8b547cb96a13e5ca74895b06d683b391f3f4ee'
+            '26d8ea3a54b89a2d3889f01960744d76e900825d3dc0540ee4cccce3a7221ccc'
             'SKIP'
             'a3e64bf3acc8e92016d493aa1e2fbb5b55c67bfce4359b3578d7a6b5e5d5692a'
             '225608a1e486ee98641611804b07209915367c6767a735ae928175ad45b93060'
@@ -55,6 +57,9 @@ prepare() {
 
   # https://sourceware.org/bugzilla/show_bug.cgi?id=21078
   patch -p1 -i ${srcdir}/gdb-7.12-dynamic-libs.patch
+
+  # https://sourceware.org/bugzilla/show_bug.cgi?id=15600
+  patch -p1 -i ${srcdir}/0001-python_run_simple_file-Use-_Py_fopen-instead-of-PyFi.patch
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure

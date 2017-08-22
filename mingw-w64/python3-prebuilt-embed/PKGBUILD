@@ -1,0 +1,59 @@
+# Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
+
+_realname=python3
+pkgname=${_realname}-prebuilt-embed
+pkgver=3.6.2
+pkgrel=1
+_pybasever=${pkgver%.*}
+pkgdesc="A high-level scripting language (prebuilt; win32)"
+arch=(i686 x86_64)
+license=('PSF')
+url="https://www.python.org/"
+#makedepends=('wine')
+options=('!staticlibs' 'strip')
+if [ "${CARCH}" == x86_64 ]
+  then _archsuffix=amd64; prebuilt_md5sum='4377e7d4e6877c248446f7cd6a1430cf'
+  else _archsuffix=win32; prebuilt_md5sum='2ca4768fdbadf6e670e97857bfab83e8'
+fi
+source=(https://www.python.org/ftp/python/${pkgver}/Python-${pkgver}.tar.xz
+        https://www.python.org/ftp/python/${pkgver}/python-${pkgver}-embed-${_archsuffix}.zip
+        'python-config.sh.in'
+        'python-config-u.sh'
+        '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
+noextract=(python-${pkgver}-embed-${_archsuffix}.zip)
+md5sums=('2c68846471994897278364fc18730dd9'
+         ${prebuilt_md5sum}
+         '66f35976af444b2b260d493c781765b1'
+         '8f753e446e447e43ba1fae3ce3b8fd83'
+         'ab052c29a0d73198bc4f81f9ac32f8c1')
+
+prepare() {
+  cat python-config.sh.in | sed -e "
+    s|@prefix@|${PREFIX//|/\\|}|g
+    s|@CFLAGS@|${CFLAGS//|/\\|}|g
+    s|@VERSION@|${_pybasever}|g
+  " > python-config.sh
+
+  cd Python-${pkgver}
+
+  patch -p1 -i ${srcdir}/0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch
+}
+
+build() {
+  [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
+  mkdir ${srcdir}/build-${CHOST}
+
+  (cd ${srcdir}/build-${CHOST}; bsdtar -xf ${srcdir}/python-${pkgver}-embed-${_archsuffix}.zip)
+}
+
+package() {
+  cd ${srcdir}/build-${CHOST}
+
+  install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/Include/*
+  install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/PC/pyconfig.h
+  install -Dm644 -t ${pkgdir}${PREFIX}/bin/ python${_pybasever/./}.zip
+  install -Dm755 -t ${pkgdir}${PREFIX}/bin/ *.{dll,pyd,_pth} ${srcdir}/python-config*.sh
+
+  install -dm755 ${pkgdir}${PREFIX}/lib/python${_pybasever}/config
+  ln -sT ../../../bin/python${_pybasever/./}.dll ${pkgdir}${PREFIX}/lib/python${_pybasever}/config/python${_pybasever}.dll.a
+}

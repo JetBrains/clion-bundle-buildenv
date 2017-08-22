@@ -1,0 +1,42 @@
+From b7b325e7014def9b246d4e576425b9a2c3a92c71 Mon Sep 17 00:00:00 2001
+From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
+Date: Tue, 22 Aug 2017 17:36:43 +0300
+Subject: [PATCH] python_run_simple_file: Use _Py_fopen() instead of
+ PyFile_FromString()
+
+PyFile_FromString() is gone in Py3k.
+
+See:
+
+    Bug 15600 - The use of PyFile_FromString and PyFile_AsFile causes build error in _WIN32 - IS_PY3K build
+---
+ gdb/python/python.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/gdb/python/python.c b/gdb/python/python.c
+index be92f36..630056c 100644
+--- a/gdb/python/python.c
++++ b/gdb/python/python.c
+@@ -351,15 +351,14 @@ python_run_simple_file (FILE *file, const char *filename)
+ 
+   /* Because we have a string for a filename, and are using Python to
+      open the file, we need to expand any tilde in the path first.  */
+-  gdb::unique_xmalloc_ptr<char> full_path (tilde_expand (filename));
+-  gdbpy_ref<> python_file (PyFile_FromString (full_path.get (), (char *) "r"));
+-  if (python_file == NULL)
++  file = _Py_fopen (tilde_expand (filename), "r");
++  if (file == NULL)
+     {
+       gdbpy_print_stack ();
+-      error (_("Error while opening file: %s"), full_path.get ());
++      error (_("Error while opening file: %s"), filename);
+     }
+ 
+-  PyRun_SimpleFile (PyFile_AsFile (python_file.get ()), filename);
++  PyRun_SimpleFileEx (file, filename, 1);
+ 
+ #endif /* _WIN32 */
+ }
+-- 
+2.7.4
+
