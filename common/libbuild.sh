@@ -36,11 +36,11 @@ _status() {
 _package_info() {
     local package="${1}"
     local properties=("${@:2}")
+    test -f "${BUILD_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package"
     for property in "${properties[@]}"; do
         eval "${property}=()"
-        test -f "${package}/PKGBUILD" || failure "Unknown package"
         local value=($(
-            MINGW_PACKAGE_PREFIX='mingw-w64' source "${package}/PKGBUILD"
+            source "${BUILD_ROOT_DIR}/${package}/PKGBUILD"
             eval echo "\${${property}[@]}"))
         eval "${property}=(\"\${value[@]}\")"
     done

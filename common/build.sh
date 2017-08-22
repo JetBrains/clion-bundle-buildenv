@@ -8,9 +8,9 @@
 # Author: Renato Silva <br.renatosilva@gmail.com>
 # Author: Qian Hong <fracting@gmail.com>
 
-DIR="$(dirname "$0")"
+export BUILD_ROOT_DIR="$(dirname $(readlink -e "${0}"))"
 
-source "${DIR}/libbuild.sh"
+source "${BUILD_ROOT_DIR}/libbuild.sh"
 
 
 if [ "$#" -lt 2 ]; then
