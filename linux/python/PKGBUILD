@@ -9,7 +9,7 @@
 # Contributor: Jason Chu <jason@archlinux.org>
 
 pkgname=python
-pkgver=3.6.2
+pkgver=${PKG_VERSION[$pkgname]:-3.6.2}
 pkgrel=1
 _pybasever=3.6
 pkgdesc="Next generation of the python high-level scripting language"

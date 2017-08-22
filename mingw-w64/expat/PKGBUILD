@@ -6,7 +6,7 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 pkgname=expat
-pkgver=2.2.1
+pkgver=${PKG_VERSION[$pkgname]:-2.2.1}
 pkgrel=1
 pkgdesc="An XML parser library (mingw-w64)"
 arch=(i686 x86_64)

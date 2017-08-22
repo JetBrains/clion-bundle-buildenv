@@ -2,7 +2,7 @@
 
 _realname=python2
 pkgname=${_realname}-prebuilt-win32
-pkgver=2.7.13
+pkgver=${PKG_VERSION[$pkgname]:-2.7.13}
 pkgrel=1
 _pybasever=${pkgver%.*}
 pkgdesc="A high-level scripting language (prebuilt; win32)"

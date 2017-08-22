@@ -6,7 +6,7 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 pkgname=libiconv
-pkgver=1.15
+pkgver=${PKG_VERSION[$pkgname]:-1.15}
 pkgrel=1
 arch=(i686 x86_64)
 url='https://www.gnu.org/software/libiconv/'

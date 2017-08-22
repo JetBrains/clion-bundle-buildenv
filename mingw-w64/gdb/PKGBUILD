@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=8.0
+pkgver=${PKG_VERSION[$pkgname]:-8.0}
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)

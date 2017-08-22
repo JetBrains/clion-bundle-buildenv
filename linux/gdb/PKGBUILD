@@ -9,7 +9,7 @@ pkgbase=gdb
 # gdb-common is a package that contains files common for all cross compiled versions
 # of gdb (for arm/avr/...)
 pkgname=gdb
-pkgver=8.0
+pkgver=${PKG_VERSION[$pkgname]:-8.0}
 pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)

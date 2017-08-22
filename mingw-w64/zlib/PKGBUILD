@@ -8,7 +8,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=zlib
-pkgver=1.2.11
+pkgver=${PKG_VERSION[$pkgname]:-1.2.11}
 pkgrel=1
 pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (mingw-w64)"
 arch=(i686 x86_64)
