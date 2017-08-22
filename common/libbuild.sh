@@ -154,10 +154,32 @@ _package_dll() {
     done
 }
 
+get_pkgfile() {
+    local pkgfile_noext
+    pkgfile_noext=$(get_pkgfile_noext "${1}") || failure "Unknown package"
+    printf "%s%s\n" "${pkgfile_noext}" "${PKGEXT}"
+}
+
+get_pkgfile_noext() {
+    epoch=0
+    _package_info "${1}" pkgname epoch pkgver pkgrel arch
+
+    if [[ $arch != "any" ]]; then
+        arch="$CARCH"
+    fi
+
+    if (( epoch > 0 )); then
+        printf "%s\n" "${pkgname}-$epoch:$pkgver-$pkgrel-$arch"
+    else
+        printf "%s\n" "${pkgname}-$pkgver-$pkgrel-$arch"
+    fi
+}
+
 package_runtime_dependencies() {
     for package in "$@"; do
-        _package_info "${package}" pkgname pkgver pkgrel
-        local pkgdir=$(pwd)/${package}/pkg/${MINGW_PACKAGE_PREFIX}-${pkgname#mingw-w64-}
+        _package_info "${package}" pkgname
+        local pkgfile_noext=$(get_pkgfile_noext "${package}")
+        local pkgdir=$(pwd)/${package}/pkg/${pkgname}
         local dlldir=${TMPDIR}/${package}-dll
 
         message "Resolving runtime DLL dependencies"
@@ -167,7 +189,7 @@ package_runtime_dependencies() {
             _package_dll ${pkgdir} ${dlldir} "${prog}"
         done
 
-        tar -Jcf ${package}/${MINGW_PACKAGE_PREFIX}-${pkgname#mingw-w64-}-${pkgver}-${pkgrel}-dll-dependencies.tar.xz -C ${dlldir} . --xform='s:^\./::'
+        tar -Jcf "${package}/${pkgfile_noext}-dll-dependencies.tar.xz" -C ${dlldir} . --xform='s:^\./::'
         rm -rf ${dlldir}
     done
 }
