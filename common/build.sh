@@ -35,8 +35,11 @@ git_config user.email "${GIT_COMMITTER_EMAIL}"
 export TMPDIR=$(mktemp -d)
 set_on_error_trap "rm -rf ${TMPDIR}"
 
-test -z "$@" && failure 'No packages specified'
-define_build_order "$@" || failure 'Could not determine build order'
+
+target_packages=("$@")
+
+test -z "${target_packages[@]}" && failure 'No packages specified'
+define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
 
 
 # Build
@@ -52,7 +55,7 @@ for package in "${packages[@]}"; do
     execute_cd "${package}" 'Installing' tar xvf $(get_pkgfile "${package}") -C / ${PREFIX#/}
     deploy_enabled && mv -f "${package}"/$(get_pkgfile "${package}") "${ARTIFACTS_DIR}"
     if [[ "${package}" == mingw-* ]]; then
-        for package_arg in "$@"; do
+        for package_arg in "${target_packages[@]}"; do
             if [[ "${package}" == "${package_arg}" ]]; then
                 package_runtime_dependencies ${package}
                 deploy_enabled && mv "${package}"/*-dll-dependencies.tar.xz artifacts 2>/dev/null || true
