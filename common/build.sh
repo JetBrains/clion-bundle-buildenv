@@ -42,6 +42,23 @@ test -z "${target_packages[@]}" && failure 'No packages specified'
 define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
 
 
+is_target_package() {
+    local target_package
+    for target_package in "${target_packages[@]}"; do
+        if [[ "${1}" == "${target_package}" ]]; then
+            return 0  # true
+        fi
+    done
+    return 1  # false
+}
+
+dependency_packages=()
+for package in "${packages[@]}"; do
+    is_target_package "${package}" || dependency_packages+=("${package}")
+    unset package
+done
+
+
 # Build
 message 'Building packages' "${packages[@]}"
 
@@ -65,5 +82,53 @@ if [[ "${CHOST}" == *-w64-mingw* ]]; then
         unset package
     done
 fi
+
+
+shopt -s extglob
+
+BUNDLE_DIR="${ARTIFACTS_DIR}/bundle-${CHOST}"
+rm -rf "${BUNDLE_DIR}"
+mkdir -p "${BUNDLE_DIR}"
+
+pushd "${BUNDLE_DIR}"
+
+message "Bundling packages" "${target_packages[@]}"
+if [[ -n ${dependency_packages[*]} ]]; then
+    message "... with dependencies" "${dependency_packages[@]}"
+
+    for package in "${dependency_packages[@]}"; do
+        execute "Extracting (dependency)" tar xf "${ARTIFACTS_DIR}"/$(get_pkgfile "${package}") ${PREFIX#/}
+        unset package
+    done
+    execute 'Removing dependency binaries...' rm -rvf .${PREFIX}/bin/!(*.dll)
+fi
+
+for package in "${target_packages[@]}"; do
+    execute "Extracting" tar xf "${ARTIFACTS_DIR}"/$(get_pkgfile "${package}") ${PREFIX#/}
+    if [[ "${CHOST}" == *-w64-mingw* ]] \
+                                && [[ -f "${ARTIFACTS_DIR}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ]]; then
+        execute "Extracting DLLs" tar xf "${ARTIFACTS_DIR}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ${PREFIX#/}
+    fi
+    unset package
+done
+
+message 'Removing leftover development files...'
+while read -rd '' l; do
+    rm -vf "$l"
+done < <(find . ! -type d -name "*.a" -print0)
+
+while read -rd '' l; do
+    rm -vf "$l"
+done < <(find . ! -type d -name "*.la" -print0)
+
+rm -rvf .${PREFIX}/lib/pkgconfig
+rm -rvf .${PREFIX}/include
+
+# Remove empty directories
+find . -depth -type d -exec rmdir '{}' \; 2>/dev/null
+
+execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz . --xform='s:^\./::'
+
+popd
 
 success 'All packages built successfully'
