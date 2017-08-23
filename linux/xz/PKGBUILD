@@ -14,7 +14,7 @@ url='https://tukaani.org/xz/'
 license=('GPL' 'LGPL' 'custom')
 #depends=('sh')
 source=("https://tukaani.org/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-md5sums=('ef68674fb47a8b8e741b34e429d86e9d')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'ef68674fb47a8b8e741b34e429d86e9d'})
 options=('!staticlibs')
 
 build() {

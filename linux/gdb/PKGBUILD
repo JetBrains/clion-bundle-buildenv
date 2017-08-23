@@ -18,7 +18,7 @@ license=(GPL3)
 makedepends=(libiconv expat xz zlib)
 depends=(python)
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-sha1sums=('148c8e783ebf9b281241d0566db59961191ec64d')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'c3d35cd949084be53b92cc1e03485f88'})
 options=('!staticlibs')
 
 prepare() {

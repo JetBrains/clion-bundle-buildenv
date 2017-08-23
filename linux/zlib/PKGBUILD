@@ -15,7 +15,7 @@ url="https://www.zlib.net/"
 #depends=('glibc')
 options=('!staticlibs')
 source=("https://zlib.net/zlib-${pkgver}.tar.gz")
-md5sums=('1c9f62f0778697a09d36121ead88e08e')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'1c9f62f0778697a09d36121ead88e08e'})
 
 prepare() {
 	cd ${srcdir}/zlib-$pkgver

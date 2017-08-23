@@ -13,7 +13,7 @@ arch=(i686 x86_64)
 url='http://www.gnu.org/software/libiconv/'
 license=('LGPL')
 source=("http://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-md5sums=('ace8b5f2db42f7b3b3057585e80d9808')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'ace8b5f2db42f7b3b3057585e80d9808'})
 options=('!staticlibs')
 
 build() {
