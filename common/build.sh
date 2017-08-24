@@ -15,17 +15,12 @@ export BUILD_ROOT_DIR="$(dirname $(readlink -e "${0}"))"
 source "${BUILD_ROOT_DIR}/libbuild.sh"
 
 
-if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 [--nobuild] [--nobundle] -c makepkg.conf package..." >&2
-    exit 1
-fi
-
 usage() {
-    printf "%s\n" "$0" "$prog_version"
+    printf "%s %s\n" "$0" "$prog_version"
     echo
     printf -- "Build packages using makepkg and bundle a single archive\n"
     echo
-    printf -- "Usage: %s [options]\n" "$0"
+    printf -- "Usage: %s -c <makepkg.conf> [package...]\n" "$0"
     echo
     printf -- "Options:\n"
     printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "$confdir/makepkg.conf"
@@ -47,7 +42,7 @@ usage() {
 }
 
 version() {
-    printf "%s\n" "$0" "$prog_version"
+    printf "%s %s\n" "$0" "$prog_version"
     makepkg --version
 }
 
@@ -89,10 +84,14 @@ done
 
 target_packages+=("$@")
 
+if [ ! -n "${MAKEPKG_CONF}" ]; then
+    echo "Missing required option: -c <makepkg.conf>" >&2
+    usage
+    exit 1
+fi
 
 if [ ! -f "${MAKEPKG_CONF}" ]; then
-    echo "${MAKEPKG_CONF}: No such file" >&2
-    exit 1
+    failure "${MAKEPKG_CONF}: File not found"
 fi
 export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}"); shift
 
