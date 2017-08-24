@@ -29,10 +29,9 @@ RUN yum -y update --skip-broken \
       nano \
  && yum clean all
 
-COPY linux/install-pacman.sh /tmp/install-pacman.sh
-RUN chmod a+x /tmp/install-pacman.sh \
- && /tmp/install-pacman.sh \
- && rm -f /tmp/install-pacman.sh
+COPY linux/build-prerequisites/install-pacman.sh /tmp/build-prerequisites/
+RUN chmod a+x /tmp/build-prerequisites/install-pacman.sh \
+ && /tmp/build-prerequisites/install-pacman.sh 
 
 RUN (echo "#!/bin/bash"; \
      echo "source scl_source enable devtoolset-3";) > /etc/profile.d/scl-enable-devtoolset-3.sh \
@@ -42,6 +41,17 @@ RUN groupadd -r build \
  && useradd --no-log-init -r -m -g build build \
  && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build && \
     chmod 0440 /etc/sudoers.d/build
+
+USER build
+
+COPY linux/build-prerequisites/bash/ /tmp/build-prerequisites/bash/
+RUN pushd /tmp/build-prerequisites/bash \
+ && sudo chmod -R a+w . \
+ && /usr/local/bin/makepkg --noconfirm --skippgpcheck --nocheck --nodeps --cleanbuild \
+ && sudo /usr/local/bin/pacman --noconfirm --force -U bash-*.pkg.tar.gz \
+ && popd
+
+USER root
 
 RUN mkdir -p /opt \
  && chown build:build /opt
