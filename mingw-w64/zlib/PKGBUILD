@@ -21,10 +21,10 @@ source=("http://zlib.net/current/${pkgname}-${pkgver}.tar.gz"
         01-zlib-1.2.11-1-buildsys.mingw.patch
         03-dont-put-sodir-into-L.mingw.patch
         04-fix-largefile-support.patch)
-sha256sums=('c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1'
-            'ac91f905b695d71f6c9c471ac98c14a3ed989a1e2b2a3b1171b3f6dc6bfc31b4'
-            '3d039f42194aade91dadf4174f55fd6db349fd8044db93875bed1042dcfe1f31'
-            '3b36fe536a7458af2a9a494d70d24048da10c43423fd620ed93fa0a6ddd14f78')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'1c9f62f0778697a09d36121ead88e08e'}
+         '37d809648eee8f5cf5bf257bbb32a396'
+         'bb6c8eeb7f03978982406bca35f62ca3'
+         '78c2f67bb20e6b2f491a5c4060d18257')
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}

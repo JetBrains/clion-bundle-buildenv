@@ -1,7 +1,7 @@
 # Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
 _realname=python3
-pkgname=${_realname}-embed-prebuilt
+pkgname=${_realname}-embed
 pkgver=${PKG_VERSION[$pkgname]:-3.6.2}
 pkgrel=1
 _pybasever=${pkgver%.*}
@@ -12,8 +12,8 @@ url="https://www.python.org/"
 #makedepends=('wine')
 options=('!staticlibs' 'strip')
 if [ "${CARCH}" == x86_64 ]
-  then _archsuffix=amd64; prebuilt_md5sum='4377e7d4e6877c248446f7cd6a1430cf'
-  else _archsuffix=win32; prebuilt_md5sum='2ca4768fdbadf6e670e97857bfab83e8'
+  then _archsuffix=amd64
+  else _archsuffix=win32
 fi
 source=(https://www.python.org/ftp/python/${pkgver}/Python-${pkgver}.tar.xz
         https://www.python.org/ftp/python/${pkgver}/python-${pkgver}-embed-${_archsuffix}.zip
@@ -21,8 +21,8 @@ source=(https://www.python.org/ftp/python/${pkgver}/Python-${pkgver}.tar.xz
         'python-config-u.sh'
         '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
 noextract=(python-${pkgver}-embed-${_archsuffix}.zip)
-md5sums=('2c68846471994897278364fc18730dd9'
-         ${prebuilt_md5sum}
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'2c68846471994897278364fc18730dd9'}
+         'SKIP'
          '66f35976af444b2b260d493c781765b1'
          '8f753e446e447e43ba1fae3ce3b8fd83'
          'ab052c29a0d73198bc4f81f9ac32f8c1')

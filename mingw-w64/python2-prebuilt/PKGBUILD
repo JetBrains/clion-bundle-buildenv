@@ -1,7 +1,7 @@
 # Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
 _realname=python2
-pkgname=${_realname}-prebuilt-win32
+pkgname=${_realname}-prebuilt
 pkgver=${PKG_VERSION[$pkgname]:-2.7.13}
 pkgrel=1
 _pybasever=${pkgver%.*}
@@ -15,10 +15,10 @@ source=(https://www.python.org/ftp/python/${pkgver}/python-${pkgver}$([ "${CARCH
         'python-config.sh'
         'python-config-u.sh'
         '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
-sha256sums=('SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP')
+md5sums=('SKIP'
+         'ddead55433eea001c724fba5a6246f0a'
+         '8f753e446e447e43ba1fae3ce3b8fd83'
+         'f24472281e9dd6161a69cfd436f0f848')
 
 build() {
   [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}

@@ -17,9 +17,9 @@ options=('strip' 'staticlibs')
 source=("https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
         001-fix-extension.patch
         002-fix-tests.patch)
-sha256sums=('1868cadae4c82a018e361e2b2091de103cd820aaacb0d6cfa49bd2cd83978885'
-            '3d97bc769ad70d81ba9c488619e71cf21f43122076857a0b7d0ed425a1cbe68e'
-            'abcf34b90ed801cc2810f6d333bca2997aadfe95dbedd1509bd54c14ecca1042')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'d9c3baeab58774cefc2f04faf29f2cf8'}
+         'f0896e172059ce210ce70d2a37f4a04e'
+         '64340503ab966d5059db5ae564b7b6ec')
 
 prepare() {
   cd "${srcdir}/${pkgname}-${pkgver}"

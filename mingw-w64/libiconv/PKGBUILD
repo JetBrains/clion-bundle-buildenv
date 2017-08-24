@@ -13,9 +13,9 @@ url='https://www.gnu.org/software/libiconv/'
 source=("https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
         0001-compile-relocatable-in-gnulib.mingw.patch
         0002-fix-cr-for-awk-in-configure.all.patch)
-sha256sums=('ccf536620a45458d26ba83887a983b96827001e92a13847b45e4925cc8913178'
-            '7e905d21d670672b8a6a3bd80e5b8244b38bb7021a15fc7bdd0229125a3a68ee'
-            'a649f925223addc44966624c5fe630fdb46e04ceaf94ed6b965a8d18ca55b5a0')
+md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'ace8b5f2db42f7b3b3057585e80d9808'}
+         '8818b7fe31286f589d180713329eb893'
+         '9e955ee7135d39970a086451d4b87520')
 options=('!libtool' 'staticlibs')
 #makedepends=(gcc)
 
