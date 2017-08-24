@@ -40,6 +40,7 @@ _package_info() {
     for property in "${properties[@]}"; do
         eval "${property}=()"
         local value=($(
+            source "${MAKEPKG_CONF}"
             source "${BUILD_ROOT_DIR}/${package}/PKGBUILD"
             eval echo "\${${property}[@]}"))
         eval "${property}=(\"\${value[@]}\")"

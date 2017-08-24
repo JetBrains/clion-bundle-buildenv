@@ -22,7 +22,7 @@ if [ ! -f "${1}" ]; then
     echo "${1}: No such file" >&2
     exit 1
 fi
-MAKEPKG_CONF=$(readlink -e "${1}"); shift
+export MAKEPKG_CONF=$(readlink -e "${1}"); shift
 
 source "${MAKEPKG_CONF}"
 
