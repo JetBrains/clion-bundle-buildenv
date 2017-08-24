@@ -16,7 +16,7 @@ groups=("toolchain")
 depends=("expat"
          "libiconv"
          #"python2"
-         "python3-prebuilt-embed"
+         "python3-embed-prebuilt"
          "zlib")
 checkdepends=('dejagnu' 'bc')
 makedepends=("libiconv"

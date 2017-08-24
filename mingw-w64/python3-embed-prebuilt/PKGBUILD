@@ -1,7 +1,7 @@
 # Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
 _realname=python3
-pkgname=${_realname}-prebuilt-embed
+pkgname=${_realname}-embed-prebuilt
 pkgver=${PKG_VERSION[$pkgname]:-3.6.2}
 pkgrel=1
 _pybasever=${pkgver%.*}
