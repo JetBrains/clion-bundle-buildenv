@@ -103,6 +103,7 @@ build() {
   )
 
   ../${pkgname}-${pkgver}/configure \
+    --with-pkgversion="$(pkgversion_string 'GDB')" \
     --host=${CHOST} \
     --target=${CHOST} \
     --prefix=${PREFIX} \

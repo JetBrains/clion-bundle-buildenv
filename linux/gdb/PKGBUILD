@@ -62,6 +62,7 @@ build() {
   )
 
   ../gdb-${pkgver}/configure \
+    --with-pkgversion="$(pkgversion_string 'GDB')" \
     --prefix=${PREFIX} \
     --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
     --enable-gdbserver \
