@@ -8,11 +8,18 @@
 # Author: Renato Silva <br.renatosilva@gmail.com>
 # Author: Qian Hong <fracting@gmail.com>
 
-# Enable colors
-normal=$(tput sgr0)
-red=$(tput setaf 1)
-green=$(tput setaf 2)
-cyan=$(tput setaf 6)
+if [[ -n "${TERM}" ]]; then
+    # Enable colors
+    normal=$(tput sgr0)
+    red=$(tput setaf 1)
+    green=$(tput setaf 2)
+    cyan=$(tput setaf 6)
+else
+    normal=""
+    red=""
+    green=""
+    cyan=""
+fi
 
 set_on_error_trap() {
     trap "${1}" INT QUIT TERM HUP EXIT
