@@ -5,12 +5,9 @@
 # Maintainer: Allan McRae <allan@archlinux.org>
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
-pkgbase=gdb
-# gdb-common is a package that contains files common for all cross compiled versions
-# of gdb (for arm/avr/...)
 pkgname=gdb
 pkgver=${PKG_VERSION[$pkgname]:-8.0}
-pkgrel=1
+pkgrel=2
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
@@ -67,7 +64,7 @@ build() {
   ../gdb-${pkgver}/configure \
     --prefix=${PREFIX} \
     --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
-    --enable-gdbserver=no \
+    --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \
     --disable-werror \

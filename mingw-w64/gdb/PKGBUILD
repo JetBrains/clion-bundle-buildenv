@@ -7,7 +7,7 @@
 
 pkgname=gdb
 pkgver=${PKG_VERSION[$pkgname]:-8.0}
-pkgrel=1
+pkgrel=2
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
 url="https://www.gnu.org/software/gdb/"
@@ -107,7 +107,7 @@ build() {
     --target=${CHOST} \
     --prefix=${PREFIX} \
     --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
-    --enable-gdbserver=no \
+    --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \
     --disable-werror \
