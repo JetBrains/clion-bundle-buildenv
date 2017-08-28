@@ -20,7 +20,7 @@ usage() {
     echo
     printf -- "Build packages using makepkg and bundle a single archive\n"
     echo
-    printf -- "Usage: %s -c <makepkg.conf> [package...]\n" "$0"
+    printf -- "Usage: %s -c <makepkg.conf> [--] [package...]\n" "$0"
     echo
     printf -- "Options:\n"
     printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "$confdir/makepkg.conf"
