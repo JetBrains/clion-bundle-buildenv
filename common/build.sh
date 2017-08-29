@@ -186,6 +186,11 @@ if (( ! NOBUNDLE )); then
         unset package
     done
 
+    message 'Removing shared library symlinks...'
+    while read -rd '' l; do
+        rm -vf "$l"
+    done < <(find -L .${PREFIX}/lib ! -type d -xtype l -print0)
+
     message 'Removing leftover development files...'
     while read -rd '' l; do
         rm -vf "$l"
