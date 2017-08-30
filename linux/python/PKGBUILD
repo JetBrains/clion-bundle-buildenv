@@ -92,6 +92,7 @@ package() {
   rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/test
   rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/idlelib
   rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/ensurepip
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/distutils/tests
 
   # Why are these not done by default...
   ln -s python3               "${pkgdir}"${PREFIX}/bin/python
