@@ -129,11 +129,6 @@ create_pacman_repository() {
     repo-add "${name}.db.tar.xz" *.pkg.tar.xz
 }
 
-# Deployment is enabled
-deploy_enabled() {
-    true
-}
-
 # Status functions
 failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}." "${items[@]}"; exit 1; }
 success() { local status="${1}"; local items=("${@:2}"); _status success "${status}." "${items[@]}"; exit 0; }

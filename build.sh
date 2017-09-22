@@ -102,7 +102,7 @@ export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}"); shift
 source "${MAKEPKG_CONF}"
 
 ARTIFACTS_DIR="$(readlink -m "artifacts")"
-deploy_enabled && [ -d "${ARTIFACTS_DIR}" ] || mkdir -p "${ARTIFACTS_DIR}"
+(( ! NODEPLOY )) && [ -d "${ARTIFACTS_DIR}" ] || mkdir -p "${ARTIFACTS_DIR}"
 
 git_config user.name  "${GIT_COMMITTER_NAME}"
 git_config user.email "${GIT_COMMITTER_EMAIL}"
@@ -143,10 +143,10 @@ if (( ! NOMAKEPKG )); then
         execute_cd "${package}" 'Building binary' makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
 
         if (( ! NODEPLOY )); then
-            deploy_enabled && [[ -f "${package}"/*-debug-*${PKGEXT} ]] \
-                           && mv -f "${package}"/*-debug-*${PKGEXT} "${ARTIFACTS_DIR}"
+            [[ -f "${package}"/*-debug-*${PKGEXT} ]] \
+               && mv -f "${package}"/*-debug-*${PKGEXT} "${ARTIFACTS_DIR}"
             execute_cd "${package}" 'Installing' tar xvf $(get_pkgfile "${package}") -C / ${PREFIX#/}
-            deploy_enabled && mv -f "${package}"/$(get_pkgfile "${package}") "${ARTIFACTS_DIR}"
+            mv -f "${package}"/$(get_pkgfile "${package}") "${ARTIFACTS_DIR}"
         fi
         unset package
     done
@@ -156,7 +156,7 @@ if (( ! NOMAKEPKG )); then
         if [[ "${CHOST}" == *-w64-mingw* ]]; then
             for package in "${target_packages[@]}"; do
                 package_runtime_dependencies ${package}
-                deploy_enabled && mv -f "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
+                mv -f "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
                 unset package
             done
         fi
