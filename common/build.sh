@@ -26,6 +26,7 @@ usage() {
     printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "$confdir/makepkg.conf"
     printf -- "  --nomakepkg          Do not rebuild packages\n"
     printf -- "  --nobundle           Do not create %s from package files\n" "\$artifactsdir/bundle-\$chost.tar.xz"
+    printf -- "  --nodeps             Do not build or bunble dependencies\n"
     printf -- "  -h, --help           Show this help message and exit\n"
     printf -- "  -V, --version        Show version information and exit\n"
     echo
@@ -50,6 +51,7 @@ MAKEPKG_OPTS=(--force --noconfirm --skippgpcheck --nocheck --nodeps)
 
 NOMAKEPKG=0
 NOBUNDLE=0
+NODEPS=0
 NODEPLOY=0
 
 target_packages=()
@@ -70,6 +72,7 @@ while [[ $# -gt 0 ]]; do
 
         --nomakepkg)      NOMAKEPKG=1 ;;
         --nobundle)       NOBUNDLE=1 ;;
+        --nodeps)         NODEPS=1 ;;
 
         -h|--help)        usage; exit 0 ;; # E_OK
         -V|--version)     version; exit 0 ;; # E_OK
@@ -108,8 +111,11 @@ set_on_error_trap "rm -rf ${TMPDIR}"
 
 
 test -z "${target_packages[@]}" && failure 'No packages specified'
-define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
-
+if (( ! NODEPS )); then
+    define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
+else
+    packages=("${target_packages[@]}")
+fi
 
 is_target_package() {
     local target_package
