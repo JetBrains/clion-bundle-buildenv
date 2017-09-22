@@ -8,11 +8,12 @@
 # Author: Renato Silva <br.renatosilva@gmail.com>
 # Author: Qian Hong <fracting@gmail.com>
 
-prog_version=0.1
+prog_version=0.2
 
-export BUILD_ROOT_DIR="$(dirname $(readlink -e "${0}"))"
+export BUILD_ROOT_DIR="$(pwd)"
+export BUILD_SCRIPT_DIR="$(dirname $(readlink -e "${0}"))"
 
-source "${BUILD_ROOT_DIR}/libbuild.sh"
+source "${BUILD_SCRIPT_DIR}/libbuild.sh"
 
 
 usage() {
