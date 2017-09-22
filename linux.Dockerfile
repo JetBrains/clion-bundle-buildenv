@@ -1,5 +1,14 @@
 FROM centos:6
 
+RUN groupadd -r --gid 1001 build \
+ && useradd --no-log-init --create-home -g build -r --uid 1001 build \
+ && mkdir -p /etc/sudoers.d \
+ && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build \
+ && chmod 0440 /etc/sudoers.d/build
+
+RUN mkdir -p /opt /workdir \
+ && chown build:build /opt /workdir
+
 RUN (echo ; \
      echo "group_package_types=mandatory";) >> /etc/yum.conf \
  && yum -y update \
@@ -26,7 +35,6 @@ RUN yum -y update --skip-broken \
       libarchive \
       libarchive-devel \
       texinfo \
-      nano \
  && yum clean all
 
 COPY linux/build-prerequisites/install-pacman.sh /tmp/build-prerequisites/
@@ -37,11 +45,6 @@ RUN (echo "#!/bin/bash"; \
      echo "source scl_source enable devtoolset-3";) > /etc/profile.d/scl-enable-devtoolset-3.sh \
  && chmod a+x /etc/profile.d/scl-enable-devtoolset-3.sh
 
-RUN groupadd -r build \
- && useradd --no-log-init -r -m -g build build \
- && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build && \
-    chmod 0440 /etc/sudoers.d/build
-
 USER build
 
 COPY linux/build-prerequisites/bash/ /tmp/build-prerequisites/bash/
@@ -51,17 +54,5 @@ RUN pushd /tmp/build-prerequisites/bash \
  && sudo /usr/local/bin/pacman --noconfirm --force -U bash-*.pkg.tar.gz \
  && popd
 
-USER root
-
-RUN mkdir -p /opt \
- && chown build:build /opt
-
-WORKDIR /home/build
-
-COPY common/ ./
-COPY linux/ ./
-
-RUN chown -R build:build . \
- && chmod a+x *.sh
-
-USER build
+WORKDIR /workdir
+ENTRYPOINT ["/bin/bash", "-l"]
