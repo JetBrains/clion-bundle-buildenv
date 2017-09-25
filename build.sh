@@ -287,6 +287,12 @@ export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}"); shift
 
 source "${MAKEPKG_CONF}"
 
+if [ ! -n "${PREFIX}" ]; then
+    echo 'Missing $PREFIX variable definition in '"${MAKEPKG_CONF}" >&2
+    exit 1
+fi
+export PATH="$PATH:$PREFIX/bin"
+
 ARTIFACTS_DIR="$(readlink -m "artifacts")"
 (( ! NODEPLOY )) && [ -d "${ARTIFACTS_DIR}" ] || mkdir -p "${ARTIFACTS_DIR}"
 
