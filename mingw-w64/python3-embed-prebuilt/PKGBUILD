@@ -51,8 +51,8 @@ package() {
 
   install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/Include/*
   install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/PC/pyconfig.h
-  install -Dm644 -t ${pkgdir}${PREFIX}/bin/ python${_pybasever/./}.zip
-  install -Dm755 -t ${pkgdir}${PREFIX}/bin/ *.{dll,pyd,_pth} ${srcdir}/python-config*.sh
+  install -Dm644 -t ${pkgdir}${PREFIX}/bin/ python${_pybasever/./}.zip *._pth
+  install -Dm755 -t ${pkgdir}${PREFIX}/bin/ *.{dll,pyd} ${srcdir}/python-config*.sh
 
   install -dm755 ${pkgdir}${PREFIX}/lib/python${_pybasever}/config
   ln -sT ../../../bin/python${_pybasever/./}.dll ${pkgdir}${PREFIX}/lib/python${_pybasever}/config/python${_pybasever}.dll.a
