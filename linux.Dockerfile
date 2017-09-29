@@ -26,7 +26,7 @@ RUN yum -y update \
       devtoolset-3-gcc-c++ \
  && yum clean all
 
-COPY linux/bsdtar.repo /etc/yum.repos.d/bsdtar.repo
+COPY docker-assets/linux/bsdtar.repo /etc/yum.repos.d/bsdtar.repo
 RUN yum -y update --skip-broken \
  && yum -y install \
       bsdtar \
@@ -37,9 +37,9 @@ RUN yum -y update --skip-broken \
       texinfo \
  && yum clean all
 
-COPY linux/build-prerequisites/install-pacman.sh /tmp/build-prerequisites/
+COPY docker-assets/linux/build-prerequisites/install-pacman.sh /tmp/build-prerequisites/
 RUN chmod a+x /tmp/build-prerequisites/install-pacman.sh \
- && /tmp/build-prerequisites/install-pacman.sh 
+ && /tmp/build-prerequisites/install-pacman.sh
 
 RUN (echo "#!/bin/bash"; \
      echo "source scl_source enable devtoolset-3";) > /etc/profile.d/scl-enable-devtoolset-3.sh \
@@ -47,7 +47,7 @@ RUN (echo "#!/bin/bash"; \
 
 USER build
 
-COPY linux/build-prerequisites/bash/ /tmp/build-prerequisites/bash/
+COPY docker-assets/linux/build-prerequisites/bash/ /tmp/build-prerequisites/bash/
 RUN pushd /tmp/build-prerequisites/bash \
  && sudo chmod -R a+w . \
  && /usr/local/bin/makepkg --noconfirm --skippgpcheck --nocheck --nodeps --cleanbuild \

@@ -18,15 +18,5 @@ RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
       /README \
       /etc/pacman.d/mirrorlist.pacnew
 
-RUN mkdir -p /opt \
- && chown build:build /opt
-
-WORKDIR /home/build
-
-COPY common/ ./
-COPY mingw-w64/ ./
-
-RUN chown -R build:build . \
- && chmod a+x *.sh
-
 USER build
+WORKDIR /workdir
