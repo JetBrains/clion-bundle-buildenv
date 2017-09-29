@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 exit_with_usage ()
 {

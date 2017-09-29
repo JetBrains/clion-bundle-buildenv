@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 THISDIR="$(dirname $0)"
 test "$THISDIR" = "." && THISDIR=${PWD}

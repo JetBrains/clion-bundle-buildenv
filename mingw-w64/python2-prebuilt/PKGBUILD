@@ -16,8 +16,8 @@ source=(https://www.python.org/ftp/python/${pkgver}/python-${pkgver}$([ "${CARCH
         'python-config-u.sh'
         '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
 md5sums=('SKIP'
-         'ddead55433eea001c724fba5a6246f0a'
-         '8f753e446e447e43ba1fae3ce3b8fd83'
+         '8f324cb9bd010602f33b5300d22cb49a'
+         '04838870a5db5805dc25a0c1be2a2f18'
          'f24472281e9dd6161a69cfd436f0f848')
 
 build() {
