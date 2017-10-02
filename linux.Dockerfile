@@ -41,18 +41,7 @@ COPY docker-assets/linux/build-prerequisites/install-pacman.sh /tmp/build-prereq
 RUN chmod a+x /tmp/build-prerequisites/install-pacman.sh \
  && /tmp/build-prerequisites/install-pacman.sh
 
-RUN (echo "#!/bin/bash"; \
-     echo "source scl_source enable devtoolset-3";) > /etc/profile.d/scl-enable-devtoolset-3.sh \
- && chmod a+x /etc/profile.d/scl-enable-devtoolset-3.sh
+ENV PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
 
 USER build
-
-COPY docker-assets/linux/build-prerequisites/bash/ /tmp/build-prerequisites/bash/
-RUN pushd /tmp/build-prerequisites/bash \
- && sudo chmod -R a+w . \
- && /usr/local/bin/makepkg --noconfirm --skippgpcheck --nocheck --nodeps --cleanbuild \
- && sudo /usr/local/bin/pacman --noconfirm --force -U bash-*.pkg.tar.gz \
- && popd
-
 WORKDIR /workdir
-ENTRYPOINT ["/bin/bash", "-l"]
