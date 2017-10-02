@@ -305,6 +305,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 target_packages+=("$@")
+for package in "${target_packages[@]}"; do
+    _package_info "${package}"  # check package exists
+done
+
 
 PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
 if [ ! -d "${PKG_ROOT_DIR}" ]; then
@@ -326,8 +330,7 @@ source "${MAKEPKG_CONF}"
 [[ "${CHOST}" == *-w64-mingw* ]] && ISMINGW=1 || ISMINGW=0
 
 if [ ! -n "${PREFIX}" ]; then
-    echo 'Missing $PREFIX variable definition in '"${MAKEPKG_CONF}" >&2
-    exit 1
+    failure "${MAKEPKG_CONF}: Missing \$PREFIX variable definition"
 fi
 export PATH="$PATH:$PREFIX/bin"
 
