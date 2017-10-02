@@ -321,6 +321,10 @@ export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}")
 
 source "${MAKEPKG_CONF}"
 
+
+[[ -n ${CHOST} ]] || CHOST=$(gcc -dumpmachine)
+[[ "${CHOST}" == *-w64-mingw* ]] && ISMINGW=1 || ISMINGW=0
+
 if [ ! -n "${PREFIX}" ]; then
     echo 'Missing $PREFIX variable definition in '"${MAKEPKG_CONF}" >&2
     exit 1
@@ -388,7 +392,7 @@ if (( ! NOMAKEPKG )); then
 
 
     if (( ! NODEPLOY )); then
-        if [[ "${CHOST}" == *-w64-mingw* ]]; then
+        if (( ISMINGW )); then
             for package in "${target_packages[@]}"; do
                 package_runtime_dependencies ${package}
                 mv -f "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
@@ -422,7 +426,7 @@ if (( ! NOBUNDLE )); then
 
     for package in "${target_packages[@]}"; do
         execute "Extracting" tar xf "${PKGDEST}"/$(get_pkgfile "${package}") ${PREFIX#/}
-        if [[ "${CHOST}" == *-w64-mingw* ]] \
+        if (( ISMINGW )) \
                                     && [[ -f "${PKGDEST}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ]]; then
             execute "Extracting DLLs" tar xf "${PKGDEST}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ${PREFIX#/}
         fi
