@@ -50,7 +50,7 @@ package() {
   cd ${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
 
-  rm -rf "${pkgdir}"${PREFIX}/share/${pkgname}-${pkgver%.*}/{completions,editors,Help,include,Templates}
+  rm -rf "${pkgdir}"${PREFIX}/share/${pkgname}-${pkgver%.*}/{completions,editors,Help,include}
 
   install -Dm644 Copyright.txt \
     "${pkgdir}"${PREFIX}/share/licenses/${pkgname}/LICENSE
