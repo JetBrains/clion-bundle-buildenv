@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=${PKG_VERSION[$pkgname]:-8.0}
+pkgver=8.0
 pkgrel=2
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
@@ -32,7 +32,7 @@ source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz
         'gdb-perfomance.patch'
         'gdb-fix-using-gnu-print.patch'
         'gdb-7.12-dynamic-libs.patch')
-md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'c3d35cd949084be53b92cc1e03485f88'}
+md5sums=('c3d35cd949084be53b92cc1e03485f88'
          'c90fe93130e828fb22fbc3aded9605f0'
          'e48292d553379a9765c82e80e618ffd2'
          '8cc7f920caf4dddfc0d5d3fcd347ebb4'

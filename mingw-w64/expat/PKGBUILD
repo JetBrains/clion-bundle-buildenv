@@ -6,7 +6,7 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 pkgname=expat
-pkgver=${PKG_VERSION[$pkgname]:-2.2.1}
+pkgver=2.2.1
 pkgrel=1
 pkgdesc="An XML parser library (mingw-w64)"
 arch=(i686 x86_64)
@@ -17,7 +17,7 @@ options=('strip' 'staticlibs')
 source=("https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
         001-fix-extension.patch
         002-fix-tests.patch)
-md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'d9c3baeab58774cefc2f04faf29f2cf8'}
+md5sums=('d9c3baeab58774cefc2f04faf29f2cf8'
          'f0896e172059ce210ce70d2a37f4a04e'
          '64340503ab966d5059db5ae564b7b6ec')
 

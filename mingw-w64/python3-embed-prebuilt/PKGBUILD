@@ -2,7 +2,7 @@
 
 _realname=python3
 pkgname=${_realname}-embed
-pkgver=${PKG_VERSION[$pkgname]:-3.6.2}
+pkgver=3.6.2
 pkgrel=1
 _pybasever=${pkgver%.*}
 pkgdesc="A high-level scripting language (prebuilt; win32)"
@@ -21,7 +21,7 @@ source=(https://www.python.org/ftp/python/${pkgver}/Python-${pkgver}.tar.xz
         'python-config-u.sh'
         '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
 noextract=(python-${pkgver}-embed-${_archsuffix}.zip)
-md5sums=(${PKG_CHECKSUM[$pkgname|md5sum]:-'2c68846471994897278364fc18730dd9'}
+md5sums=('2c68846471994897278364fc18730dd9'
          'SKIP'
          '1809b9ab4d12c472754d99d8aa235d6a'
          '04838870a5db5805dc25a0c1be2a2f18'
