@@ -54,6 +54,15 @@ git_config() {
 }
 
 
+# Passes arguments to `find` and removes found files verbosely
+find_and_rm() {
+    local f
+    while read -rd '' f; do
+        rm -vf "$f"
+    done < <(find "$@" -print0)
+}
+
+
 # Get package information
 _package_info() {
     local package="${1}"
@@ -421,19 +430,11 @@ if (( ! NOBUNDLE )); then
     done
 
     message 'Removing shared library symlinks...'
-    while read -rd '' l; do
-        rm -vf "$l"
-    done < <(find -L ${PREFIX#/}/lib -xtype l -print0)
+    find_and_rm -L ${PREFIX#/}/lib -xtype l
 
     message 'Removing leftover development files...'
-    while read -rd '' l; do
-        rm -vf "$l"
-    done < <(find ${PREFIX#/} ! -type d -name "*.a" -print0)
-
-    while read -rd '' l; do
-        rm -vf "$l"
-    done < <(find ${PREFIX#/} ! -type d -name "*.la" -print0)
-
+    find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
+    find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
     rm -rvf ${PREFIX#/}/lib/pkgconfig
     rm -rvf ${PREFIX#/}/include
 
