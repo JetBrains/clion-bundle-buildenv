@@ -10,8 +10,6 @@
 
 prog_version=0.2
 
-export BUILD_ROOT_DIR="$(pwd)"
-
 
 if [[ -n "${TERM}" ]]; then
     # Enable colors
@@ -60,12 +58,12 @@ git_config() {
 _package_info() {
     local package="${1}"
     local properties=("${@:2}")
-    test -f "${BUILD_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package"
+    test -f "${PKG_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package"
     for property in "${properties[@]}"; do
         eval "${property}=()"
         local value=($(
             source "${MAKEPKG_CONF}"
-            source "${BUILD_ROOT_DIR}/${package}/PKGBUILD"
+            source "${PKG_ROOT_DIR}/${package}/PKGBUILD"
             eval echo "\${${property}[@]}"))
         eval "${property}=(\"\${value[@]}\")"
     done
@@ -196,7 +194,7 @@ package_runtime_dependencies() {
             _package_dll ${pkgdir} ${dlldir} "${prog}"
         done
 
-        tar -Jcf "${package}/${pkgfile_noext}-dll-dependencies.tar.xz" -C ${dlldir} . --xform='s:^\./::'
+        tar -Jcf "${PKG_ROOT_DIR}/${package}/${pkgfile_noext}-dll-dependencies.tar.xz" -C ${dlldir} . --xform='s:^\./::'
         rm -rf ${dlldir}
     done
 }
@@ -210,7 +208,8 @@ usage() {
     printf -- "Usage: %s -c <makepkg.conf> [--] [package...]\n" "$0"
     echo
     printf -- "Options:\n"
-    printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "$confdir/makepkg.conf"
+    printf -- "  -P, --pkgroot <dir>  Directory to search packages in (instead of '%s')\n" "\$CWD"
+    printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "\$pkgroot/makepkg.conf"
     printf -- "  --nomakepkg          Do not rebuild packages\n"
     printf -- "  --nobundle           Do not create %s from package files\n" "\$artifactsdir/bundle-\$chost.tar.xz"
     printf -- "  --nodeps             Do not build or bunble dependencies\n"
@@ -236,6 +235,9 @@ version() {
 
 MAKEPKG_OPTS=(--force --noconfirm --skippgpcheck --nocheck --nodeps)
 
+MAKEPKG_CONF=
+PKG_ROOT_DIR=
+
 NOMAKEPKG=0
 NOBUNDLE=0
 NODEPS=0
@@ -245,10 +247,13 @@ target_packages=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        # Makepkg Options
+        -P|--pkgroot)     shift; PKG_ROOT_DIR="$1" ;;
+        -P=*|--pkgroot=*) PKG_ROOT_DIR="${1#*=}" ;;
+
         -c|--config)      shift; MAKEPKG_CONF="$1"; MAKEPKG_OPTS+=(--config "${MAKEPKG_CONF}") ;;
         -c=*|--config=*)  MAKEPKG_CONF="${1#*=}";   MAKEPKG_OPTS+=(--config "${MAKEPKG_CONF}") ;;
 
+        # Makepkg Options
         --clean)          MAKEPKG_OPTS+=($1) ;;
         --cleanbuild)     MAKEPKG_OPTS+=($1) ;;
         -g|--geninteg)    MAKEPKG_OPTS+=($1); NOBUNDLE=1; NODEPLOY=1 ;;
@@ -274,16 +279,18 @@ done
 
 target_packages+=("$@")
 
-if [ ! -n "${MAKEPKG_CONF}" ]; then
-    echo "Missing required option: -c <makepkg.conf>" >&2
-    usage
-    exit 1
+PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
+if [ ! -d "${PKG_ROOT_DIR}" ]; then
+    failure "${PKG_ROOT_DIR}: Direcrory doesn't exist"
 fi
+export PKG_ROOT_DIR=$(readlink -e "${PKG_ROOT_DIR}")
 
+MAKEPKG_CONF="${MAKEPKG_CONF:-${PKG_ROOT_DIR}/makepkg.conf}"
 if [ ! -f "${MAKEPKG_CONF}" ]; then
     failure "${MAKEPKG_CONF}: File not found"
 fi
-export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}"); shift
+export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}")
+
 
 source "${MAKEPKG_CONF}"
 
