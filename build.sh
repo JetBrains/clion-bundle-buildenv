@@ -388,24 +388,24 @@ if (( ! NOBUNDLE )); then
     message 'Removing shared library symlinks...'
     while read -rd '' l; do
         rm -vf "$l"
-    done < <(find -L .${PREFIX}/lib ! -type d -xtype l -print0)
+    done < <(find -L ${PREFIX#/}/lib -xtype l -print0)
 
     message 'Removing leftover development files...'
     while read -rd '' l; do
         rm -vf "$l"
-    done < <(find . ! -type d -name "*.a" -print0)
+    done < <(find ${PREFIX#/} ! -type d -name "*.a" -print0)
 
     while read -rd '' l; do
         rm -vf "$l"
-    done < <(find . ! -type d -name "*.la" -print0)
+    done < <(find ${PREFIX#/} ! -type d -name "*.la" -print0)
 
-    rm -rvf .${PREFIX}/lib/pkgconfig
-    rm -rvf .${PREFIX}/include
+    rm -rvf ${PREFIX#/}/lib/pkgconfig
+    rm -rvf ${PREFIX#/}/include
 
     # Remove empty directories
-    find . -depth -type d -exec rmdir '{}' \; 2>/dev/null
+    find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
-    execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz . --xform='s:^\./::'
+    execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
 
     popd
 fi
