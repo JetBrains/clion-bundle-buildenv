@@ -130,6 +130,15 @@ get_pkgfile_noext() {
     fi
 }
 
+pkgfilename() {
+    [[ -n "${package}" ]] || failure "\${package} undefined"
+    get_pkgfile "${package}"
+}
+
+
+execute_in_pkg() {
+    execute_cd "${PKG_ROOT_DIR}/${package}" "$@"
+}
 
 # Run command with status
 execute(){
@@ -211,7 +220,7 @@ usage() {
     printf -- "  -P, --pkgroot <dir>  Directory to search packages in (instead of '%s')\n" "\$CWD"
     printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "\$pkgroot/makepkg.conf"
     printf -- "  --nomakepkg          Do not rebuild packages\n"
-    printf -- "  --nobundle           Do not create %s from package files\n" "\$artifactsdir/bundle-\$chost.tar.xz"
+    printf -- "  --nobundle           Do not create '%s' from package files\n" "\$DESTDIR/bundle.tar.xz"
     printf -- "  --nodeps             Do not build or bunble dependencies\n"
     printf -- "  -h, --help           Show this help message and exit\n"
     printf -- "  -V, --version        Show version information and exit\n"
@@ -220,11 +229,19 @@ usage() {
     echo
     printf -- "  --clean              Clean up work files after build\n"
     printf -- "  --cleanbuild         Remove %s dir before building the package\n" "\$package/\$srcdir/"
-    printf -- "  -g, --geninteg       Generate integrity checks for source files\n"
-    printf -- "  -o, --nobuild        Download and extract files only\n"
+    printf -- "  -g, --geninteg       Generate integrity checks for source files (implies --nobundle)\n"
+    printf -- "  -o, --nobuild        Download and extract files only (implies --nobundle)\n"
     printf -- "  -e, --noextract      Do not extract source files (use existing %s dir)\n" "\$package/\$srcdir/"
     printf -- "  -L, --log            Log package build process\n"
     printf -- "  --nocolor            Disable colorized output messages\n"
+    echo
+    printf -- "The following variables can be passed through environment:\n"
+    echo
+    printf -- "  DESTDIR              where to put the resulting bundle  [ \$CWD/artifacts-\$chost ]\n"
+    printf -- "  PKGDEST              where all packages will be placed  [ \$DESTDIR/makepkg/pkg ]\n"
+    printf -- "  SRCDEST              where source files will be cached  [ \$DESTDIR/makepkg/src ]\n"
+    printf -- "  LOGDEST              where all log files will be placed [ \$DESTDIR/makepkg/log ]\n"
+    printf -- "  BUILDDIR             where to run package compilation   [ \$DESTDIR/makepkg/build ]\n"
     echo
 }
 
@@ -241,7 +258,8 @@ PKG_ROOT_DIR=
 NOMAKEPKG=0
 NOBUNDLE=0
 NODEPS=0
-NODEPLOY=0
+NOINSTALL=0
+LOGGING=0
 
 target_packages=()
 
@@ -256,10 +274,10 @@ while [[ $# -gt 0 ]]; do
         # Makepkg Options
         --clean)          MAKEPKG_OPTS+=($1) ;;
         --cleanbuild)     MAKEPKG_OPTS+=($1) ;;
-        -g|--geninteg)    MAKEPKG_OPTS+=($1); NOBUNDLE=1; NODEPLOY=1 ;;
+        -g|--geninteg)    MAKEPKG_OPTS+=($1); NOBUNDLE=1; NOINSTALL=1 ;;
         -o|--nobuild)     MAKEPKG_OPTS+=($1); NOBUNDLE=1 ;;
         -e|--noextract)   MAKEPKG_OPTS+=($1) ;;
-        -L|--log)         MAKEPKG_OPTS+=($1) ;;
+        -L|--log)         MAKEPKG_OPTS+=($1); LOGGING=1 ;;
         --nocolor)        MAKEPKG_OPTS+=($1) ;;
 
         --nomakepkg)      NOMAKEPKG=1 ;;
@@ -300,14 +318,12 @@ if [ ! -n "${PREFIX}" ]; then
 fi
 export PATH="$PATH:$PREFIX/bin"
 
-ARTIFACTS_DIR="$(readlink -m "artifacts")"
-(( ! NODEPLOY )) && [ -d "${ARTIFACTS_DIR}" ] || mkdir -p "${ARTIFACTS_DIR}"
-
-git_config user.name  "${GIT_COMMITTER_NAME}"
-git_config user.email "${GIT_COMMITTER_EMAIL}"
-
-export TMPDIR=$(mktemp -d)
-trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
+# makepkg environmental variables
+export DESTDIR=${DESTDIR:-$(pwd)/artifacts-${CHOST}}
+export PKGDEST=${PKGDEST:-${DESTDIR}/makepkg/pkg}      #-- Destination: where all packages will be placed
+export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where source files will be cached
+export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all log files will be placed
+export BUILDDIR=${BUILDDIR:-${DESTDIR}/makepkg/build}  #-- Build tmp: where makepkg runs package build
 
 
 test -z "${target_packages[@]}" && failure 'No packages specified'
@@ -316,6 +332,16 @@ if (( ! NODEPS )); then
 else
     packages=("${target_packages[@]}")
 fi
+
+mkdir -p "${DESTDIR}" "${PKGDEST}" "${SRCDEST}"
+(( LOGGING )) && mkdir -p "${LOGDEST}"
+
+git_config user.name  "${GIT_COMMITTER_NAME}"
+git_config user.email "${GIT_COMMITTER_EMAIL}"
+
+export TMPDIR=$(mktemp -d)
+trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
+
 
 is_target_package() {
     local target_package
@@ -337,16 +363,17 @@ if (( ! NOMAKEPKG )); then
     # Build
     message 'Building packages' "${packages[@]}"
 
-    for package in "${packages[@]}"; do
-        export PACMAN=false  # just to be sure makepkg won't call it
-        execute_cd "${package}" 'Building binary' makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
+    export PACMAN=false  # just to be sure makepkg won't call it
 
-        if (( ! NODEPLOY )); then
-            [[ -f "${package}"/*-debug-*${PKGEXT} ]] \
-               && mv -f "${package}"/*-debug-*${PKGEXT} "${ARTIFACTS_DIR}"
-            execute_cd "${package}" 'Installing' tar xvf $(get_pkgfile "${package}") -C / ${PREFIX#/}
-            mv -f "${package}"/$(get_pkgfile "${package}") "${ARTIFACTS_DIR}"
+    for package in "${packages[@]}"; do
+        execute_in_pkg 'Building binary' \
+            makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
+
+        if (( ! NOINSTALL )); then
+            execute_in_pkg "Installing to ${PREFIX}" \
+                bsdtar -xvf $(pkgfilename) -C / ${PREFIX#/}
         fi
+
         unset package
     done
 
@@ -365,29 +392,30 @@ fi
 shopt -s extglob
 
 if (( ! NOBUNDLE )); then
-    message "Bundling packages" "${target_packages[@]}"
-
-    BUNDLE_DIR="${ARTIFACTS_DIR}/bundle-${CHOST}"
+    BUNDLE_DIR="${DESTDIR}/bundle"
     rm -rf "${BUNDLE_DIR}"
     mkdir -p "${BUNDLE_DIR}"
 
-    pushd "${BUNDLE_DIR}"
+    echo -n "pushd: "; pushd "${BUNDLE_DIR}"
+
+    message "Bundling packages" "${target_packages[@]}"
 
     if [[ -n ${dependency_packages[*]} ]]; then
         message "... with dependencies" "${dependency_packages[@]}"
 
         for package in "${dependency_packages[@]}"; do
-            execute "Extracting (dependency)" tar xf "${ARTIFACTS_DIR}"/$(get_pkgfile "${package}") ${PREFIX#/}
+            execute "Extracting (dependency)" \
+                bsdtar -xf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
             unset package
         done
         execute 'Removing dependency binaries...' rm -rvf .${PREFIX}/bin/!(*.dll)
     fi
 
     for package in "${target_packages[@]}"; do
-        execute "Extracting" tar xf "${ARTIFACTS_DIR}"/$(get_pkgfile "${package}") ${PREFIX#/}
+        execute "Extracting" tar xf "${PKGDEST}"/$(get_pkgfile "${package}") ${PREFIX#/}
         if [[ "${CHOST}" == *-w64-mingw* ]] \
-                                    && [[ -f "${ARTIFACTS_DIR}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ]]; then
-            execute "Extracting DLLs" tar xf "${ARTIFACTS_DIR}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ${PREFIX#/}
+                                    && [[ -f "${PKGDEST}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ]]; then
+            execute "Extracting DLLs" tar xf "${PKGDEST}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ${PREFIX#/}
         fi
         unset package
     done
@@ -414,7 +442,7 @@ if (( ! NOBUNDLE )); then
 
     execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
 
-    popd
+    echo -n "popd: "; popd
 fi
 
 success 'All packages built successfully'
