@@ -169,51 +169,32 @@ execute_cd(){
     popd > /dev/null
 }
 
-# Add runtime dependencies of a binary
-_package_dll() {
-    local pkgdir=${1}
-    local dlldir=${2}
-    local prog="${3}"
 
-    [ -f "${prog}" ] && [ -x "${prog}" ] || return 0
-    [ ! -e ${dlldir}${PREFIX}/bin/$(basename "${prog}") ] || return 0
+# Add runtime dependencies of a binary to ./${PREFIX}/bin/
+bundle_dll_dependencies() {
+    local binary="${1}"
+    local depchain=("${@:2}")
 
-    # https://stackoverflow.com/a/33174211/545027
-    local dll_names=$(${CHOST}-strings ${prog} | grep -i '\.dll$')
+    [[ -f "${binary}" && -x "${binary}" ]] || return 0
 
-    message "binary ${prog}" ${dll_names}
-
-    if [ $(readlink -m "${prog}") != $(realpath -m "${pkgdir}${PREFIX}/bin/$(basename "$prog")") ]; then
-        mkdir -p ${dlldir}${PREFIX}/bin/
-        cp "${prog}" ${dlldir}${PREFIX}/bin/ || failure "Couldn't copy ${prog}"
+    # don't copy at the outermost recursion level, i.e. the executable itself
+    if [[ -n ${depchain[*]} ]]; then
+        if [[ -e ${PREFIX#/}/bin/$(basename "${binary}") ]]; then  # done already
+            return 0
+        fi
+        message "${binary}: installing as dependency of:" "${depchain[@]}"
+        cp "${binary}" ${PREFIX#/}/bin/ || failure "Couldn't copy ${binary}"
     fi
 
-    for dll_name in ${dll_names}; do
-        for host_dll in /usr/${CHOST}/bin/"${dll_name}" \
-                            ${PREFIX}/bin/"${dll_name}"; do
-            if [ -f "${host_dll}" ] && [ -x "${host_dll}" ]; then
-                _package_dll ${pkgdir} ${dlldir} "${host_dll}"
-            fi
-        done
-    done
-}
+    # https://stackoverflow.com/a/33174211/545027
+    local dll_names=($(${CHOST}-strings ${binary} | grep -i '\.dll$'))
+    message "${binary}: DLL dependencies:" "${dll_names[@]}"
 
-package_runtime_dependencies() {
-    for package in "$@"; do
-        _package_info "${package}" pkgname
-        local pkgfile_noext=$(get_pkgfile_noext "${package}")
-        local pkgdir=$(pwd)/${package}/pkg/${pkgname}
-        local dlldir=${TMPDIR}/${package}-dll
-
-        message "Resolving runtime DLL dependencies"
-        mkdir -p ${dlldir}
-
-        for prog in ${pkgdir}${PREFIX}/bin/*; do
-            _package_dll ${pkgdir} ${dlldir} "${prog}"
-        done
-
-        tar -Jcf "${PKG_ROOT_DIR}/${package}/${pkgfile_noext}-dll-dependencies.tar.xz" -C ${dlldir} . --xform='s:^\./::'
-        rm -rf ${dlldir}
+    for dll_name in "${dll_names[@]}"; do
+        local host_dll=/usr/${CHOST}/bin/"${dll_name}"
+        if [[ -f "${host_dll}" && -x "${host_dll}" ]]; then  # recurse
+            bundle_dll_dependencies "${host_dll}" "${binary}" "${depchain[@]}"
+        fi
     done
 }
 
@@ -392,17 +373,6 @@ if (( ! NOMAKEPKG )); then
 
         unset package
     done
-
-
-    if (( ! NODEPLOY )); then
-        if (( ISMINGW )); then
-            for package in "${target_packages[@]}"; do
-                package_runtime_dependencies ${package}
-                mv -f "${package}"/*-dll-dependencies.tar.xz "${ARTIFACTS_DIR}" 2>/dev/null || true
-                unset package
-            done
-        fi
-    fi
 fi
 
 shopt -s extglob
@@ -424,17 +394,38 @@ if (( ! NOBUNDLE )); then
                 bsdtar -xf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
             unset package
         done
-        execute 'Removing dependency binaries...' rm -rvf .${PREFIX}/bin/!(*.dll)
+        message 'Removing dependency binaries...'
+        find_and_rm -L ${PREFIX#/}/bin -xtype l
+
+        while read -rd '' binary ; do
+            case "$(file -bi "$binary")" in
+                *text/x-shellscript*) ;;
+                *)
+                     if (( ISMINGW )) && [[ "$binary" != *.exe ]]; then
+                         continue
+                     fi
+                     ;;
+            esac
+            rm -vf "$binary"
+            unset binary
+        done < <(find ${PREFIX#/}/bin ! -type d -print0)
+
     fi
 
     for package in "${target_packages[@]}"; do
-        execute "Extracting" tar xf "${PKGDEST}"/$(get_pkgfile "${package}") ${PREFIX#/}
-        if (( ISMINGW )) \
-                                    && [[ -f "${PKGDEST}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ]]; then
-            execute "Extracting DLLs" tar xf "${PKGDEST}"/$(get_pkgfile_noext "${package}")-dll-dependencies.tar.xz ${PREFIX#/}
-        fi
+        execute "Extracting" \
+            bsdtar -xf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
         unset package
     done
+
+    if (( ISMINGW )); then
+        binaries=(${PREFIX#/}/bin/*.{exe,dll})
+        message "Bundling DLL dependencies" "${binaries[@]}"
+        for binary in "${binaries[@]}"; do
+            bundle_dll_dependencies "${binary}"
+            unset binary
+        done
+    fi
 
     message 'Removing shared library symlinks...'
     find_and_rm -L ${PREFIX#/}/lib -xtype l
