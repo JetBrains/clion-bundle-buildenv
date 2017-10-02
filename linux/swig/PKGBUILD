@@ -1,4 +1,7 @@
-# $Id$
+# Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
+#
+# This work is derived from the Arch Linux packaging project.
+#
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 # Contributor: Stéphane Gaudreault <stephane@archlinux.org>
 # Contributor: Tom Newsom <Jeepster@gmx.co.uk>
@@ -7,17 +10,18 @@ pkgname=swig
 pkgver=3.0.12
 pkgrel=1
 pkgdesc="Generate scripting interfaces to C/C++ code"
-arch=('i686' 'x86_64')
+arch=(i686 x86_64)
 url="http://www.swig.org/"
 license=('custom')
-depends=('pcre' 'gcc-libs')
+depends=('pcre')
 checkdepends=('ruby' 'python2' 'java-environment' 'tcl' 'php' 'lua' 'ocaml' 'r' 'go' 'python2-cffi' 'camlp4')
 source=(http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz)
 sha1sums=('5cc1af41d041e4cc609580b99bb3dcf720effa25')
 
 build() {
   cd ${pkgname}-${pkgver}
-  ./configure --prefix=/usr
+  ./configure --prefix=${PREFIX} \
+    --with-pcre-prefix=${PREFIX}
   make
 }
 
