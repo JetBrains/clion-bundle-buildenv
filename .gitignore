@@ -1,0 +1,7 @@
+artifacts/
+artifacts-*/
+
+.bash_history
+
+*.pkg.tar.xz
+*.src.tar.xz
