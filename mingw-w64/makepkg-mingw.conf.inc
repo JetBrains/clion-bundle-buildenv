@@ -1,6 +1,6 @@
 _makepkg_mingw_conf_name="${BASH_SOURCE}"
 
-source $(dirname ${_makepkg_mingw_conf_name})/../_makepkg-base.conf
+source $(dirname ${_makepkg_mingw_conf_name})/../makepkg.conf.inc
 
 # Override strip to use the tool from cross-toolchain
 tidy_strip() {
