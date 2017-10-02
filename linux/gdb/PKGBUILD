@@ -6,8 +6,8 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gdb
-pkgver=8.0
-pkgrel=2
+pkgver=8.0.1
+pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
@@ -15,7 +15,7 @@ license=(GPL3)
 makedepends=(libiconv expat xz zlib)
 depends=(python)
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('c3d35cd949084be53b92cc1e03485f88')
+md5sums=('48cac527e6f3018b865ece021e9723ac')
 options=('!staticlibs')
 
 prepare() {
