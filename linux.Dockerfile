@@ -6,9 +6,6 @@ RUN groupadd -r --gid 1001 build \
  && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build \
  && chmod 0440 /etc/sudoers.d/build
 
-RUN mkdir -p /opt /workdir \
- && chown build:build /opt /workdir
-
 RUN (echo ; \
      echo "group_package_types=mandatory";) >> /etc/yum.conf \
  && yum -y update \
@@ -40,6 +37,9 @@ RUN yum -y update --skip-broken \
 COPY docker-assets/linux/build-prerequisites/install-pacman.sh /tmp/build-prerequisites/
 RUN chmod a+x /tmp/build-prerequisites/install-pacman.sh \
  && /tmp/build-prerequisites/install-pacman.sh
+
+RUN mkdir -p /linux /workdir \
+ && chown build:build /linux /workdir
 
 ENV PATH="/opt/rh/devtoolset-3/root/usr/bin:${PATH}"
 

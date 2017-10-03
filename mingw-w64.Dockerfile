@@ -6,9 +6,6 @@ RUN groupadd -r --gid 1001 build \
  && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build \
  && chmod 0440 /etc/sudoers.d/build
 
-RUN mkdir -p /opt /workdir \
- && chown build:build /opt /workdir
-
 RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
       mingw-w64 \
       git \
@@ -17,6 +14,9 @@ RUN pacman --quiet --noconfirm -Sy && pacman --quiet --noconfirm -S \
       /var/lib/pacman/sync/* \
       /README \
       /etc/pacman.d/mirrorlist.pacnew
+
+RUN mkdir -p /win /workdir \
+ && chown build:build /win /workdir
 
 USER build
 WORKDIR /workdir
