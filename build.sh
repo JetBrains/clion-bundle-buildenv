@@ -162,10 +162,6 @@ pkgfilename() {
 }
 
 
-execute_in_pkg() {
-    execute_cd "${PKG_ROOT_DIR}/${package}" "$@"
-}
-
 # Run command with status
 execute(){
     local status="${1}"
@@ -341,6 +337,8 @@ export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where s
 export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all log files will be placed
 export BUILDDIR=${BUILDDIR:-${DESTDIR}/makepkg/build}  #-- Build tmp: where makepkg runs package build
 
+BUNDLE_DIR="${DESTDIR}/bundle"
+
 
 test -z "${target_packages[@]}" && failure 'No packages specified'
 if (( ! NODEPS )); then
@@ -357,6 +355,8 @@ git_config user.email "${GIT_COMMITTER_EMAIL}"
 
 export TMPDIR=$(mktemp -d)
 trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
+
+export PACMAN=false  # just to be sure makepkg won't call it
 
 
 is_target_package() {
@@ -375,43 +375,38 @@ for package in "${packages[@]}"; do
     unset package
 done
 
-if (( ! NOMAKEPKG )); then
-    # Build
-    message 'Building packages' "${packages[@]}"
 
-    export PACMAN=false  # just to be sure makepkg won't call it
+do_makepkg() {
+    message "packages to build:" "${packages[@]}"
+
+    local package
 
     for package in "${packages[@]}"; do
-        execute_in_pkg 'Building binary' \
+        execute_cd "${PKG_ROOT_DIR}/${package}" 'Running makepkg' \
             makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
 
         if (( ! NOINSTALL )); then
             execute "Installing to ${PREFIX}" \
                 bsdtar -xvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
         fi
-
-        unset package
     done
-fi
+}
 
 
-if (( ! NOBUNDLE )); then
-    BUNDLE_DIR="${DESTDIR}/bundle"
-    rm -rf "${BUNDLE_DIR}"
-    mkdir -p "${BUNDLE_DIR}"
+do_bundle() {
+    message "target packages:" "${target_packages[@]}"
 
-    echo -n "pushd: "; pushd "${BUNDLE_DIR}"
-
-    message "Bundling packages" "${target_packages[@]}"
+    local package binary
 
     if [[ -n ${dependency_packages[*]} ]]; then
-        message "... with dependencies" "${dependency_packages[@]}"
+        message "dependencies:" "${dependency_packages[@]}"
 
         for package in "${dependency_packages[@]}"; do
             execute "Extracting (dependency)" \
-                bsdtar -xf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
-            unset package
+                bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
         done
+        unset package
+
         message 'Removing dependency binaries...'
         find_and_rm -L ${PREFIX#/}/bin -xtype l
 
@@ -425,24 +420,27 @@ if (( ! NOBUNDLE )); then
                      ;;
             esac
             rm -vf "$binary"
-            unset binary
         done < <(find ${PREFIX#/}/bin ! -type d -print0)
-
+        unset binary
     fi
 
     for package in "${target_packages[@]}"; do
         execute "Extracting" \
-            bsdtar -xf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
-        unset package
+            bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
     done
+    unset package
 
-    if (( ISMINGW )); then
-        binaries=(${PREFIX#/}/bin/*.{exe,dll})
-        message "Bundling DLL dependencies" "${binaries[@]}"
+    do_bundle_dll() {
+        local binaries=(${PREFIX#/}/bin/*.{exe,dll})
+        message "binaries:" "${binaries[@]}"
+
+        local binary
         for binary in "${binaries[@]}"; do
             bundle_dll_dependencies "${binary}"
-            unset binary
         done
+    }
+    if (( ISMINGW )); then
+        execute "Bundling DLL dependencies" do_bundle_dll
     fi
 
     message 'Removing shared library symlinks...'
@@ -458,8 +456,19 @@ if (( ! NOBUNDLE )); then
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
     execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
+}
 
-    echo -n "popd: "; popd
+
+if (( ! NOMAKEPKG )); then
+    # Build
+    execute 'Building packages' do_makepkg
+fi
+
+if (( ! NOBUNDLE )); then
+    rm -rf "${BUNDLE_DIR}"
+    mkdir -p "${BUNDLE_DIR}"
+
+    execute_cd "${BUNDLE_DIR}" 'Bundling packages' do_bundle
 fi
 
 success 'All packages built successfully'
