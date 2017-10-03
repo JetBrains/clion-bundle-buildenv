@@ -18,13 +18,11 @@ fi
 source=(https://www.python.org/ftp/python/${pkgver}/Python-${pkgver}.tar.xz
         https://www.python.org/ftp/python/${pkgver}/python-${pkgver}-embed-${_archsuffix}.zip
         'python-config.sh.in'
-        'python-config-u.sh'
         '0001-pyconfig-Disable-definition-of-hypot-as-_hypot.patch')
 noextract=(python-${pkgver}-embed-${_archsuffix}.zip)
 md5sums=('2c68846471994897278364fc18730dd9'
          'SKIP'
          '1809b9ab4d12c472754d99d8aa235d6a'
-         '04838870a5db5805dc25a0c1be2a2f18'
          'ab052c29a0d73198bc4f81f9ac32f8c1')
 
 prepare() {
@@ -52,7 +50,7 @@ package() {
   install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/Include/*
   install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/PC/pyconfig.h
   install -Dm644 -t ${pkgdir}${PREFIX}/bin/ python${_pybasever/./}.zip *._pth
-  install -Dm755 -t ${pkgdir}${PREFIX}/bin/ *.{dll,pyd} ${srcdir}/python-config*.sh
+  install -Dm755 -t ${pkgdir}${PREFIX}/bin/ *.{dll,pyd} ${srcdir}/python-config.sh
 
   install -dm755 ${pkgdir}${PREFIX}/lib/python${_pybasever}/config
   ln -sT ../../../bin/python${_pybasever/./}.dll ${pkgdir}${PREFIX}/lib/python${_pybasever}/config/python${_pybasever}.dll.a

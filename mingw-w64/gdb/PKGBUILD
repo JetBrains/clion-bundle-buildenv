@@ -115,7 +115,7 @@ build() {
     --disable-win32-registry \
     --disable-rpath \
     --with-system-gdbinit=${PREFIX}/etc/gdbinit \
-    --with-python=${PREFIX}/bin/python-config-u.sh \
+    --with-python=${PREFIX}/bin/python-config.sh \
     --without-guile \
     --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
     --disable-tui
