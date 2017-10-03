@@ -24,6 +24,12 @@ else
     cyan=""
 fi
 
+
+# https://confluence.jetbrains.com/display/TCD10/Configuring+Build+Parameters
+teamcity() {
+    echo "##teamcity[$@]"
+}
+
 # Basic status function
 _status() {
     local type="${1}"
@@ -32,13 +38,13 @@ _status() {
 
     if [[ -n ${TEAMCITY_VERSION} ]]; then
         case "${type}" in
-            progress_start)  local teamcity_report="progressStart '${status}'" ;;
-            progress_finish) local teamcity_report="progressFinish '${status}'" ;;
-            message)         local teamcity_report="progressMessage '${status}'" ;;
-            failure)         local teamcity_report="buildProblem description='${status}'" ;;
-            success)         local teamcity_report="buildStatus status='SUCCESS' text='${status}'" ;;
+            progress_start)  local teamcity_args="progressStart '${status}'" ;;
+            progress_finish) local teamcity_args="progressFinish '${status}'" ;;
+            message)         local teamcity_args="progressMessage '${status}'" ;;
+            failure)         local teamcity_args="buildProblem description='${status}'" ;;
+            success)         local teamcity_args="buildStatus status='SUCCESS' text='${status}'" ;;
         esac
-        echo "##teamcity[${teamcity_report}]"
+        teamcity "${teamcity_args}"
     else
         case "${type}" in
             progress_finish) return 0 ;;  # don't report when running from terminal
