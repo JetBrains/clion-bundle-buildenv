@@ -38,17 +38,17 @@ _status() {
 
     if [[ -n ${TEAMCITY_VERSION} ]]; then
         case "${type}" in
-            progress_start)  local teamcity_args="progressStart '${status}'" ;;
-            progress_finish) local teamcity_args="progressFinish '${status}'" ;;
-            message)         local teamcity_args="progressMessage '${status}'" ;;
-            failure)         local teamcity_args="buildProblem description='${status}'" ;;
-            success)         local teamcity_args="buildStatus status='SUCCESS' text='${status}'" ;;
+            block_open)  local teamcity_args="blockOpened name='${status}'" ;;
+            block_close) local teamcity_args="blockClosed name='${status}'" ;;
+            message)     local teamcity_args="message text='${status}'" ;;
+            failure)     local teamcity_args="buildProblem description='${status}'" ;;
+            success)     return 0 ;;  # skip it, TC will set the default "Success" badge by default
         esac
         teamcity "${teamcity_args}"
     else
         case "${type}" in
-            progress_finish) return 0 ;;  # don't report when running from terminal
-            progress_start|message)
+            block_close) return 0 ;;  # don't report when running from terminal
+            block_open|message)
                      local color="${cyan}";  title='[BUILD]' ;;
             failure) local color="${red}";   title='[BUILD] FAILURE:' ;;
             success) local color="${green}"; title='[BUILD] SUCCESS:' ;;
@@ -60,11 +60,11 @@ _status() {
 }
 
 # Status functions
-failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}." "${items[@]}"; exit 1; }
-success() { local status="${1}"; local items=("${@:2}"); _status success "${status}." "${items[@]}"; exit 0; }
-message() { local status="${1}"; local items=("${@:2}"); _status message "${status}"  "${items[@]}"; }
-progress_start()  { local status="${1}"; local items=("${@:2}"); _status progress_start  "${status}"  "${items[@]}"; }
-progress_finish() { local status="${1}"; local items=("${@:2}"); _status progress_finish "${status}"  "${items[@]}"; }
+failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}" "${items[@]}"; exit 1; }
+success() { local status="${1}"; local items=("${@:2}"); _status success "${status}" "${items[@]}"; exit 0; }
+message() { local status="${1}"; local items=("${@:2}"); _status message "${status}" "${items[@]}"; }
+block_open()  { local status="${1}"; local items=("${@:2}"); _status block_open  "${status}"  "${items[@]}"; }
+block_close() { local status="${1}"; local items=("${@:2}"); _status block_close "${status}"  "${items[@]}"; }
 
 
 # Git configuration
@@ -173,9 +173,9 @@ execute(){
     local status="${1}"
     local command="${2}"
     local arguments=("${@:3}")
-    progress_start "${status}"
+    block_open "${status}"
     ${command} ${arguments[@]} || failure "${status} failed"
-    progress_finish "${status}"
+    block_close "${status}"
 }
 
 execute_cd(){
@@ -183,11 +183,11 @@ execute_cd(){
     local status="${2}"
     local command="${3}"
     local arguments=("${@:4}")
-    progress_start "${status}"
+    block_open "${status}"
     pushd "${d}" > /dev/null
     ${command} ${arguments[@]} || failure "${status} failed"
     popd > /dev/null
-    progress_finish "${status}"
+    block_close "${status}"
 }
 
 
