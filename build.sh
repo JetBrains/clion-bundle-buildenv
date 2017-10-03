@@ -367,8 +367,8 @@ if (( ! NOMAKEPKG )); then
             makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
 
         if (( ! NOINSTALL )); then
-            execute_in_pkg "Installing to ${PREFIX}" \
-                bsdtar -xvf $(pkgfilename) -C / ${PREFIX#/}
+            execute "Installing to ${PREFIX}" \
+                bsdtar -xvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
         fi
 
         unset package
