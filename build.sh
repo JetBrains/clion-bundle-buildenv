@@ -29,12 +29,27 @@ _status() {
     local type="${1}"
     local status="${package:+${package}: }${2}"
     local items=("${@:3}")
-    case "${type}" in
-        failure) local color="${red}";   title='[BUILD] FAILURE:' ;;
-        success) local color="${green}"; title='[BUILD] SUCCESS:' ;;
-        message) local color="${cyan}";  title='[BUILD]'
-    esac
-    printf "%s\n" "${color}${title}${normal} ${status}" >&2
+
+    if [[ -n ${TEAMCITY_VERSION} ]]; then
+        case "${type}" in
+            progress_start)  local teamcity_report="progressStart '${status}'" ;;
+            progress_finish) local teamcity_report="progressFinish '${status}'" ;;
+            message)         local teamcity_report="progressMessage '${status}'" ;;
+            failure)         local teamcity_report="buildProblem description='${status}'" ;;
+            success)         local teamcity_report="buildStatus status='SUCCESS' text='${status}'" ;;
+        esac
+        echo "##teamcity[${teamcity_report}]"
+    else
+        case "${type}" in
+            progress_finish) return 0 ;;  # don't report when running from terminal
+            progress_start|message)
+                     local color="${cyan}";  title='[BUILD]' ;;
+            failure) local color="${red}";   title='[BUILD] FAILURE:' ;;
+            success) local color="${green}"; title='[BUILD] SUCCESS:' ;;
+        esac
+        echo "${color}${title}${normal} ${status}" >&2
+    fi
+
     printf "${items:+\t%s\n}" "${items:+${items[@]}}" >&2
 }
 
@@ -42,6 +57,8 @@ _status() {
 failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}." "${items[@]}"; exit 1; }
 success() { local status="${1}"; local items=("${@:2}"); _status success "${status}." "${items[@]}"; exit 0; }
 message() { local status="${1}"; local items=("${@:2}"); _status message "${status}"  "${items[@]}"; }
+progress_start()  { local status="${1}"; local items=("${@:2}"); _status progress_start  "${status}"  "${items[@]}"; }
+progress_finish() { local status="${1}"; local items=("${@:2}"); _status progress_finish "${status}"  "${items[@]}"; }
 
 
 # Git configuration
@@ -154,8 +171,9 @@ execute(){
     local status="${1}"
     local command="${2}"
     local arguments=("${@:3}")
-    message "${status}"
+    progress_start "${status}"
     ${command} ${arguments[@]} || failure "${status} failed"
+    progress_finish "${status}"
 }
 
 execute_cd(){
@@ -163,10 +181,11 @@ execute_cd(){
     local status="${2}"
     local command="${3}"
     local arguments=("${@:4}")
+    progress_start "${status}"
     pushd "${d}" > /dev/null
-    message "${status}"
     ${command} ${arguments[@]} || failure "${status} failed"
     popd > /dev/null
+    progress_finish "${status}"
 }
 
 
