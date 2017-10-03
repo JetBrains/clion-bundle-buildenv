@@ -462,6 +462,17 @@ do_bundle() {
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
     execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
+
+    if [[ -n ${TEAMCITY_VERSION} ]]; then
+        local pkgname pkgver
+        local allpkgs=()
+        for package in "${target_packages[@]}"; do
+            _package_info "${package}" pkgname pkgver
+            allpkgs+=("${pkgname}-${pkgver}")
+            teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.pkg.${pkgname}.pkgver'" value="'${pkgver}'"
+        done
+        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags'" value="'$(IFS=','; echo "${allpkgs[*]}")'"
+    fi
 }
 
 
