@@ -394,7 +394,6 @@ if (( ! NOMAKEPKG )); then
     done
 fi
 
-shopt -s extglob
 
 if (( ! NOBUNDLE )); then
     BUNDLE_DIR="${DESTDIR}/bundle"
