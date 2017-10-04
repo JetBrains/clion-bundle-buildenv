@@ -7,7 +7,7 @@
 
 pkgname=gdb
 pkgver=8.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
 url="https://www.gnu.org/software/gdb/"
@@ -31,7 +31,8 @@ source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz
         'gdb-7.6.2-mingw-gcc-4.7.patch'
         'gdb-perfomance.patch'
         'gdb-fix-using-gnu-print.patch'
-        'gdb-7.12-dynamic-libs.patch')
+        'gdb-7.12-dynamic-libs.patch'
+        'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch')
 md5sums=('48cac527e6f3018b865ece021e9723ac'
          'c90fe93130e828fb22fbc3aded9605f0'
          'e48292d553379a9765c82e80e618ffd2'
@@ -39,7 +40,8 @@ md5sums=('48cac527e6f3018b865ece021e9723ac'
          '7cc5df72d958ef3e4b1ffa9f7b069e6f'
          'e9b7c252fedfa950998f5f3b32536461'
          'd7112b220466a294aa266bb4d5c06a59'
-         'aa9da2a8653357d1849f3a1092110461')
+         'aa9da2a8653357d1849f3a1092110461'
+         '18f5d49270a9ac18af16c53ccfa302a2')
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}
@@ -59,6 +61,9 @@ prepare() {
 
   # https://sourceware.org/bugzilla/show_bug.cgi?id=15600
   patch -p1 -i ${srcdir}/0001-python_run_simple_file-Use-_Py_fopen-instead-of-PyFi.patch
+
+  # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
+  patch -p1 -i ${srcdir}/CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure

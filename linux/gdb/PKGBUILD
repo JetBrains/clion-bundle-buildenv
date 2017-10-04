@@ -7,19 +7,24 @@
 
 pkgname=gdb
 pkgver=8.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
 makedepends=(libiconv expat xz zlib)
 depends=(python)
-source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('48cac527e6f3018b865ece021e9723ac')
+source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz"
+        'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch')
+md5sums=('48cac527e6f3018b865ece021e9723ac'
+         '18f5d49270a9ac18af16c53ccfa302a2')
 options=('!staticlibs')
 
 prepare() {
   cd gdb-$pkgver
+
+  # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
+  patch -p1 -i ${srcdir}/CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
