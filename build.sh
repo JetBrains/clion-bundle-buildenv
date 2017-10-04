@@ -231,6 +231,7 @@ usage() {
     printf -- "  -P, --pkgroot <dir>  Directory to search packages in (instead of '%s')\n" "\$CWD"
     printf -- "  -c, --config <file>  Use an alternate config file (instead of '%s')\n" "\$pkgroot/makepkg.conf"
     printf -- "  --nomakepkg          Do not rebuild packages\n"
+    printf -- "  --noinstall          Do not extract packages into '%s'\n" "\$PREFIX"
     printf -- "  --nobundle           Do not create '%s' from package files\n" "\$DESTDIR/bundle.tar.xz"
     printf -- "  --nodeps             Do not build or bunble dependencies\n"
     printf -- "  -h, --help           Show this help message and exit\n"
@@ -240,8 +241,8 @@ usage() {
     echo
     printf -- "  --clean              Clean up work files after build\n"
     printf -- "  --cleanbuild         Remove %s dir before building the package\n" "\$package/\$srcdir/"
-    printf -- "  -g, --geninteg       Generate integrity checks for source files (implies --nobundle)\n"
-    printf -- "  -o, --nobuild        Download and extract files only (implies --nobundle)\n"
+    printf -- "  -g, --geninteg       Generate integrity checks for source files (implies --noinstall --nobundle)\n"
+    printf -- "  -o, --nobuild        Download and extract files only (implies --noinstall --nobundle)\n"
     printf -- "  -e, --noextract      Do not extract source files (use existing %s dir)\n" "\$package/\$srcdir/"
     printf -- "  -L, --log            Log package build process\n"
     printf -- "  --nocolor            Disable colorized output messages\n"
@@ -286,12 +287,13 @@ while [[ $# -gt 0 ]]; do
         --clean)          MAKEPKG_OPTS+=($1) ;;
         --cleanbuild)     MAKEPKG_OPTS+=($1) ;;
         -g|--geninteg)    MAKEPKG_OPTS+=($1); NOBUNDLE=1; NOINSTALL=1 ;;
-        -o|--nobuild)     MAKEPKG_OPTS+=($1); NOBUNDLE=1 ;;
+        -o|--nobuild)     MAKEPKG_OPTS+=($1); NOBUNDLE=1; NOINSTALL=1 ;;
         -e|--noextract)   MAKEPKG_OPTS+=($1) ;;
         -L|--log)         MAKEPKG_OPTS+=($1); LOGGING=1 ;;
         --nocolor)        MAKEPKG_OPTS+=($1) ;;
 
         --nomakepkg)      NOMAKEPKG=1 ;;
+        --noinstall)      NOINSTALL=1 ;;
         --nobundle)       NOBUNDLE=1 ;;
         --nodeps)         NODEPS=1 ;;
 
