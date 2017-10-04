@@ -45,6 +45,7 @@ _status() {
             success)     return 0 ;;  # skip it, TC will set the default "Success" badge by default
         esac
         teamcity "${teamcity_args}"
+        printf "${items:+\t%s\n}" "${items:+${items[@]}}"
     else
         case "${type}" in
             block_close) return 0 ;;  # don't report when running from terminal
@@ -54,9 +55,8 @@ _status() {
             success) local color="${green}"; title='[BUILD] SUCCESS:' ;;
         esac
         echo "${color}${title}${normal} ${status}" >&2
+        printf "${items:+\t%s\n}" "${items:+${items[@]}}" >&2
     fi
-
-    printf "${items:+\t%s\n}" "${items:+${items[@]}}" >&2
 }
 
 # Status functions
@@ -388,11 +388,11 @@ do_makepkg() {
     local package
 
     for package in "${packages[@]}"; do
-        execute_cd "${PKG_ROOT_DIR}/${package}" 'Running makepkg' \
+        execute_cd "${PKG_ROOT_DIR}/${package}" 'makepkg' \
             makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
 
         if (( ! NOINSTALL )); then
-            execute "Installing to ${PREFIX}" \
+            execute "install" \
                 bsdtar -xvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
         fi
     done
@@ -408,7 +408,7 @@ do_bundle() {
         message "dependencies:" "${dependency_packages[@]}"
 
         for package in "${dependency_packages[@]}"; do
-            execute "Extracting (dependency)" \
+            execute "extract (dep)" \
                 bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
         done
         unset package
@@ -431,7 +431,7 @@ do_bundle() {
     fi
 
     for package in "${target_packages[@]}"; do
-        execute "Extracting" \
+        execute "extract" \
             bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
     done
     unset package
@@ -446,7 +446,7 @@ do_bundle() {
         done
     }
     if (( ISMINGW )); then
-        execute "Bundling DLL dependencies" do_bundle_dll
+        execute "bundle DLL" do_bundle_dll
     fi
 
     message 'Removing shared library symlinks...'
@@ -461,7 +461,7 @@ do_bundle() {
     # Remove empty directories
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
-    execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
+    execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcvf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
 
     if [[ -n ${TEAMCITY_VERSION} ]]; then
         local pkgname pkgver
@@ -478,14 +478,14 @@ do_bundle() {
 
 if (( ! NOMAKEPKG )); then
     # Build
-    execute 'Building packages' do_makepkg
+    execute 'build' do_makepkg
 fi
 
 if (( ! NOBUNDLE )); then
     rm -rf "${BUNDLE_DIR}"
     mkdir -p "${BUNDLE_DIR}"
 
-    execute_cd "${BUNDLE_DIR}" 'Bundling packages' do_bundle
+    execute_cd "${BUNDLE_DIR}" 'bundle' do_bundle
 fi
 
 success 'All packages built successfully'
