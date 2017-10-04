@@ -12,8 +12,7 @@ pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
-makedepends=(libiconv expat xz zlib)
-depends=(python)
+depends=(libiconv expat xz zlib python)
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz"
         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch')
 md5sums=('48cac527e6f3018b865ece021e9723ac'

@@ -9,7 +9,6 @@ pkgdesc="A high-level scripting language (prebuilt; win32)"
 arch=(i686 x86_64)
 license=('PSF')
 url="https://www.python.org/"
-#makedepends=('wine')
 options=('!staticlibs' 'strip')
 if [ "${CARCH}" == x86_64 ]
   then _archsuffix=amd64

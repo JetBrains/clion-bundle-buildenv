@@ -24,7 +24,7 @@ license=('custom:University of Illinois/NCSA Open Source License')
 # depends=('llvm-libs' 'libxml2' 'python2' 'python2-six')
 # depends=('gcc-libs' 'zlib' 'libffi' 'libedit' 'ncurses')
 makedepends=('cmake' 'python' 'swig')
-depends=(zlib)
+depends=(zlib python)
 options=(!staticlibs !debug)
 source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         https://releases.llvm.org/${pkgver}/cfe-${pkgver}.src.tar.xz

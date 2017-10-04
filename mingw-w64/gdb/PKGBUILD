@@ -15,13 +15,14 @@ license=('GPL')
 groups=("toolchain")
 depends=("expat"
          "libiconv"
+         "zlib"
+         "xz"
          #"python2"
-         "python3-embed-prebuilt"
-         "zlib")
+         "python3-embed-prebuilt")
 checkdepends=('dejagnu' 'bc')
-makedepends=("libiconv"
+#makedepends=("libiconv"
 #             "ncurses"
-             "xz")
+#             "xz")
 options=('!staticlibs' 'strip')
 source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz
         'gdb-fix-display-tabs-on-mingw.patch'
