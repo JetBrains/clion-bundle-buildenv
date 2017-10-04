@@ -244,6 +244,7 @@ usage() {
     printf -- "  -g, --geninteg       Generate integrity checks for source files (implies --noinstall --nobundle)\n"
     printf -- "  -o, --nobuild        Download and extract files only (implies --noinstall --nobundle)\n"
     printf -- "  -e, --noextract      Do not extract source files (use existing %s dir)\n" "\$package/\$srcdir/"
+    printf -- "  -R, --repackage      Repackage contents of the package without rebuilding\n"
     printf -- "  -L, --log            Log package build process\n"
     printf -- "  --nocolor            Disable colorized output messages\n"
     echo
@@ -289,6 +290,7 @@ while [[ $# -gt 0 ]]; do
         -g|--geninteg)    MAKEPKG_OPTS+=($1); NOBUNDLE=1; NOINSTALL=1 ;;
         -o|--nobuild)     MAKEPKG_OPTS+=($1); NOBUNDLE=1; NOINSTALL=1 ;;
         -e|--noextract)   MAKEPKG_OPTS+=($1) ;;
+        -R|--repackage)   MAKEPKG_OPTS+=($1) ;;
         -L|--log)         MAKEPKG_OPTS+=($1); LOGGING=1 ;;
         --nocolor)        MAKEPKG_OPTS+=($1) ;;
 
