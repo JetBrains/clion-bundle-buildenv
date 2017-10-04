@@ -1,8 +1,8 @@
+PREFIX=${PREFIX-/win}
+
 _makepkg_mingw_conf_name="${BASH_SOURCE}"
 
 source $(dirname ${_makepkg_mingw_conf_name})/../makepkg.conf.inc
-
-PREFIX=/win
 
 # Override strip to use the tool from cross-toolchain
 tidy_strip() {
