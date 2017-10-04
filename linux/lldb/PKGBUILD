@@ -32,10 +32,11 @@ source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/compiler-rt-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/lld-${pkgver}.src.tar.xz
         https://releases.llvm.org/${pkgver}/lldb-${pkgver}.src.tar.xz
-        )
+        0500-disable-lldb-soname.patch)
 sha256sums=('e35dcbae6084adcf4abb32514127c5eabd7d63b733852ccdb31e06f1373136da'
             '019f23c2192df793ac746595e94a403908749f8e0c484b403476d2611dd20970'
-            'c0a0ca32105e9881d86b7ca886220147e686edc97fdb9f3657c6659dc6568b7d')
+            'c0a0ca32105e9881d86b7ca886220147e686edc97fdb9f3657c6659dc6568b7d'
+            '0001f7ff0268295fe67eb7b551670dc878eafa0c6e28c56b6aecc43deb4ec72d')
 
 prepare() {
   cd "$srcdir/llvm-${pkgver}.src"
@@ -43,6 +44,9 @@ prepare() {
 
   mv "$srcdir/cfe-${pkgver}.src" tools/clang
   mv "$srcdir/lldb-${pkgver}.src" tools/lldb
+
+  cd tools/lldb
+  patch -p1 -i "${srcdir}/0500-disable-lldb-soname.patch"
 
   # # https://bugs.llvm.org/show_bug.cgi?id=34123
   # sed -i '/LLVMSupport/d' tools/clang/tools/extra/clangd/tool/CMakeLists.txt
