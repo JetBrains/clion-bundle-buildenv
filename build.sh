@@ -439,6 +439,8 @@ do_bundle() {
         unset package
 
         message 'Removing dependency binaries...'
+        [[ -d ${PREFIX#/}/bin ]] || continue
+
         find_and_rm -L ${PREFIX#/}/bin -xtype l
 
         while read -rd '' binary ; do
@@ -475,7 +477,7 @@ do_bundle() {
     fi
 
     message 'Removing shared library symlinks...'
-    find_and_rm -L ${PREFIX#/}/lib -xtype l
+    [[ -d ${PREFIX#/}/lib ]] && find_and_rm -L ${PREFIX#/}/lib -xtype l
 
     message 'Removing doc and man directories...'
     rm -rvf "${DOC_DIRS[@]}" "${MAN_DIRS[@]}"
