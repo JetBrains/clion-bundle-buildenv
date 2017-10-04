@@ -337,7 +337,7 @@ fi
 export PATH="$PATH:$PREFIX/bin"
 
 # makepkg environmental variables
-export DESTDIR=${DESTDIR:-$(pwd)/artifacts-${CHOST}}
+export DESTDIR=$(readlink -m ${DESTDIR:-artifacts-${CHOST}})
 export PKGDEST=${PKGDEST:-${DESTDIR}/makepkg/pkg}      #-- Destination: where all packages will be placed
 export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where source files will be cached
 export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all log files will be placed
