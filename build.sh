@@ -114,28 +114,48 @@ _package_provides() {
 
 # Add package to build after required dependencies
 _build_add() {
-    local package="${1}"
+    local include_makedepends="${1}"  # 0 or 1
+    local package="${2}"
+
     local depends makedepends
+    local sorted_package
+
     for sorted_package in "${sorted_packages[@]}"; do
         [[ "${sorted_package}" = "${package}" ]] && return 0
     done
-    message "Resolving dependencies"
-    _package_info "${package}" depends makedepends
-    for dependency in "${depends[@]}" "${makedepends[@]}"; do
-        # for unsorted_package in "${packages[@]}"; do
-        #     [[ "${package}" = "${unsorted_package}" ]] && continue
-        #     _package_provides "${unsorted_package}" "${dependency}" && _build_add "${unsorted_package}"
-        # done
-        _build_add "${dependency}"
-    done
     sorted_packages+=("${package}")
+
+    _package_info "${package}" depends makedepends
+
+    local kind='runtime'
+    if (( include_makedepends )); then
+        kind='build'
+        depends+=("${makedepends[@]}")
+    fi
+
+    message "Resolving ${kind} dependencies" "${depends[@]}"
+
+    for dependency in "${depends[@]}"; do
+        _build_add ${include_makedepends} "${dependency}"
+    done
 }
 
 # Sort packages by dependency
 define_build_order() {
-    local sorted_packages=()
+    local unsorted_packages=("$@")
+
+    local sorted_packages
+    local unsorted_package
+
+    sorted_packages=()
+    for unsorted_package in "${unsorted_packages[@]}"; do
+        _build_add 1 "${unsorted_package}"
+    done
+    make_packages=("${sorted_packages[@]}")
+
+    sorted_packages=()
     for unsorted_package in "$@"; do
-        _build_add "${unsorted_package}"
+        _build_add 0 "${unsorted_package}"
     done
     packages=("${sorted_packages[@]}")
 }
@@ -354,6 +374,7 @@ test -z "${target_packages[@]}" && failure 'No packages specified'
 if (( ! NODEPS )); then
     define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
 else
+    make_packages=("${target_packages[@]}")
     packages=("${target_packages[@]}")
 fi
 
@@ -387,11 +408,11 @@ done
 
 
 do_makepkg() {
-    message "packages to build:" "${packages[@]}"
+    message "packages to build:" "${make_packages[@]}"
 
     local package
 
-    for package in "${packages[@]}"; do
+    for package in "${make_packages[@]}"; do
         execute_cd "${PKG_ROOT_DIR}/${package}" 'makepkg' \
             makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
 
