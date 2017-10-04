@@ -123,7 +123,7 @@ _build_add() {
     for sorted_package in "${sorted_packages[@]}"; do
         [[ "${sorted_package}" = "${package}" ]] && return 0
     done
-    sorted_packages+=("${package}")
+    sorted_packages=("${package}" "${sorted_packages[@]}")
 
     _package_info "${package}" depends makedepends
 
