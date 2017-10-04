@@ -454,6 +454,12 @@ do_bundle() {
     message 'Removing shared library symlinks...'
     find_and_rm -L ${PREFIX#/}/lib -xtype l
 
+    message 'Removing doc and man directories...'
+    rm -rvf "${DOC_DIRS[@]}" "${MAN_DIRS[@]}"
+
+    message 'Removing l10n files...'
+    rm -rvf ${PREFIX#/}/share/locale
+
     message 'Removing leftover development files...'
     find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
     find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
