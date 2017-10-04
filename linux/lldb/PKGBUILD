@@ -25,7 +25,7 @@ license=('custom:University of Illinois/NCSA Open Source License')
 # depends=('gcc-libs' 'zlib' 'libffi' 'libedit' 'ncurses')
 makedepends=('cmake' 'python' 'swig')
 depends=(zlib)
-options=(!debug)
+options=(!staticlibs !debug)
 source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         https://releases.llvm.org/${pkgver}/cfe-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/clang-tools-extra-${pkgver}.src.tar.xz
