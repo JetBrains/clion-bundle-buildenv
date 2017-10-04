@@ -2,11 +2,7 @@
 # Common bits for makepkg.conf
 #
 
-PKGVERSION="JetBrains IDE bundle"
-
-pkgversion_string() {
-  echo "${PKGVERSION}${BUILD_NUMBER:+; build ${BUILD_NUMBER}}"
-}
+PKGVERSION="JetBrains IDE bundle${BUILD_NUMBER:+; build ${BUILD_NUMBER}}"
 
 
 #########################################################################

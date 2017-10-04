@@ -61,10 +61,8 @@ build() {
     "m32r-linux-gnu"
   )
 
-  local _pkgversion_string="$(pkgversion_string)"
-
   ../gdb-${pkgver}/configure \
-    --with-pkgversion="GDB${_pkgversion_string:+; ${_pkgversion_string}}" \
+    --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --prefix=${PREFIX} \
     --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
     --enable-gdbserver \
