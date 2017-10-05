@@ -522,6 +522,7 @@ if (( ! NOBUNDLE )); then
     mkdir -p "${BUNDLE_DIR}"
 
     execute_cd "${BUNDLE_DIR}" 'bundle' do_bundle
+    echo "${PREFIX}" > "${BUNDLE_DIR}/.prefix"
 fi
 
 success 'All packages built successfully'
