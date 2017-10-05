@@ -372,6 +372,7 @@ export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all 
 export BUILDDIR=${BUILDDIR:-${DESTDIR}/makepkg/build}  #-- Build tmp: where makepkg runs package build
 
 BUNDLE_DIR="${DESTDIR}/bundle"
+BUNDLE_TARBALL="${BUNDLE_DIR%%/}".tar.xz
 
 
 test -z "${target_packages[@]}" && failure 'No packages specified'
@@ -498,7 +499,7 @@ do_bundle() {
     # Remove empty directories
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
-    execute "Archiving ${BUNDLE_DIR%%/}.tar.xz" tar -Jcvf "${BUNDLE_DIR%%/}".tar.xz ${PREFIX#/}
+    execute "Archiving ${BUNDLE_TARBALL}" tar -Jcvf "${BUNDLE_TARBALL}" ${PREFIX#/}
 
     if [[ -n ${TEAMCITY_VERSION} ]]; then
         local pkgname pkgver
@@ -528,7 +529,7 @@ if (( ! NOMAKEPKG )); then
 fi
 
 if (( ! NOBUNDLE )); then
-    rm -rf "${BUNDLE_DIR}"
+    rm -rf "${BUNDLE_DIR}" "${BUNDLE_TARBALL}"
     mkdir -p "${BUNDLE_DIR}"
 
     execute_cd "${BUNDLE_DIR}" 'bundle' do_bundle
