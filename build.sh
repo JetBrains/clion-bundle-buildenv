@@ -118,12 +118,12 @@ _build_add() {
     local package="${2}"
 
     local depends makedepends
-    local sorted_package
+    local seen_package
 
-    for sorted_package in "${sorted_packages[@]}"; do
-        [[ "${sorted_package}" = "${package}" ]] && return 0
+    for seen_package in "${seen_packages[@]}"; do
+        [[ "${seen_package}" = "${package}" ]] && return 0
     done
-    sorted_packages=("${package}" "${sorted_packages[@]}")
+    seen_packages+=("${package}")
 
     _package_info "${package}" depends makedepends
 
@@ -138,21 +138,25 @@ _build_add() {
     for dependency in "${depends[@]}"; do
         _build_add ${include_makedepends} "${dependency}"
     done
+    sorted_packages+=("${package}")
 }
 
 # Sort packages by dependency
 define_build_order() {
     local unsorted_packages=("$@")
 
+    local seen_packages
     local sorted_packages
     local unsorted_package
 
+    seen_packages=()
     sorted_packages=()
     for unsorted_package in "${unsorted_packages[@]}"; do
         _build_add 1 "${unsorted_package}"
     done
     make_packages=("${sorted_packages[@]}")
 
+    seen_packages=()
     sorted_packages=()
     for unsorted_package in "$@"; do
         _build_add 0 "${unsorted_package}"
