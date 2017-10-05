@@ -11,7 +11,7 @@
 prog_version=0.2
 
 
-if [[ -n "${TERM}" ]]; then
+if tput init >/dev/null 2>&1; then
     # Enable colors
     normal=$(tput sgr0)
     red=$(tput setaf 1)
