@@ -523,6 +523,7 @@ if (( ! NOBUNDLE )); then
 
     execute_cd "${BUNDLE_DIR}" 'bundle' do_bundle
     echo "${PREFIX}" > "${BUNDLE_DIR}/.prefix"
+    ln -s "${PREFIX#/}" "${BUNDLE_DIR}/.sysroot"
 fi
 
 success 'All packages built successfully'
