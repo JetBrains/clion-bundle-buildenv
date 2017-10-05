@@ -511,9 +511,9 @@ do_bundle() {
             all_tags=("${pkgname}-${pkgver}" "${all_tags[@]}")
             teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.pkg.${pkgname}.pkgver'" value="'${pkgver}'"
         done
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags'" value="'$(IFS=','; echo "${tgt_tags[*]}")'"
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.dep'" value="'$(IFS=','; echo "${dep_tags[*]}")'"
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.all'" value="'$(IFS=','; echo "${all_tags[*]}")'"
+        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags'" value="'${tgt_tags[@]}'"
+        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.dep'" value="'${dep_tags[@]}'"
+        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.all'" value="'${all_tags[@]}'"
     fi
 }
 
