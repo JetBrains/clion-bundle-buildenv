@@ -498,15 +498,21 @@ do_bundle() {
 
     if [[ -n ${TEAMCITY_VERSION} ]]; then
         local pkgname pkgver
-        local target_tags=()
+        local tgt_tags=()
+        local dep_tags=()
         local all_tags=()
         for package in "${packages[@]}"; do
             _package_info "${package}" pkgname pkgver
-            is_target_package "${package}" && target_tags+=("${pkgname}-${pkgver}")
-            all_tags+=("${pkgname}-${pkgver}")
+            if is_target_package "${package}"; then
+                tgt_tags=("${pkgname}-${pkgver}" "${tgt_tags[@]}")
+            else
+                dep_tags=("${pkgname}-${pkgver}" "${dep_tags[@]}")
+            fi
+            all_tags=("${pkgname}-${pkgver}" "${all_tags[@]}")
             teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.pkg.${pkgname}.pkgver'" value="'${pkgver}'"
         done
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags'" value="'$(IFS=','; echo "${target_tags[*]}")'"
+        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags'" value="'$(IFS=','; echo "${tgt_tags[*]}")'"
+        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.dep'" value="'$(IFS=','; echo "${dep_tags[*]}")'"
         teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.all'" value="'$(IFS=','; echo "${all_tags[*]}")'"
     fi
 }
