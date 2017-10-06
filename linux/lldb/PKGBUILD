@@ -49,7 +49,7 @@ prepare() {
 
   cd tools/lldb
   patch -p1 -i "${srcdir}/0001-Don-t-build-lldb-mi-and-intel-mpx.patch"
-  patch -p1 -i "${srcdir}/0500-disable-lldb-soname.patch"
+  # patch -p1 -i "${srcdir}/0500-disable-lldb-soname.patch"
 
   # # https://bugs.llvm.org/show_bug.cgi?id=34123
   # sed -i '/LLVMSupport/d' tools/clang/tools/extra/clangd/tool/CMakeLists.txt
