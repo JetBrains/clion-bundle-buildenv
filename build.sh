@@ -60,6 +60,7 @@ _status() {
 }
 
 # Status functions
+error() { echo "$@" >&2; exit -1; }
 failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}" "${items[@]}"; exit 1; }
 success() { local status="${1}"; local items=("${@:2}"); _status success "${status}" "${items[@]}"; exit 0; }
 message() { local status="${1}"; local items=("${@:2}"); _status message "${status}" "${items[@]}"; }
@@ -249,7 +250,7 @@ usage() {
     echo
     printf -- "Build packages using makepkg and bundle a single archive\n"
     echo
-    printf -- "Usage: %s -c <makepkg.conf> [--] [package...]\n" "$0"
+    printf -- "Usage: %s [-P <pkgroot>] [-c <makepkg.conf>] [OPTION...] [--] [PACKAGE...]\n" "$0"
     echo
     printf -- "Options:\n"
     printf -- "  -P, --pkgroot <dir>  Directory to search packages in (instead of '%s')\n" "\$CWD"
@@ -287,10 +288,22 @@ version() {
     makepkg --version
 }
 
-MAKEPKG_OPTS=(--force --noconfirm --skippgpcheck --nocheck --nodeps)
+if [[ $# -eq 0 ]]; then
+    usage; exit -1
+fi
 
 MAKEPKG_CONF=
 PKG_ROOT_DIR=
+
+set_file_option() {
+    local varname="$1" option="$2" value="$3"
+    [[ -n "${value}" ]] || error "${option}: Missing option value"
+    [[ -e "${value}" ]] || error "${value}: No such file or directory"
+
+    eval "${varname}=\"\${value}\""
+}
+
+MAKEPKG_OPTS=(--force --noconfirm --skippgpcheck --nocheck --nodeps)
 
 NOMAKEPKG=0
 NOBUNDLE=0
@@ -302,11 +315,11 @@ target_packages=()
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -P|--pkgroot)     shift; PKG_ROOT_DIR="$1" ;;
-        -P=*|--pkgroot=*) PKG_ROOT_DIR="${1#*=}" ;;
+        -P|--pkgroot)     set_file_option PKG_ROOT_DIR "$1" "$2"; shift ;;
+        -P=*|--pkgroot=*) set_file_option PKG_ROOT_DIR "${1%%=*}" "${1#*=}" ;;
 
-        -c|--config)      shift; MAKEPKG_CONF="$1"; MAKEPKG_OPTS+=(--config "${MAKEPKG_CONF}") ;;
-        -c=*|--config=*)  MAKEPKG_CONF="${1#*=}";   MAKEPKG_OPTS+=(--config "${MAKEPKG_CONF}") ;;
+        -c|--config)      set_file_option MAKEPKG_CONF "$1" "$2"; shift ;;
+        -c=*|--config=*)  set_file_option MAKEPKG_CONF "${1%%=*}" "${1#*=}" ;;
 
         # Makepkg Options
         --clean)          MAKEPKG_OPTS+=($1) ;;
@@ -327,8 +340,8 @@ while [[ $# -gt 0 ]]; do
         -V|--version)     version; exit 0 ;; # E_OK
 
         --)               OPT_IND=0; shift; break 2;;
-        -*)               echo "${1}: Unknown option\n" >&2
-                          usage; exit 1 ;;
+        -*)               echo "${1}: Unknown option" >&2
+                          echo; usage; exit -1 ;;
         *)                target_packages+=("$1") ;;
     esac
     shift
@@ -342,18 +355,20 @@ done
 
 PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
 if [ ! -d "${PKG_ROOT_DIR}" ]; then
-    failure "${PKG_ROOT_DIR}: Direcrory doesn't exist"
+    error "${PKG_ROOT_DIR}: Directory doesn't exist"
 fi
 export PKG_ROOT_DIR=$(readlink -e "${PKG_ROOT_DIR}")
 
 MAKEPKG_CONF="${MAKEPKG_CONF:-${PKG_ROOT_DIR}/makepkg.conf}"
 if [ ! -f "${MAKEPKG_CONF}" ]; then
-    failure "${MAKEPKG_CONF}: File not found"
+    error "${MAKEPKG_CONF}: File not found"
 fi
 export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}")
 
 
 source "${MAKEPKG_CONF}"
+
+MAKEPKG_OPTS+=(--config "${MAKEPKG_CONF}")
 
 
 [[ -n ${CHOST} ]] || CHOST=$(gcc -dumpmachine)
