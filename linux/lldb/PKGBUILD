@@ -85,12 +85,28 @@ package() {
 
   make -C build/tools/lldb DESTDIR="${pkgdir}" install
 
-  # https://bugs.archlinux.org/task/50759
-  sed -i "/import_module('_lldb')/s/_lldb/lldb.&/" \
-    ${pkgdir}${PREFIX}/lib/python*/site-packages/lldb/__init__.py
+  # This resolves to something like ${PREFIX}/lib/python3.6/site-packages
+  local python_site_packages=$(${PREFIX}/bin/python -c \
+    'from distutils import sysconfig; print(sysconfig.get_python_lib(True, False));')
+
+  # TeamCity doesn't handle symlinks in artifact dependencies;
+  # replace symlink with empty shared object depending.
+  local cc=${CC:-cc}
+  $cc -nostdlib -shared -fPIC \
+    -Wl,-rpath='$ORIGIN/../../..' \
+    -Wl,--no-as-needed -L${pkgdir}${PREFIX}/lib -llldb \
+    -o "${pkgdir}${python_site_packages}/lldb/_lldb.so"
+
+  # No one knows what the lldb-argdumper symlink in python site-packages is for anyway
+  # http://lists.llvm.org/pipermail/lldb-dev/2015-February/006625.html
+  rm "${pkgdir}${python_site_packages}/lldb/lldb-argdumper"
+
+  # # https://bugs.archlinux.org/task/50759
+  # sed -i "/import_module('_lldb')/s/_lldb/lldb.&/" \
+  #   "${pkgdir}${python_site_packages}/lldb/__init__.py"
 
   # # Remove bundled six library
-  # rm "${pkgdir}${PREFIX}/lib/python2.7/site-packages/six.py"
+  # rm "${pkgdir}${python_site_packages}/six.py"
 
   # # Compile Python scripts
   # python2 -m compileall "${pkgdir}${PREFIX}/lib/python2.7/site-packages/lldb"
