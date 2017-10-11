@@ -9,7 +9,7 @@
 # Contributor: Jason Chu <jason@archlinux.org>
 
 pkgname=python
-pkgver=3.6.2
+pkgver=3.6.3
 pkgrel=1
 _pybasever=${pkgver%.*}
 pkgdesc="Next generation of the python high-level scripting language"
@@ -30,7 +30,7 @@ source=("https://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz
         '0001-python-config-Ignore-first-argument-if-it-s-a-.py-sc.patch'
         openssl-110f.patch
         dont-make-libpython-readonly.patch)
-md5sums=('2c68846471994897278364fc18730dd9'
+md5sums=('b9c2c36c33fb89bda1fefd37ad5af9be'
          '5c364c89632fd5080f6ec067d1df886e'
          '21254cd104b44dcc51c62af79c88f3bf'
          '60c9f7d02384f22834df06de5eb9c46a')
