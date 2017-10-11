@@ -1,0 +1,52 @@
+From 6490b92944421b96638afbc25d575ad73c4c9e27 Mon Sep 17 00:00:00 2001
+From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
+Date: Wed, 11 Oct 2017 12:58:39 +0300
+Subject: [PATCH] Allow Python to find its home when relocated
+
+---
+ .../Python/ScriptInterpreterPython.cpp             | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
+index 6c39690..4d6365c 100644
+--- a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
++++ b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
+@@ -52,6 +52,7 @@
+ #include "llvm/ADT/STLExtras.h"
+ #include "llvm/ADT/StringRef.h"
+ #include "llvm/Support/FileSystem.h"
++#include <llvm/Support/Path.h>
+ 
+ using namespace lldb;
+ using namespace lldb_private;
+@@ -165,6 +166,27 @@ private:
+     static char g_python_home[] = LLDB_PYTHON_HOME;
+ #endif
+     Py_SetPythonHome(g_python_home);
++#else
++    // Make the program relocatable, that is, compute Python location relative
++    // to the running executable (LLDB or a frontend).
++    const std::string executable = llvm::sys::fs::getMainExecutable("",
++        (void *) &llvm::sys::fs::getMainExecutable);  // any LLVM symbol is OK
++    if (!llvm::sys::fs::exists(executable)) {
++      return;
++    }
++    std::string bindir = llvm::sys::path::parent_path(executable);
++    std::string python_prog = bindir + "/python";  // doesn't really matter
++
++#if PY_MAJOR_VERSION >= 3
++    static wchar_t *g_python_prog = Py_DecodeLocale(python_prog.c_str(), NULL);
++    if (g_python_prog == nullptr) {
++      return;
++    }
++#else
++    static char g_python_prog[python_prog.size() + 1];
++    strcpy(g_python_prog, python_prog.c_str());
++#endif
++    Py_SetProgramName(g_python_prog);
+ #endif
+   }
+ 
+-- 
+2.7.4
+
