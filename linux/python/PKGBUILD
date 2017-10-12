@@ -89,11 +89,11 @@ package() {
   find "${pkgdir}" -depth -type d -name __pycache__ -exec rm -rf -- '{}' +
   find "${pkgdir}"${PREFIX}/lib/python${_pybasever} ! -type d \( -name "*.pyc" -o -name "*.pyo" -o -name "*.exe" \) -exec rm -f -- '{}' +
 
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/config-*
   rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/test
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/idlelib
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/ensurepip
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/{idlelib,ensurepip,venv,turtledemo,pydoc_data,lib2to3}
   rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/{ctypes,sqlite3,unittest}/test
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/{distutils,lib2to3}/tests
+  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/distutils/tests
 
   # Why are these not done by default...
   ln -s python3               "${pkgdir}"${PREFIX}/bin/python
@@ -102,10 +102,10 @@ package() {
   # ln -s pydoc3                "${pkgdir}"${PREFIX}/bin/pydoc
   # ln -s python${_pybasever}.1 "${pkgdir}"${PREFIX}/share/man/man1/python.1
 
-  # some useful "stuff" FS#46146
-  install -dm755 "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/{i18n,scripts}
-  install -m755 Tools/i18n/{msgfmt,pygettext}.py "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/i18n/
-  install -m755 Tools/scripts/{README,*py} "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/scripts/
+  # # some useful "stuff" FS#46146
+  # install -dm755 "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/{i18n,scripts}
+  # install -m755 Tools/i18n/{msgfmt,pygettext}.py "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/i18n/
+  # install -m755 Tools/scripts/{README,*py} "${pkgdir}"${PREFIX}/lib/python${_pybasever}/Tools/scripts/
 
   # License
   install -Dm644 LICENSE "${pkgdir}${PREFIX}/share/licenses/${pkgname}/LICENSE"
