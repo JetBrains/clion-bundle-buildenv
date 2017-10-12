@@ -10,12 +10,13 @@
 
 pkgname=python
 pkgver=3.6.3
-pkgrel=1
+pkgrel=2
 _pybasever=${pkgver%.*}
 pkgdesc="Next generation of the python high-level scripting language"
 arch=(i686 x86_64)
 license=('custom')
 url="http://www.python.org/"
+depends=(expat zlib)
 # depends=('expat' 'bzip2' 'gdbm' 'openssl' 'libffi' 'zlib')
 # makedepends=('tk' 'sqlite' 'valgrind' 'bluez-libs' 'mpdecimal' 'llvm' 'gdb' 'xorg-server-xvfb')
 # optdepends=('python-setuptools'
@@ -66,6 +67,7 @@ build() {
               --enable-shared \
               --with-threads \
               --with-computed-gotos \
+              --with-system-expat \
               --without-ensurepip
 
   make
