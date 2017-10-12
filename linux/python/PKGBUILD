@@ -87,7 +87,13 @@ package() {
   # Hack to avoid building again
   sed -i 's/^all:.*$/all: build_all/' Makefile
 
-  make DESTDIR="${pkgdir}" install
+  # `make install` tends to ru python commands with LD_LIBRARY_PATH overridden;
+  # resolve libfakeroot.so to its absolute name, otherwise it won't be found.
+  local ld_preload=$(IFS=':'; for dir in $LD_LIBRARY_PATH; do
+      test -d "$dir" &&
+        find "$dir" -maxdepth 1 -name "$LD_PRELOAD" -type f -exec readlink -e {} \;
+    done | head -1)
+  LD_PRELOAD="$ld_preload" make DESTDIR="${pkgdir}" install
   find "${pkgdir}" -depth -type d -name __pycache__ -exec rm -rf -- '{}' +
   find "${pkgdir}"${PREFIX}/lib/python${_pybasever} ! -type d \( -name "*.pyc" -o -name "*.pyo" -o -name "*.exe" \) -exec rm -f -- '{}' +
 
