@@ -30,10 +30,12 @@ depends=(expat zlib)
 source=("https://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz"
         '0001-python-config-Ignore-first-argument-if-it-s-a-.py-sc.patch'
         '0002-Suppress-writing-bytecode-files-by-default.patch'
+        '0003-make-install-Don-t-compile-__pycache__.patch'
         dont-make-libpython-readonly.patch)
 md5sums=('b9c2c36c33fb89bda1fefd37ad5af9be'
          '5c364c89632fd5080f6ec067d1df886e'
          'd2fdd42b91b17c0a708210aab174b318'
+         'a5449700712dd34b3d1a04160a1d32c7'
          '60c9f7d02384f22834df06de5eb9c46a')
 
 prepare() {
@@ -44,6 +46,9 @@ prepare() {
 
   # Don't pollute relocatable standard library with *.pyc and __pycache__
   patch -p1 -i ../0002-Suppress-writing-bytecode-files-by-default.patch
+
+  # Don't do unnecessary job
+  patch -p1 -i ../0003-make-install-Don-t-compile-__pycache__.patch
 
   # FS#45809
   patch -p1 -i ../dont-make-libpython-readonly.patch
