@@ -10,7 +10,7 @@
 
 pkgname=python
 pkgver=3.6.3
-pkgrel=2
+pkgrel=3
 _pybasever=${pkgver%.*}
 pkgdesc="Next generation of the python high-level scripting language"
 arch=(i686 x86_64)
@@ -99,14 +99,33 @@ package() {
         find "$dir" -maxdepth 1 -name "$LD_PRELOAD" -type f -exec readlink -e {} \;
     done | head -1)
   LD_PRELOAD="$ld_preload" make DESTDIR="${pkgdir}" install
-  find "${pkgdir}" -depth -type d -name __pycache__ -exec rm -rf -- '{}' +
-  find "${pkgdir}"${PREFIX}/lib/python${_pybasever} ! -type d \( -name "*.pyc" -o -name "*.pyo" -o -name "*.exe" \) -exec rm -f -- '{}' +
 
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/config-*
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/test
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/{idlelib,ensurepip,venv,turtledemo,pydoc_data,lib2to3}
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/{ctypes,sqlite3,unittest}/test
-  rm -rf "${pkgdir}"${PREFIX}/lib/python${_pybasever}/distutils/tests
+  LD_PRELOAD="$ld_preload" LD_LIBRARY_PATH=$(pwd) ./python -E \
+    -c '
+import sys
+from pathlib import Path
+from Tools.msi.make_zip import copy_to_layout, rglob, include_in_embeddable_lib
+
+count = copy_to_layout(Path(sys.argv[1]),
+                       rglob(Path(sys.argv[2]), "**/*", include_in_embeddable_lib))
+print("Archived {} files".format(count))
+' \
+            "${pkgdir}"${PREFIX}/lib/python${_pybasever//.}.zip "$(pwd)"/Lib
+  chmod 644 "${pkgdir}"${PREFIX}/lib/python${_pybasever//.}.zip
+
+  # create os.pyc
+  LD_PRELOAD="$ld_preload" LD_LIBRARY_PATH=$(pwd) ./python -E \
+    -Wi "${pkgdir}"${PREFIX}/lib/python${_pybasever}/compileall.py \
+      -d ${PREFIX}/lib/python${_pybasever} -f -b \
+      "${pkgdir}"${PREFIX}/lib/python${_pybasever}/os.py \
+      "${pkgdir}"${PREFIX}/lib/python${_pybasever}/_sysconfigdata*.py
+
+  mv -T "${pkgdir}"${PREFIX}/lib/python${_pybasever} \
+        "${pkgdir}"${PREFIX}/lib/python${_pybasever}.tmp
+  mkdir "${pkgdir}"${PREFIX}/lib/python${_pybasever}
+  mv -t "${pkgdir}"${PREFIX}/lib/python${_pybasever} \
+        "${pkgdir}"${PREFIX}/lib/python${_pybasever}.tmp/{lib-dynload,site-packages,os.pyc,_sysconfigdata*.pyc}
+  rm -r "${pkgdir}"${PREFIX}/lib/python${_pybasever}.tmp
 
   # Why are these not done by default...
   ln -s python3               "${pkgdir}"${PREFIX}/bin/python
