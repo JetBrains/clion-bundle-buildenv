@@ -14,7 +14,7 @@
 
 pkgname=lldb
 pkgver=5.0.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
 url="http://lldb.llvm.org/"
@@ -32,13 +32,13 @@ source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/compiler-rt-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/lld-${pkgver}.src.tar.xz
         https://releases.llvm.org/${pkgver}/lldb-${pkgver}.src.tar.xz
-        0500-disable-lldb-soname.patch
+        0500-disable-lldb-soversion.patch
         0501-Don-t-build-lldb-mi-and-intel-mpx.patch
         0502-Allow-Python-to-find-its-home-when-relocated.patch)
 sha256sums=('e35dcbae6084adcf4abb32514127c5eabd7d63b733852ccdb31e06f1373136da'
             '019f23c2192df793ac746595e94a403908749f8e0c484b403476d2611dd20970'
             'c0a0ca32105e9881d86b7ca886220147e686edc97fdb9f3657c6659dc6568b7d'
-            '0001f7ff0268295fe67eb7b551670dc878eafa0c6e28c56b6aecc43deb4ec72d'
+            'f34a8d4e12b9dbfc0d8bd9954b26c70fd78333000ecbbeb9d3a034f4e4915ce6'
             '714a766e784153cf7f9774d373ec5a2ad4b323a69c21aefadb3acf2ce1e1d859'
             '2782c5bd9086effbbc17ae11519272202dd51e9ec9565114ebf6521b06e50c9e')
 
@@ -50,7 +50,7 @@ prepare() {
   mv "$srcdir/lldb-${pkgver}.src" tools/lldb
 
   cd tools/lldb
-  # patch -p1 -i "${srcdir}/0500-disable-lldb-soname.patch"
+  patch -p1 -i "${srcdir}/0500-disable-lldb-soversion.patch"
   patch -p1 -i "${srcdir}/0501-Don-t-build-lldb-mi-and-intel-mpx.patch"
   patch -p1 -i "${srcdir}/0502-Allow-Python-to-find-its-home-when-relocated.patch"
 
