@@ -8,7 +8,7 @@
 
 pkgname=cmake
 pkgver=3.8.2
-pkgrel=1
+pkgrel=2
 pkgdesc='A cross-platform open-source make system'
 arch=(i686 x86_64)
 url="http://www.cmake.org/"
@@ -28,6 +28,8 @@ build() {
   # Remove unwanted help files (takes too long to install them)
   rm -rf ./Help/*
 
+  CFLAGS="${CPPFLAGS} ${CFLAGS}" \
+  CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}" \
   ./bootstrap --prefix=${PREFIX} \
     --system-expat         \
     --system-zlib          \
@@ -39,6 +41,7 @@ build() {
     --no-system-librhash   \
     --parallel=$(($(nproc)+1)) \
     -- \
+    -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DBUILD_TESTING=no \
     -DBUILD_CursesDialog=no \
     -DCMAKE_BUILD_TYPE=Release \

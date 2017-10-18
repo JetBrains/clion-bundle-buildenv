@@ -14,7 +14,7 @@
 
 pkgname=lldb
 pkgver=5.0.0
-pkgrel=3
+pkgrel=4
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
 url="http://lldb.llvm.org/"
@@ -61,7 +61,10 @@ prepare() {
 build() {
   cd "$srcdir/llvm-${pkgver}.src/build"
 
+  CFLAGS="${CPPFLAGS} ${CFLAGS}" \
+  CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}" \
   cmake \
+    -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
     -DPYTHON_EXECUTABLE=${PREFIX}/bin/python \
