@@ -75,7 +75,9 @@ build() {
               --with-system-expat \
               --without-ensurepip
 
-  make
+  # Python Makefile uses both configure and environmental variables,
+  # which results in duplicated flags.
+  env --unset={CPPFLAGS,CFLAGS,CXXFLAGS,LDFLAGS} make
 }
 
 check() {
