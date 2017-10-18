@@ -34,9 +34,10 @@ RUN yum -y update --skip-broken \
       texinfo \
  && yum clean all
 
-COPY docker-assets/linux/build-prerequisites/install-pacman.sh /tmp/build-prerequisites/
-RUN chmod a+x /tmp/build-prerequisites/install-pacman.sh \
- && /tmp/build-prerequisites/install-pacman.sh
+COPY docker-assets/linux/build-prerequisites/ /tmp/build-prerequisites/
+RUN chmod a+x /tmp/build-prerequisites/*.sh \
+ && /tmp/build-prerequisites/install-pacman.sh \
+ && /tmp/build-prerequisites/install-package.sh ccache
 
 RUN mkdir -p /linux /workdir \
  && chown build:build /linux /workdir

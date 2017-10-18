@@ -1,4 +1,7 @@
-# $Id$
+# Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
+#
+# This work is derived from the Arch Linux packaging project.
+#
 # Maintainer: Giovanni Scafora <giovanni@archlinux.org>
 # Contributor: Tom Newsom <Jeepster@gmx.co.uk>
 
@@ -9,7 +12,7 @@ pkgdesc="A compiler cache"
 arch=('i686' 'x86_64')
 url="http://ccache.samba.org/"
 license=('GPL3')
-depends=('zlib')
+#depends=('zlib')
 source=("http://samba.org/ftp/${pkgname}/${pkgname}-${pkgver}.tar.xz")
 md5sums=('95ab3c56284129cc2a32460c23069516')
 
