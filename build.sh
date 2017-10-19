@@ -397,7 +397,7 @@ BUNDLE_DIR="${DESTDIR}/bundle"
 BUNDLE_TARBALL="${BUNDLE_DIR%%/}".tar.xz
 
 
-test -z "${target_packages[@]}" && failure 'No packages specified'
+[[ -n "${target_packages[*]}" ]] || failure 'No packages specified'
 if (( ! NODEPS )); then
     define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
 else
