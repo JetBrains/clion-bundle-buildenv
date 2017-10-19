@@ -49,15 +49,15 @@ PREFIX=${PREFIX-/opt}
 # ARCHITECTURE, COMPILE FLAGS
 #########################################################################
 #
-CARCH="x86_64"
-CHOST="x86_64-pc-linux-gnu"
+CARCH=${CARCH-x86_64}
+CHOST=${CHOST-x86_64-pc-linux-gnu}
 
 #-- Compiler and Linker Flags
 # -march (or -mcpu) builds exclusively for an architecture
 # -mtune optimizes for an architecture, but builds for whole processor family
 CPPFLAGS="-D_FORTIFY_SOURCE=2"
 CFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong"
-CXXFLAGS="-march=x86-64 -mtune=generic -O2 -pipe -fstack-protector-strong"
+CXXFLAGS="${CFLAGS}"
 LDFLAGS="-Wl,-O1,--sort-common,--as-needed,-z,relro"
 # Uncomment to enable hardening (ASLR, High entropy ASLR, DEP)
 #LDFLAGS="-pipe -Wl,--dynamicbase,--high-entropy-va,--nxcompat"
