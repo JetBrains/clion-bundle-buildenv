@@ -405,8 +405,10 @@ else
     packages=("${target_packages[@]}")
 fi
 
-mkdir -p "${DESTDIR}" "${PKGDEST}" "${SRCDEST}"
-(( LOGGING )) && mkdir -p "${LOGDEST}"
+mkdir -p "${DESTDIR}" "${PKGDEST}" "${SRCDEST}" || failure "Couldn't create directories"
+if (( LOGGING )); then
+    mkdir -p "${LOGDEST}" || failure "Couldn't create directories"
+fi
 
 git_config user.name  "${GIT_COMMITTER_NAME}"
 git_config user.email "${GIT_COMMITTER_EMAIL}"
