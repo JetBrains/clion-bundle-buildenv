@@ -280,6 +280,7 @@ usage() {
     printf -- "  SRCDEST              where source files will be cached  [ \$DESTDIR/makepkg/src ]\n"
     printf -- "  LOGDEST              where all log files will be placed [ \$DESTDIR/makepkg/log ]\n"
     printf -- "  BUILDDIR             where to run package compilation   [ \$DESTDIR/makepkg/build ]\n"
+    printf -- "  CCACHE_DIR           where to keep ccache'd outputs     [ \$DESTDIR/ccache ]\n"
     echo
 }
 
@@ -385,6 +386,12 @@ export PKGDEST=${PKGDEST:-${DESTDIR}/makepkg/pkg}      #-- Destination: where al
 export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where source files will be cached
 export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all log files will be placed
 export BUILDDIR=${BUILDDIR:-${DESTDIR}/makepkg/build}  #-- Build tmp: where makepkg runs package build
+
+export CCACHE_DIR=${CCACHE_DIR:-${DESTDIR}/ccache}     #-- where ccache will keep its cached compiler outputs
+
+export CCACHE_BASEDIR=${BUILDDIR}
+export CCACHE_COMPILERCHECK=content
+
 
 BUNDLE_DIR="${DESTDIR}/bundle"
 BUNDLE_TARBALL="${BUNDLE_DIR%%/}".tar.xz
