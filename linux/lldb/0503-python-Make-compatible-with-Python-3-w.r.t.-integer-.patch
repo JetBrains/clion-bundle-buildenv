@@ -1,0 +1,112 @@
+From b0e69235bfb58271c196202de92d3e24407de484 Mon Sep 17 00:00:00 2001
+From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
+Date: Tue, 24 Oct 2017 13:48:31 +0300
+Subject: [PATCH] python: Make compatible with Python 3 w.r.t. integer division
+
+---
+ examples/synthetic/gnu_libstdcpp.py        | 6 ++++--
+ examples/synthetic/libcxx.py               | 6 ++++--
+ scripts/Python/modify-python-lldb.py       | 4 ++++
+ scripts/interface/SBData.i                 | 2 +-
+ source/Interpreter/embedded_interpreter.py | 4 +++-
+ 5 files changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/examples/synthetic/gnu_libstdcpp.py b/examples/synthetic/gnu_libstdcpp.py
+index becf168..5bdc6d9 100644
+--- a/examples/synthetic/gnu_libstdcpp.py
++++ b/examples/synthetic/gnu_libstdcpp.py
+@@ -1,3 +1,5 @@
++from __future__ import (absolute_import, division,
++                        print_function, unicode_literals)
+ import re
+ import lldb.formatters.Logger
+ 
+@@ -195,7 +197,7 @@ class StdVectorSynthProvider:
+                 if (num_children % self.data_size) != 0:
+                     return 0
+                 else:
+-                    num_children = num_children / self.data_size
++                    num_children = num_children // self.data_size
+                 return num_children
+             except:
+                 return 0
+@@ -257,7 +259,7 @@ class StdVectorSynthProvider:
+                 return None
+             element_type = self.start_p.GetType().GetPointeeType()
+             element_bits = 8 * element_type.GetByteSize()
+-            element_offset = (index / element_bits) * \
++            element_offset = (index // element_bits) * \
+                 element_type.GetByteSize()
+             bit_offset = index % element_bits
+             element = self.start_p.CreateChildAtOffset(
+diff --git a/examples/synthetic/libcxx.py b/examples/synthetic/libcxx.py
+index e6f8223..c570d08 100644
+--- a/examples/synthetic/libcxx.py
++++ b/examples/synthetic/libcxx.py
+@@ -1,3 +1,5 @@
++from __future__ import (absolute_import, division,
++                        print_function, unicode_literals)
+ import lldb
+ import lldb.formatters.Logger
+ 
+@@ -101,7 +103,7 @@ class stdvector_SynthProvider:
+             if (num_children % self.data_size) != 0:
+                 return 0
+             else:
+-                num_children = num_children / self.data_size
++                num_children = num_children // self.data_size
+             return num_children
+         except:
+             return 0
+@@ -657,7 +659,7 @@ class stddeque_SynthProvider:
+         #    static const difference_type __block_size = sizeof(value_type) < 256 ? 4096 / sizeof(value_type) : 16;
+         # }
+         if self.element_size < 256:
+-            self.block_size = 4096 / self.element_size
++            self.block_size = 4096 // self.element_size
+         else:
+             self.block_size = 16
+ 
+diff --git a/scripts/Python/modify-python-lldb.py b/scripts/Python/modify-python-lldb.py
+index cb911ee..d27fb23 100644
+--- a/scripts/Python/modify-python-lldb.py
++++ b/scripts/Python/modify-python-lldb.py
+@@ -394,6 +394,10 @@ for line in content.splitlines():
+             # This is the first non-comment line after the header.  Inject the
+             # version
+             new_line = version_line % str(swig_version_tuple)
++            new_content.add_line("""
++from __future__ import (absolute_import, division,
++                        print_function, unicode_literals)
++""")
+             new_content.add_line(new_line)
+             state = NORMAL
+ 
+diff --git a/scripts/interface/SBData.i b/scripts/interface/SBData.i
+index 41aaf8d..91e1bcb 100644
+--- a/scripts/interface/SBData.i
++++ b/scripts/interface/SBData.i
+@@ -156,7 +156,7 @@ public:
+                 else:
+                     return my_data
+             def __len__(self):
+-                return int(self.sbdata.GetByteSize()/self.item_size)
++                return int(self.sbdata.GetByteSize()//self.item_size)
+             def all(self):
+                 return self[0:len(self)]
+         
+diff --git a/source/Interpreter/embedded_interpreter.py b/source/Interpreter/embedded_interpreter.py
+index c103b7e..2f0c5ad 100644
+--- a/source/Interpreter/embedded_interpreter.py
++++ b/source/Interpreter/embedded_interpreter.py
+@@ -1,4 +1,6 @@
+-﻿import sys
++﻿from __future__ import (absolute_import, division,
++                        print_function, unicode_literals)
++import sys
+ if sys.version_info[0] < 3:
+     import __builtin__ as builtins
+ else:
+-- 
+2.7.4
+
