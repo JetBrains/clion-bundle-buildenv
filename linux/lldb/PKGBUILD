@@ -14,7 +14,7 @@
 
 pkgname=lldb
 pkgver=5.0.0
-pkgrel=5
+pkgrel=6
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
 url="http://lldb.llvm.org/"
@@ -61,6 +61,14 @@ prepare() {
   # sed -i '/LLVMSupport/d' tools/clang/tools/extra/clangd/tool/CMakeLists.txt
 }
 
+_llvm_pkgversion() {
+  echo "${pkgname} (LLVM${PKGVERSION:+; ${PKGVERSION}}) ${pkgver}"
+}
+
+_cmake_escape_semicolon() {
+  sed 's/;/\\;/g'
+}
+
 build() {
   cd "$srcdir/llvm-${pkgver}.src/build"
 
@@ -74,6 +82,7 @@ build() {
     -DLLVM_TARGETS_TO_BUILD="X86" \
     -DLLDB_DISABLE_LIBEDIT=TRUE \
     -DLLDB_DISABLE_CURSES=TRUE \
+    -DLLDB_VERSION_STRING="$(_llvm_pkgversion | _cmake_escape_semicolon)" \
     ..
 
   make
