@@ -436,14 +436,16 @@ for package in "${packages[@]}"; do
 done
 
 
-do_makepkg() {
+do_build_install() {
     message "packages to build:" "${make_packages[@]}"
 
     local package
 
     for package in "${make_packages[@]}"; do
-        execute_cd "${PKG_ROOT_DIR}/${package}" 'makepkg' \
-            makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
+        if (( ! NOMAKEPKG )); then
+            execute_cd "${PKG_ROOT_DIR}/${package}" 'makepkg' \
+                makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
+        fi
 
         if (( ! NOINSTALL )); then
             execute "install" \
@@ -547,10 +549,9 @@ do_bundle() {
 }
 
 
-if (( ! NOMAKEPKG )); then
-    # Build
-    execute 'build' do_makepkg
-fi
+# Build
+execute 'build' do_build_install
+
 
 if (( ! NOBUNDLE )); then
     rm -rf "${BUNDLE_DIR}" "${BUNDLE_TARBALL}"
