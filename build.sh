@@ -91,7 +91,7 @@ find_and_rm() {
 _package_info() {
     local package="${1}"
     local properties=("${@:2}")
-    test -f "${PKG_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package"
+    test -f "${PKG_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package: ${PKG_ROOT_DIR}/${package}/PKGBUILD"
     for property in "${properties[@]}"; do
         eval "${property}=()"
         local value=($(
@@ -168,7 +168,7 @@ define_build_order() {
 
 get_pkgfile() {
     local pkgfile_noext
-    pkgfile_noext=$(get_pkgfile_noext "${1}") || failure "Unknown package"
+    pkgfile_noext=$(get_pkgfile_noext "${1}") || failure "Unknown package file"
     printf "%s%s\n" "${pkgfile_noext}" "${PKGEXT}"
 }
 
@@ -259,6 +259,7 @@ usage() {
     printf -- "  --noinstall          Do not extract packages into '%s'\n" "\$PREFIX"
     printf -- "  --nobundle           Do not create '%s' from package files\n" "\$DESTDIR/bundle.tar.xz"
     printf -- "  --nodeps             Do not build or bunble dependencies\n"
+    printf -- "  --onlydeps           Build or bunble only dependencies, useful with --nomakepkg --nobundle\n"
     printf -- "  -h, --help           Show this help message and exit\n"
     printf -- "  -V, --version        Show version information and exit\n"
     echo
@@ -309,6 +310,7 @@ MAKEPKG_OPTS=(--force --noconfirm --skippgpcheck --nocheck --nodeps)
 NOMAKEPKG=0
 NOBUNDLE=0
 NODEPS=0
+ONLYDEPS=0
 NOINSTALL=0
 LOGGING=0
 
@@ -336,6 +338,7 @@ while [[ $# -gt 0 ]]; do
         --noinstall)      NOINSTALL=1 ;;
         --nobundle)       NOBUNDLE=1 ;;
         --nodeps)         NODEPS=1 ;;
+        --onlydeps)       ONLYDEPS=1 ;;
 
         -h|--help)        usage; exit 0 ;; # E_OK
         -V|--version)     version; exit 0 ;; # E_OK
@@ -352,6 +355,26 @@ target_packages+=("$@")
 for package in "${target_packages[@]}"; do
     _package_info "${package}"  # check package exists
 done
+
+
+is_target_package() {
+    local target_package
+    for target_package in "${target_packages[@]}"; do
+        if [[ "${1}" == "${target_package}" ]]; then
+            return 0  # true
+        fi
+    done
+    return 1  # false
+}
+
+filter_out_target_packages() {
+    local ret_packages=()
+    local package
+    for package in "$@"; do
+        is_target_package "${package}" || ret_packages+=("${package}")
+    done
+    printf "%s\n" "${ret_packages[@]}"
+}
 
 
 PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
@@ -400,6 +423,10 @@ BUNDLE_TARBALL="${BUNDLE_DIR%%/}".tar.xz
 [[ -n "${target_packages[*]}" ]] || failure 'No packages specified'
 if (( ! NODEPS )); then
     define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
+    if (( ONLYDEPS )); then
+        make_packages=($(filter_out_target_packages "${make_packages[@]}"))
+        packages=($(filter_out_target_packages "${packages[@]}"))
+    fi
 else
     make_packages=("${target_packages[@]}")
     packages=("${target_packages[@]}")
@@ -418,22 +445,7 @@ trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
 
 export PACMAN=false  # just to be sure makepkg won't call it
 
-
-is_target_package() {
-    local target_package
-    for target_package in "${target_packages[@]}"; do
-        if [[ "${1}" == "${target_package}" ]]; then
-            return 0  # true
-        fi
-    done
-    return 1  # false
-}
-
-dependency_packages=()
-for package in "${packages[@]}"; do
-    is_target_package "${package}" || dependency_packages+=("${package}")
-    unset package
-done
+dependency_packages=($(filter_out_target_packages "${packages[@]}"))
 
 
 do_build_install() {
