@@ -7,7 +7,7 @@
 
 pkgname=gdb
 pkgver=8.0.1
-pkgrel=3
+pkgrel=4
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
@@ -15,10 +15,12 @@ license=(GPL3)
 depends=(libiconv expat xz zlib python)
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz"
         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
-        'CPP-11480-configure-Fix-test-for-fs_base-gs_base-in-sys-user.h.patch')
+        'CPP-11480-configure-Fix-test-for-fs_base-gs_base-in-sys-user.h.patch'
+        'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch')
 md5sums=('48cac527e6f3018b865ece021e9723ac'
          '18f5d49270a9ac18af16c53ccfa302a2'
-         '6e6c992d2aad692f662e2c4a0895062f')
+         '6e6c992d2aad692f662e2c4a0895062f'
+         '4b577626e1716dedf85dccae46376d07')
 options=('!staticlibs')
 
 prepare() {
@@ -29,6 +31,9 @@ prepare() {
 
   # Bugzilla #21559: https://sourceware.org/bugzilla/show_bug.cgi?id=21559#c3
   patch -p1 -i ${srcdir}/CPP-11480-configure-Fix-test-for-fs_base-gs_base-in-sys-user.h.patch
+
+  # https://sourceware.org/ml/gdb-patches/2018-02/msg00030.html
+  patch -p1 -i ${srcdir}/CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
