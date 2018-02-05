@@ -6,8 +6,8 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=8.0.1
-pkgrel=4
+pkgver=8.1
+pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
 url="https://www.gnu.org/software/gdb/"
@@ -36,7 +36,7 @@ source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz
         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
         'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch'
         'CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch')
-md5sums=('48cac527e6f3018b865ece021e9723ac'
+md5sums=('f46487561f9a16916a8102316f7fd105'
          'e48292d553379a9765c82e80e618ffd2'
          '8cc7f920caf4dddfc0d5d3fcd347ebb4'
          '7cc5df72d958ef3e4b1ffa9f7b069e6f'
