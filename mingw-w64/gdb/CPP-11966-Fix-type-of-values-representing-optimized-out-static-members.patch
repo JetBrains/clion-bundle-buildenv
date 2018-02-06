@@ -1,0 +1,71 @@
+Date: Mon, 5 Feb 2018 15:00:36 -0500
+From: Simon Marchi <simon.marchi@ericsson.com>
+To: gdb-patches@sourceware.org
+CC: Simon Marchi <simark@simark.ca>
+Subject: [PATCH] Fix type of values representing optimized out static members
+
+From: Simon Marchi <simark@simark.ca>
+
+As reported here:
+
+  https://sourceware.org/ml/gdb/2018-02/msg00019.html
+
+the type of values representing static members that are optimized out is
+wrong.  It currently assigns the type of the containing class rather
+than the type of the field.  This patch fixes that.
+
+I found a place in m-static.exp already dealing with optimized out
+static members, so I just added some gdb_test there.
+
+gdb/ChangeLog:
+
+	* value.c (value_static_field): Assign field type instead of
+	containing type when returning an optimized out value.
+
+gdb/testsuite/ChangeLog:
+
+	* gdb.cp/m-static.exp: Check type of optimized out static
+	member.
+---
+ gdb/testsuite/gdb.cp/m-static.exp | 2 ++
+ gdb/value.c                       | 8 +++-----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/gdb/testsuite/gdb.cp/m-static.exp b/gdb/testsuite/gdb.cp/m-static.exp
+index 6566171..ffcbf53 100644
+--- a/gdb/testsuite/gdb.cp/m-static.exp
++++ b/gdb/testsuite/gdb.cp/m-static.exp
+@@ -165,6 +165,8 @@ if {[test_compiler_info {gcc-[0-3]-*}]
+     setup_xfail *-*-*
+ }
+ gdb_test "print test4.nowhere" "<optimized out>" "static const int initialized nowhere (print field)"
++gdb_test "ptype test4.nowhere" "type = const int"
++gdb_test "print test4.nowhere.nowhere" "Attempt to extract a component of a value that is not a structure."
+ 
+ # Same, but print the whole struct.
+ gdb_test "print test4" "static nowhere = <optimized out>.*" "static const int initialized nowhere (whole struct)"
+diff --git a/gdb/value.c b/gdb/value.c
+index 9a144fb..9cd9a2f 100644
+--- a/gdb/value.c
++++ b/gdb/value.c
+@@ -2976,14 +2976,12 @@ value_static_field (struct type *type, int fieldno)
+ 	     reported as non-debuggable symbols.  */
+ 	  struct bound_minimal_symbol msym
+ 	    = lookup_minimal_symbol (phys_name, NULL, NULL);
++	  struct type *field_type = TYPE_FIELD_TYPE (type, fieldno);
+ 
+ 	  if (!msym.minsym)
+-	    return allocate_optimized_out_value (type);
++	    retval = allocate_optimized_out_value (field_type);
+ 	  else
+-	    {
+-	      retval = value_at_lazy (TYPE_FIELD_TYPE (type, fieldno),
+-				      BMSYMBOL_VALUE_ADDRESS (msym));
+-	    }
++	    retval = value_at_lazy (field_type, BMSYMBOL_VALUE_ADDRESS (msym));
+ 	}
+       else
+ 	retval = value_of_variable (sym.symbol, sym.block);
+-- 
+2.7.4
+

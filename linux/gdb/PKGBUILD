@@ -7,7 +7,7 @@
 
 pkgname=gdb
 pkgver=8.0.1
-pkgrel=4
+pkgrel=5
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
@@ -16,11 +16,13 @@ depends=(libiconv expat xz zlib python)
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz"
         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
         'CPP-11480-configure-Fix-test-for-fs_base-gs_base-in-sys-user.h.patch'
-        'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch')
+        'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch'
+        'CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch')
 md5sums=('48cac527e6f3018b865ece021e9723ac'
          '18f5d49270a9ac18af16c53ccfa302a2'
          '6e6c992d2aad692f662e2c4a0895062f'
-         '4b577626e1716dedf85dccae46376d07')
+         '4b577626e1716dedf85dccae46376d07'
+         '0f80599eaa6d0a9495ce754a1999f6db')
 options=('!staticlibs')
 
 prepare() {
@@ -34,6 +36,9 @@ prepare() {
 
   # https://sourceware.org/ml/gdb-patches/2018-02/msg00030.html
   patch -p1 -i ${srcdir}/CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch
+
+  # https://sourceware.org/ml/gdb-patches/2018-02/msg00077.html
+  patch -p1 -i ${srcdir}/CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
