@@ -1,14 +1,14 @@
-From 6490b92944421b96638afbc25d575ad73c4c9e27 Mon Sep 17 00:00:00 2001
+From bf1675dc8f5ddd100d713c5003f9ff7f40ef4d40 Mon Sep 17 00:00:00 2001
 From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
 Date: Wed, 11 Oct 2017 12:58:39 +0300
-Subject: [PATCH] Allow Python to find its home when relocated
+Subject: [PATCH 3/4] Allow Python to find its home when relocated
 
 ---
  .../Python/ScriptInterpreterPython.cpp             | 22 ++++++++++++++++++++++
  1 file changed, 22 insertions(+)
 
 diff --git a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
-index 6c39690..4d6365c 100644
+index 6c3969026..4d6365c30 100644
 --- a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 +++ b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 @@ -52,6 +52,7 @@
@@ -48,5 +48,5 @@ index 6c39690..4d6365c 100644
    }
  
 -- 
-2.7.4
+2.16.2
 

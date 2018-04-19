@@ -13,8 +13,8 @@
 # Contributor: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 
 pkgname=lldb
-pkgver=5.0.0
-pkgrel=6
+pkgver=6.0.0
+pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
 url="http://lldb.llvm.org/"
@@ -32,17 +32,17 @@ source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/compiler-rt-${pkgver}.src.tar.xz
         # https://releases.llvm.org/${pkgver}/lld-${pkgver}.src.tar.xz
         https://releases.llvm.org/${pkgver}/lldb-${pkgver}.src.tar.xz
-        0500-disable-lldb-soversion.patch
-        0501-Don-t-build-lldb-mi-and-intel-mpx.patch
-        0502-Allow-Python-to-find-its-home-when-relocated.patch
-        0503-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch)
-sha256sums=('e35dcbae6084adcf4abb32514127c5eabd7d63b733852ccdb31e06f1373136da'
-            '019f23c2192df793ac746595e94a403908749f8e0c484b403476d2611dd20970'
-            'c0a0ca32105e9881d86b7ca886220147e686edc97fdb9f3657c6659dc6568b7d'
-            'f34a8d4e12b9dbfc0d8bd9954b26c70fd78333000ecbbeb9d3a034f4e4915ce6'
-            '714a766e784153cf7f9774d373ec5a2ad4b323a69c21aefadb3acf2ce1e1d859'
-            '2782c5bd9086effbbc17ae11519272202dd51e9ec9565114ebf6521b06e50c9e'
-            'e2dee38cfdd6cee22dc3af1e79fd62ea0e4623732de0cf340065dd722734bd94')
+        0001-build-Disable-SOVERSION-for-liblldb.so.patch
+        0002-Don-t-build-lldb-mi-and-intel-features.patch
+        0003-Allow-Python-to-find-its-home-when-relocated.patch
+        0004-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch)
+sha256sums=('1ff53c915b4e761ef400b803f07261ade637b0c269d99569f18040f3dcee4408'
+            'e07d6dd8d9ef196cfc8e8bb131cbd6a2ed0b1caf1715f9d05b0f0eeaddb6df32'
+            '46f54c1d7adcd047d87c0179f7b6fa751614f339f4f87e60abceaa45f414d454'
+            '7d7c4f514a4aa1540718a36cf8b6d135309bcbcde7b42924d9b97f897b5d5ebc'
+            '81bbe6c0fdb30673b9d4ff382d2a106cba9e6fc32aa6579e20679a97d794d2f7'
+            '69bea825dcf385ca59ac400e0ede4892122cf2aee8b952fa9b263d0def974d1c'
+            '380ae4f2628ea2807e9bf16b07d2bbaa8d5a9e7f9aeac64d2af576131efcb14b')
 
 prepare() {
   cd "$srcdir/llvm-${pkgver}.src"
@@ -52,10 +52,10 @@ prepare() {
   mv "$srcdir/lldb-${pkgver}.src" tools/lldb
 
   cd tools/lldb
-  patch -p1 -i "${srcdir}/0500-disable-lldb-soversion.patch"
-  patch -p1 -i "${srcdir}/0501-Don-t-build-lldb-mi-and-intel-mpx.patch"
-  patch -p1 -i "${srcdir}/0502-Allow-Python-to-find-its-home-when-relocated.patch"
-  patch -p1 -i "${srcdir}/0503-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
+  patch -p1 -i "${srcdir}/0001-build-Disable-SOVERSION-for-liblldb.so.patch"
+  patch -p1 -i "${srcdir}/0002-Don-t-build-lldb-mi-and-intel-features.patch"
+  patch -p1 -i "${srcdir}/0003-Allow-Python-to-find-its-home-when-relocated.patch"
+  patch -p1 -i "${srcdir}/0004-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
 
   # # https://bugs.llvm.org/show_bug.cgi?id=34123
   # sed -i '/LLVMSupport/d' tools/clang/tools/extra/clangd/tool/CMakeLists.txt
@@ -118,6 +118,9 @@ package() {
   # No one knows what the lldb-argdumper symlink in python site-packages is for anyway
   # http://lists.llvm.org/pipermail/lldb-dev/2015-February/006625.html
   rm "${pkgdir}${python_site_packages}/lldb/lldb-argdumper"
+
+  # this is introduced in LLDB 6
+  rm "${pkgdir}${PREFIX}/bin/lldb-test"
 
   # # https://bugs.archlinux.org/task/50759
   # sed -i "/import_module('_lldb')/s/_lldb/lldb.&/" \
