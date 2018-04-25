@@ -7,7 +7,7 @@
 
 pkgname=gdb
 pkgver=8.1
-pkgrel=1
+pkgrel=2
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
@@ -90,7 +90,8 @@ build() {
     --disable-sim \
     --disable-werror \
     --disable-rpath \
-    --with-system-gdbinit=${PREFIX}/etc/gdbinit \
+    --with-separate-debug-dir=/usr/lib/debug \
+    --with-system-gdbinit=/etc/gdb/gdbinit \
     --with-python=${PREFIX}/bin/python-config \
     --without-guile \
     --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
