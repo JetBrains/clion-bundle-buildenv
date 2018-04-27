@@ -50,7 +50,7 @@ RUN yum -y update \
 
 ENV PATH="/opt/rh/devtoolset-7/root/usr/bin:${PATH}"
 
-COPY docker-assets/linux/build-prerequisites/ /tmp/build-prerequisites/
+COPY assets/ /tmp/build-prerequisites
 RUN chmod a+x /tmp/build-prerequisites/*.sh \
  && /tmp/build-prerequisites/install-pacman.sh \
  && rm -rf /tmp/build-prerequisites

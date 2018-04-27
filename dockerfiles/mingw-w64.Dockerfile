@@ -1,3 +1,5 @@
+# Arch-based image with mingw-w64 toolchain for building PKGBUILD packages.
+
 FROM base/devel
 
 RUN groupadd -r --gid 1001 build \
