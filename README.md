@@ -1,5 +1,5 @@
-# dockerfile-gdb-build
-Dockerfiles and PKGBUILD scripts for building GDB for MinGW-W64 and Linux
+# clion-bundle-buildenv
+Dockerfiles and PKGBUILD scripts for building GDB and LLDB for MinGW-W64 and Linux
 
 
 ## Building
@@ -8,20 +8,22 @@ Dockerfiles and PKGBUILD scripts for building GDB for MinGW-W64 and Linux
 
 Run the Docker container with the repository root (containing `build.sh`) mounted as `/workdir`:
 ```
-docker run -v $(pwd):/workdir -it abusalimov/gdb-build-mingw-w64:latest
+docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv-mingw-w64:latest
 ```
 
-Run the `~/build.sh` script inside the Docker container:
+Run the `./build.sh` script inside the Docker container:
 ```
-cd mingw-w64
-../build.sh -c makepkg-mingw32.conf -- gdb python3-embed-prebuilt
+./build.sh -P mingw-w64 -c makepkg-mingw32.conf -- gdb lldb
 ```
 (Use `makepkg-mingw64.conf` to build 64-bit packages instead.)
 
-Artifacts will appear in the `mingw-w64/artifacts` directory:
+Artifacts will appear in the `artifacts-i686-w64-mingw32` directory:
 ```
-$ ls mingw-w64/artifacts/bundle-*.tar.xz
-mingw-w64/artifacts/bundle-i686-w64-mingw32.tar.xz
+$ ls artifacts-i686-w64-mingw32/bundle*
+artifacts-i686-w64-mingw32/bundle.tar.xz
+
+artifacts-i686-w64-mingw32/bundle:
+win
 ```
 
 
@@ -29,18 +31,21 @@ mingw-w64/artifacts/bundle-i686-w64-mingw32.tar.xz
 
 Run the Docker container with the repository root (containing `build.sh`) mounted as `/workdir`:
 ```
-docker run -v $(pwd):/workdir -it abusalimov/gdb-build-linux:latest
+docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv-linux:latest
 ```
 
-Run the `~/build.sh` script inside the Docker container:
+Run the `./build.sh` script inside the Docker container:
 ```
 cd linux
-../build.sh -c makepkg-linux.conf -- gdb
+./build.sh -P linux -- gdb lldb
 ```
 
-Artifacts will appear in the `linux/artifacts` directory:
+Artifacts will appear in the `artifacts-x86_64-redhat-linux` directory:
 ```
-$ ls linux/artifacts/bundle-*.tar.xz
-linux/artifacts/bundle-x86_64-pc-linux-gnu.tar.xz
+$ ls artifacts-x86_64-redhat-linux/bundle*
+artifacts-x86_64-redhat-linux/bundle.tar.xz
+
+artifacts-x86_64-redhat-linux/bundle:
+linux
 ```
 
