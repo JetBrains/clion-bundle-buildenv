@@ -23,7 +23,7 @@ license=('custom:University of Illinois/NCSA Open Source License')
 #              'ocaml-ctypes' 'ocaml-findlib' 'libedit' 'swig')
 # depends=('llvm-libs' 'libxml2' 'python2' 'python2-six')
 # depends=('gcc-libs' 'zlib' 'libffi' 'libedit' 'ncurses')
-makedepends=('cmake' 'python' 'swig')
+makedepends=('python' 'swig')
 depends=(zlib python)
 options=(!staticlibs !debug)
 source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
