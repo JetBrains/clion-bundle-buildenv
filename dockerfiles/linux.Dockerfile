@@ -1,4 +1,5 @@
-# Centos-based image with pacman, pkgbuild, ccache for building PKGBUILD packages.
+# Centos-based image with makepkg, ccache and devtoolset-7
+# for building PKGBUILD packages.
 
 FROM centos:6
 
@@ -7,6 +8,29 @@ RUN groupadd -r --gid 1001 build \
  && mkdir -p /etc/sudoers.d \
  && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build \
  && chmod 0440 /etc/sudoers.d/build
+
+# some of Development Tools (build-essential)
+RUN yum -y update \
+ && yum -y install \
+      epel-release \
+ && yum -y install \
+      autoconf \
+      automake \
+      binutils \
+      bison \
+      flex \
+      gcc \
+      gcc-c++ \
+      gettext \
+      libtool \
+      make \
+      patch \
+      pkgconfig \
+ && yum -y install \
+      elfutils \
+      file \
+      git \
+ && yum clean all
 
 RUN yum -y update \
  && yum -y install \
@@ -18,15 +42,11 @@ RUN yum -y update \
 
 RUN yum -y update \
  && yum -y install \
-      epel-release \
- && yum -y install \
+      bzip2 \
       chrpath \
       fakeroot \
-      git \
-      libarchive \
       libarchive-devel \
-      m4 \
-      patch \
+      openssl \
       sudo \
       texinfo \
       xz \
@@ -36,19 +56,23 @@ RUN yum -y update \
  && yum -y install \
       bsdtar3 \
  && yum clean all \
- && ln -s bsdtar3 "$(dirname $(which bsdtar3))"/bsdtar
+ && ln -s "$(command -v bsdtar3)" /usr/local/bin/bsdtar
 
+RUN yum -y update \
+ && yum -y install \
+      cmake3 \
+ && yum clean all \
+ && ln -s "$(command -v cmake3)" /usr/local/bin/cmake
+
+ENV PATH="/opt/rh/devtoolset-7/root/usr/bin:${PATH}"
+
+# makepkg has /usr/lib/ccache/bin directory hardcoded
 RUN yum -y update \
  && yum -y install \
       ccache \
  && yum clean all \
- && mkdir -p /usr/lib/ccache/bin/ \
- && for _prog in "/opt/rh/devtoolset-7/root/usr/bin/" \
-        {$(gcc -dumpmachine)-,}{gcc,gcc-[0-9],g++,cc,c++,clang,clang++}; do \
-      if [ -f "${_prog}" ]; then ln -s "$(which ccache)" /usr/lib/ccache/bin/"$(basename ${_prog})"; fi; \
-    done
-
-ENV PATH="/opt/rh/devtoolset-7/root/usr/bin:${PATH}"
+ && mkdir -p /usr/lib/ccache \
+ && ln -s /usr/lib64/ccache /usr/lib/ccache/bin
 
 COPY assets/ /tmp/build-prerequisites
 RUN chmod a+x /tmp/build-prerequisites/*.sh \
