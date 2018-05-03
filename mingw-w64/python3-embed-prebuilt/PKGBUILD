@@ -46,6 +46,10 @@ build() {
 package() {
   cd ${srcdir}/build-${CHOST}
 
+  install -dm755 ${pkgdir}${PREFIX}/include/python${_pybasever}
+  install -dm755 ${pkgdir}${PREFIX}/bin/python${_pybasever}
+  install -dm755 ${pkgdir}${PREFIX}/lib/python${_pybasever}
+
   install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/Include/*
   install -Dm644 -t ${pkgdir}${PREFIX}/include/python${_pybasever} ${srcdir}/Python-${pkgver}/PC/pyconfig.h
   install -Dm644 -t ${pkgdir}${PREFIX}/bin/ python${_pybasever/./}.zip *._pth

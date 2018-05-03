@@ -236,11 +236,14 @@ bundle_dll_dependencies() {
     local dll_names=($(${CHOST}-strings ${binary} | grep -i '\.dll$'))
     message "${binary}: DLL dependencies:" "${dll_names[@]}"
 
+    local dll_name
     for dll_name in "${dll_names[@]}"; do
-        local host_dll=/usr/${CHOST}/bin/"${dll_name}"
-        if [[ -f "${host_dll}" && -x "${host_dll}" ]]; then  # recurse
-            bundle_dll_dependencies "${host_dll}" "${binary}" "${depchain[@]}"
-        fi
+        local host_dll
+        for host_dll in /usr/${CHOST}{,/sys-root/mingw}/bin/"${dll_name}"; do
+            if [[ -f "${host_dll}" && -x "${host_dll}" ]]; then  # recurse
+                bundle_dll_dependencies "${host_dll}" "${binary}" "${depchain[@]}"
+            fi
+        done
     done
 }
 
