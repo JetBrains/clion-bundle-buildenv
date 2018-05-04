@@ -216,38 +216,6 @@ execute_cd(){
 }
 
 
-# Add runtime dependencies of a binary to ./${PREFIX}/bin/
-bundle_dll_dependencies() {
-    local binary="${1}"
-    local depchain=("${@:2}")
-
-    [[ -f "${binary}" && -x "${binary}" ]] || return 0
-
-    # don't copy at the outermost recursion level, i.e. the executable itself
-    if [[ -n ${depchain[*]} ]]; then
-        if [[ -e ${PREFIX#/}/bin/$(basename "${binary}") ]]; then  # done already
-            return 0
-        fi
-        message "${binary}: installing as dependency of:" "${depchain[@]}"
-        cp "${binary}" ${PREFIX#/}/bin/ || failure "Couldn't copy ${binary}"
-    fi
-
-    # https://stackoverflow.com/a/33174211/545027
-    local dll_names=($(${CHOST}-strings ${binary} | grep -i '\.dll$'))
-    message "${binary}: DLL dependencies:" "${dll_names[@]}"
-
-    local dll_name
-    for dll_name in "${dll_names[@]}"; do
-        local host_dll
-        for host_dll in /usr/${CHOST}{,/sys-root/mingw}/bin/"${dll_name}"; do
-            if [[ -f "${host_dll}" && -x "${host_dll}" ]]; then  # recurse
-                bundle_dll_dependencies "${host_dll}" "${binary}" "${depchain[@]}"
-            fi
-        done
-    done
-}
-
-
 usage() {
     printf "%s %s\n" "$0" "$prog_version"
     echo
@@ -508,19 +476,6 @@ do_bundle() {
             bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
     done
     unset package
-
-    do_bundle_dll() {
-        local binaries=(${PREFIX#/}/bin/*.{exe,dll})
-        message "binaries:" "${binaries[@]}"
-
-        local binary
-        for binary in "${binaries[@]}"; do
-            bundle_dll_dependencies "${binary}"
-        done
-    }
-    if (( ISMINGW )); then
-        execute "bundle DLL" do_bundle_dll
-    fi
 
     message 'Removing shared library symlinks...'
     [[ -d ${PREFIX#/}/lib ]] && find_and_rm -L ${PREFIX#/}/lib -xtype l

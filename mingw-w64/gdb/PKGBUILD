@@ -13,7 +13,8 @@ arch=(i686 x86_64)
 url="https://www.gnu.org/software/gdb/"
 license=('GPL')
 groups=("toolchain")
-depends=("expat"
+depends=("mingw-w64-runtime"
+         "expat"
          "libiconv"
          "zlib"
          "xz"
