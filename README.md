@@ -13,7 +13,7 @@ docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv-mingw-w64:lat
 
 Run the `./build.sh` script inside the Docker container:
 ```
-./build.sh -P mingw-w64 -c makepkg-mingw32.conf -- gdb lldb
+./build.sh -P mingw -c makepkg-mingw32.conf -- gdb lldb
 ```
 (Use `makepkg-mingw64.conf` to build 64-bit packages instead.)
 
