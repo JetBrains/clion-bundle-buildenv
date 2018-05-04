@@ -15,50 +15,27 @@ license=('GPL')
 groups=("toolchain")
 depends=("mingw-w64-runtime"
          "expat"
-         "libiconv"
          "zlib"
          "xz"
-         #"python2"
          "python3-embed-prebuilt")
-checkdepends=('dejagnu' 'bc')
-#makedepends=("libiconv"
-#             "ncurses"
-#             "xz")
+makedepends=("libiconv")
+
 options=('!staticlibs' 'strip')
-source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz
-        'gdb-fix-using-gnu-print.patch'
-        'gdb-7.12-dynamic-libs.patch'
-        'CPP-10055-py3k-fix-python_run_simple_file-using-deprecated-api.patch'
-        'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
-        'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch'
-        'CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch')
-md5sums=('f46487561f9a16916a8102316f7fd105'
-         'd7112b220466a294aa266bb4d5c06a59'
-         'aa9da2a8653357d1849f3a1092110461'
-         'c90fe93130e828fb22fbc3aded9605f0'
-         '18f5d49270a9ac18af16c53ccfa302a2'
-         '4b577626e1716dedf85dccae46376d07'
-         '0f80599eaa6d0a9495ce754a1999f6db')
+source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz)
+md5sums=('f46487561f9a16916a8102316f7fd105')
+
+source "PKGBUILD.inc"
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}
 
-  patch -p1 -i ${srcdir}/gdb-fix-using-gnu-print.patch
-
-  # https://sourceware.org/bugzilla/show_bug.cgi?id=21078
-  patch -p1 -i ${srcdir}/gdb-7.12-dynamic-libs.patch
-
-  # https://sourceware.org/bugzilla/show_bug.cgi?id=15600
-  patch -p1 -i ${srcdir}/CPP-10055-py3k-fix-python_run_simple_file-using-deprecated-api.patch
-
-  # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
-  patch -p1 -i ${srcdir}/CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch
-
-  # https://sourceware.org/ml/gdb-patches/2018-02/msg00030.html
-  patch -p1 -i ${srcdir}/CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch
-
-  # https://sourceware.org/ml/gdb-patches/2018-02/msg00077.html
-  patch -p1 -i ${srcdir}/CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch
+  local s
+  for s in "${source[@]}"; do
+    if [[ "${s}" == *.patch  ]]; then
+      msg2 "Applying patch %s" "${s}"
+      patch -p1 -i ${srcdir}/"${s}"
+    fi
+  done
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
@@ -69,45 +46,12 @@ build() {
   mkdir ${srcdir}/build-${CHOST}
   cd ${srcdir}/build-${CHOST}
 
-  local _enable_targets=(
-    "i686-pc-mingw32"
-
-    "i686-linux-gnu"
-    "i686-w64-mingw32"
-    "x86_64-linux-gnu"
-    "x86_64-w64-mingw32"
-
-    "aarch64-linux-gnu"
-    "alpha-linux-gnu"
-    "arm-linux-gnu"
-    "arm-linux-gnueabi"
-    "arm-linux-gnueabihf"
-    "hppa-linux-gnu"
-    "ia64-linux-gnu"
-    "m68k-linux-gnu"
-    "m68k-rtems"
-    "mips-linux-gnu"
-    "mipsel-linux-gnu"
-    "mips64-linux-gnu"
-    "mips64el-linux-gnu"
-    "powerpc-linux-gnu"
-    "powerpc-linux-gnuspe"
-    "powerpc64le-linux-gnu"
-    "powerpc64-linux-gnu"
-    "s390-linux-gnu"
-    "s390x-linux-gnu"
-    "sh-linux-gnu"
-    "sparc-linux-gnu"
-    "sparc64-linux-gnu"
-    "m32r-linux-gnu"
-  )
-
   ../${pkgname}-${pkgver}/configure \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --host=${CHOST} \
     --target=${CHOST} \
     --prefix=${PREFIX} \
-    --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
+    --enable-targets=$(IFS=','; echo "${gdb_enable_targets[*]}") \
     --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \

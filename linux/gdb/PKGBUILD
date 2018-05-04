@@ -13,27 +13,22 @@ arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
 depends=(libiconv expat xz zlib python)
-source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz"
-        'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
-        'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch'
-        'CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch')
-md5sums=('f46487561f9a16916a8102316f7fd105'
-         '18f5d49270a9ac18af16c53ccfa302a2'
-         '4b577626e1716dedf85dccae46376d07'
-         '0f80599eaa6d0a9495ce754a1999f6db')
-options=('!staticlibs')
+options=('!staticlibs' 'strip')
+source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
+md5sums=('f46487561f9a16916a8102316f7fd105')
+
+source "PKGBUILD.inc"
 
 prepare() {
   cd gdb-$pkgver
 
-  # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
-  patch -p1 -i ${srcdir}/CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch
-
-  # https://sourceware.org/ml/gdb-patches/2018-02/msg00030.html
-  patch -p1 -i ${srcdir}/CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch
-
-  # https://sourceware.org/ml/gdb-patches/2018-02/msg00077.html
-  patch -p1 -i ${srcdir}/CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch
+  local s
+  for s in "${source[@]}"; do
+    if [[ "${s}" == *.patch  ]]; then
+      msg2 "Applying patch %s" "${s}"
+      patch -p1 -i ${srcdir}/"${s}"
+    fi
+  done
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure
@@ -42,43 +37,10 @@ prepare() {
 build() {
   cd gdb-$pkgver
 
-  local _enable_targets=(
-    "i686-pc-mingw32"
-
-    "i686-linux-gnu"
-    "i686-w64-mingw32"
-    "x86_64-linux-gnu"
-    "x86_64-w64-mingw32"
-
-    "aarch64-linux-gnu"
-    "alpha-linux-gnu"
-    "arm-linux-gnu"
-    "arm-linux-gnueabi"
-    "arm-linux-gnueabihf"
-    "hppa-linux-gnu"
-    "ia64-linux-gnu"
-    "m68k-linux-gnu"
-    "m68k-rtems"
-    "mips-linux-gnu"
-    "mipsel-linux-gnu"
-    "mips64-linux-gnu"
-    "mips64el-linux-gnu"
-    "powerpc-linux-gnu"
-    "powerpc-linux-gnuspe"
-    "powerpc64le-linux-gnu"
-    "powerpc64-linux-gnu"
-    "s390-linux-gnu"
-    "s390x-linux-gnu"
-    "sh-linux-gnu"
-    "sparc-linux-gnu"
-    "sparc64-linux-gnu"
-    "m32r-linux-gnu"
-  )
-
   ../gdb-${pkgver}/configure \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --prefix=${PREFIX} \
-    --enable-targets=$(IFS=','; echo "${_enable_targets[*]}") \
+    --enable-targets=$(IFS=','; echo "${gdb_enable_targets[*]}") \
     --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \

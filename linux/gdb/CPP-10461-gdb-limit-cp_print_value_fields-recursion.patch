@@ -1,15 +1,1 @@
---- gdb.orig/gdb/cp-valprint.c	2016-02-15 21:16:19.123260446 -0600
-+++ gdb.orig/gdb/cp-valprint.c	2016-02-15 22:49:08.620018094 -0600
-@@ -644,6 +644,12 @@ 
-       return;
-     }
- 
-+  if (recurse > 99)
-+  {
-+    fputs_filtered ("<recursion limit reached>", stream);
-+    return; 
-+  }
-+ 
-   if (TYPE_CODE (type) == TYPE_CODE_STRUCT)
-     {
-       CORE_ADDR *first_dont_print;
+patches/CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch
