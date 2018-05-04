@@ -38,7 +38,6 @@ build() {
     --enable-extra-encodings \
     --enable-relocatable \
     --disable-rpath \
-    --enable-silent-rules \
     --enable-nls
 
   make
@@ -54,8 +53,9 @@ package() {
   license=(LGPL2 documentation:'GPL3') # This is LGPL except for documentation, see README
 
   cd "${srcdir}/build-${CHOST}"
-  make install DESTDIR="${pkgdir}"
-  rm -fr "${pkgdir}${PREFIX}"/bin/*.exe
+  make -C lib        install DESTDIR="${pkgdir}"
+  make -C libcharset install DESTDIR="${pkgdir}"
+
   rm -f  "${pkgdir}${PREFIX}"/lib/charset.alias
   rm -fr "${pkgdir}${PREFIX}"/share/locale
   rm -f  "${pkgdir}${PREFIX}"/share/doc/libiconv/*.1.*
