@@ -95,8 +95,9 @@ _package_info() {
     for property in "${properties[@]}"; do
         eval "${property}=()"
         local value=($(
-            source "${MAKEPKG_CONF}"
-            source "${PKG_ROOT_DIR}/${package}/PKGBUILD"
+            source "${MAKEPKG_CONF}" > /dev/null && \
+            cd "${PKG_ROOT_DIR}/${package}" && \
+            source "PKGBUILD" > /dev/null
             eval echo "\${${property}[@]}"))
         eval "${property}=(\"\${value[@]}\")"
     done
