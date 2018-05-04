@@ -8,7 +8,8 @@ Dockerfiles and PKGBUILD scripts for building GDB and LLDB for MinGW-W64 and Lin
 
 Run the Docker container with the repository root (containing `build.sh`) mounted as `/workdir`:
 ```
-docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv-mingw-w64:latest
+docker build -t abusalimov/clion-bundle-buildenv/mingw:latest -f dockerfiles/mingw.Dockerfile dockerfiles
+docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv/mingw:latest
 ```
 
 Run the `./build.sh` script inside the Docker container:
@@ -31,7 +32,8 @@ win
 
 Run the Docker container with the repository root (containing `build.sh`) mounted as `/workdir`:
 ```
-docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv-linux:latest
+docker build -t abusalimov/clion-bundle-buildenv/linux:latest -f dockerfiles/linux.Dockerfile dockerfiles
+docker run -v $(pwd):/workdir -it abusalimov/clion-bundle-buildenv/linux:latest
 ```
 
 Run the `./build.sh` script inside the Docker container:
