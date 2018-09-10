@@ -1,15 +1,15 @@
 --- gdb.orig/gdb/cp-valprint.c	2016-02-15 21:16:19.123260446 -0600
 +++ gdb.orig/gdb/cp-valprint.c	2016-02-15 22:49:08.620018094 -0600
-@@ -644,6 +644,12 @@ 
+@@ -633,6 +633,12 @@ cp_print_static_field (struct type *type,
        return;
      }
- 
+
 +  if (recurse > 99)
 +  {
 +    fputs_filtered ("<recursion limit reached>", stream);
-+    return; 
++    return;
 +  }
-+ 
-   if (TYPE_CODE (type) == TYPE_CODE_STRUCT)
++
+   struct type *real_type = check_typedef (type);
+   if (TYPE_CODE (real_type) == TYPE_CODE_STRUCT)
      {
-       CORE_ADDR *first_dont_print;

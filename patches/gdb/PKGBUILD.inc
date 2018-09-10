@@ -11,21 +11,13 @@ source+=('gdb-fix-using-gnu-print.patch'
          'CPP-10055-py3k-fix-python_run_simple_file-using-deprecated-api.patch'
 
          # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
-         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
-
-         # https://sourceware.org/ml/gdb-patches/2018-02/msg00030.html
-         'CPP-7331-MI-Allow-non-raw-varobj-evaluation.patch'
-
-         # https://sourceware.org/ml/gdb-patches/2018-02/msg00077.html
-         'CPP-11966-Fix-type-of-values-representing-optimized-out-static-members.patch')
+         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch')
 
 
 md5sums+=('d7112b220466a294aa266bb4d5c06a59'
           'aa9da2a8653357d1849f3a1092110461'
           'c90fe93130e828fb22fbc3aded9605f0'
-          '18f5d49270a9ac18af16c53ccfa302a2'
-          '4b577626e1716dedf85dccae46376d07'
-          '0f80599eaa6d0a9495ce754a1999f6db')
+          '325bf5b7ad6a1e37a348dda3df0df837')
 
 
 gdb_enable_targets=(
