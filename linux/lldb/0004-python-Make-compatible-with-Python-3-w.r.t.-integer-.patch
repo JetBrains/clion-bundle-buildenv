@@ -1,4 +1,4 @@
-From 9f89a89a0ac3f21e61488933ac3f82d90ab74619 Mon Sep 17 00:00:00 2001
+From 5b72b51c128d1b3e907f0adaa219019b19f465d0 Mon Sep 17 00:00:00 2001
 From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
 Date: Tue, 24 Oct 2017 13:48:31 +0300
 Subject: [PATCH 4/4] python: Make compatible with Python 3 w.r.t. integer
@@ -109,5 +109,5 @@ index c103b7e2e..2f0c5adc6 100644
      import __builtin__ as builtins
  else:
 -- 
-2.16.2
+2.17.1
 

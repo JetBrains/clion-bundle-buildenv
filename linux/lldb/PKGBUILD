@@ -13,7 +13,7 @@
 # Contributor: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 
 pkgname=lldb
-pkgver=6.0.0
+pkgver=7.0.1
 pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
@@ -36,13 +36,13 @@ source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         0002-Don-t-build-lldb-mi-and-intel-features.patch
         0003-Allow-Python-to-find-its-home-when-relocated.patch
         0004-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch)
-sha256sums=('1ff53c915b4e761ef400b803f07261ade637b0c269d99569f18040f3dcee4408'
-            'e07d6dd8d9ef196cfc8e8bb131cbd6a2ed0b1caf1715f9d05b0f0eeaddb6df32'
-            '46f54c1d7adcd047d87c0179f7b6fa751614f339f4f87e60abceaa45f414d454'
-            '7d7c4f514a4aa1540718a36cf8b6d135309bcbcde7b42924d9b97f897b5d5ebc'
-            '81bbe6c0fdb30673b9d4ff382d2a106cba9e6fc32aa6579e20679a97d794d2f7'
-            '69bea825dcf385ca59ac400e0ede4892122cf2aee8b952fa9b263d0def974d1c'
-            '380ae4f2628ea2807e9bf16b07d2bbaa8d5a9e7f9aeac64d2af576131efcb14b')
+sha256sums=('a38dfc4db47102ec79dcc2aa61e93722c5f6f06f0a961073bd84b78fb949419b'
+            'a45b62dde5d7d5fdcdfa876b0af92f164d434b06e9e89b5d0b1cbc65dfe3f418'
+            '76b46be75b412a3d22f0d26279306ae7e274fe4d7988a2184c529c38a6a76982'
+            '28af6e6f5d38a16538faddcb94f74d1837df3eac59c7de4107b84d583aadbf70'
+            '1885f6a081d44fd994a3235620a04d0f18c38e7b02564dc65bb3b9b019f18bf9'
+            '2982e4dcb792e1868d671429c32d61782339d94f509c89969119d55a59b72383'
+            '83d55fe06babded11a739354921b8325de55b31ff52d43bb13294e1fd9717cbd')
 
 prepare() {
   cd "$srcdir/llvm-${pkgver}.src"
