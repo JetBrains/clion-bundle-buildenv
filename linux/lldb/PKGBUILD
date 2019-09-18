@@ -13,7 +13,7 @@
 # Contributor: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 
 pkgname=lldb
-pkgver=7.0.1
+pkgver=9.0.0rc6
 pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
@@ -26,39 +26,41 @@ license=('custom:University of Illinois/NCSA Open Source License')
 makedepends=('python' 'swig')
 depends=(zlib python)
 options=(!staticlibs !debug)
+
+if [[ $pkgver != *rc* ]]; then
 source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
         https://releases.llvm.org/${pkgver}/cfe-${pkgver}.src.tar.xz
-        # https://releases.llvm.org/${pkgver}/clang-tools-extra-${pkgver}.src.tar.xz
-        # https://releases.llvm.org/${pkgver}/compiler-rt-${pkgver}.src.tar.xz
-        # https://releases.llvm.org/${pkgver}/lld-${pkgver}.src.tar.xz
-        https://releases.llvm.org/${pkgver}/lldb-${pkgver}.src.tar.xz
-        0001-build-Disable-SOVERSION-for-liblldb.so.patch
-        0002-Don-t-build-lldb-mi-and-intel-features.patch
-        0003-Allow-Python-to-find-its-home-when-relocated.patch
-        0004-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch)
-sha256sums=('a38dfc4db47102ec79dcc2aa61e93722c5f6f06f0a961073bd84b78fb949419b'
-            'a45b62dde5d7d5fdcdfa876b0af92f164d434b06e9e89b5d0b1cbc65dfe3f418'
-            '76b46be75b412a3d22f0d26279306ae7e274fe4d7988a2184c529c38a6a76982'
-            '28af6e6f5d38a16538faddcb94f74d1837df3eac59c7de4107b84d583aadbf70'
-            '1885f6a081d44fd994a3235620a04d0f18c38e7b02564dc65bb3b9b019f18bf9'
-            '2982e4dcb792e1868d671429c32d61782339d94f509c89969119d55a59b72383'
-            '83d55fe06babded11a739354921b8325de55b31ff52d43bb13294e1fd9717cbd')
+        https://releases.llvm.org/${pkgver}/lldb-${pkgver}.src.tar.xz)
+else
+source=(https://prereleases.llvm.org/${pkgver/rc//rc}/llvm-${pkgver}.src.tar.xz
+        https://prereleases.llvm.org/${pkgver/rc//rc}/cfe-${pkgver}.src.tar.xz
+        https://prereleases.llvm.org/${pkgver/rc//rc}/lldb-${pkgver}.src.tar.xz)
+fi
+source+=(0001-build-Disable-SOVERSION-for-liblldb.so.patch
+         0002-Allow-Python-to-find-its-home-when-relocated.patch
+         0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch
+         0004-Support-LLDB_VERSION_STRING-in-reported-version.patch)
+
+sha256sums=('8d7f9db854c1d078387e9a707c57d69ad66c7a27b47d785fde6e105b8cd802c1'
+            'be920682bf410e808a42f80b36f366c12f8a137b642a67fc50665af56756699c'
+            '3827c5ab26ff5120ca296a51f0a039784ba9fa3662ac6f3d52ebe181664c1ef9'
+            '024d10a7fb32a5992e59349ca0fe21340f9641aab17c460f708556d3bc32bc97'
+            '5c9fbc5fd1b62d5961fdc4ad2a919b9c886545345c0d92cbbde783910399617d'
+            'c8d6fa829c7d2971d6042658c55fce5e1eb51fc8b85dcb71f13aca37289008a6'
+            '85d165018a379efbda8e94133c84177c317b870ed4c6018bc30261e32f238d80')
 
 prepare() {
   cd "$srcdir/llvm-${pkgver}.src"
-  mkdir build
+  mkdir -p build
 
   mv "$srcdir/cfe-${pkgver}.src" tools/clang
   mv "$srcdir/lldb-${pkgver}.src" tools/lldb
 
   cd tools/lldb
   patch -p1 -i "${srcdir}/0001-build-Disable-SOVERSION-for-liblldb.so.patch"
-  patch -p1 -i "${srcdir}/0002-Don-t-build-lldb-mi-and-intel-features.patch"
-  patch -p1 -i "${srcdir}/0003-Allow-Python-to-find-its-home-when-relocated.patch"
-  patch -p1 -i "${srcdir}/0004-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
-
-  # # https://bugs.llvm.org/show_bug.cgi?id=34123
-  # sed -i '/LLVMSupport/d' tools/clang/tools/extra/clangd/tool/CMakeLists.txt
+  patch -p1 -i "${srcdir}/0002-Allow-Python-to-find-its-home-when-relocated.patch"
+  patch -p1 -i "${srcdir}/0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
+  patch -p1 -i "${srcdir}/0004-Support-LLDB_VERSION_STRING-in-reported-version.patch"
 }
 
 _llvm_pkgversion() {
@@ -119,8 +121,10 @@ package() {
   # http://lists.llvm.org/pipermail/lldb-dev/2015-February/006625.html
   rm "${pkgdir}${python_site_packages}/lldb/lldb-argdumper"
 
-  # this is introduced in LLDB 6
-  rm "${pkgdir}${PREFIX}/bin/lldb-test"
+  # LLDB 9
+  rm -f "${pkgdir}${PREFIX}/bin/lldb-instr"
+  rm -f "${pkgdir}${PREFIX}/bin/lldb-mi"
+  rm -f "${pkgdir}${PREFIX}/bin/lldb-vscode"
 
   # # https://bugs.archlinux.org/task/50759
   # sed -i "/import_module('_lldb')/s/_lldb/lldb.&/" \

@@ -1,4 +1,4 @@
-From 0af0c9ad4d96b098ee17fe3cd41f5b0abcf26663 Mon Sep 17 00:00:00 2001
+From 6282a8559eb9258a5dd7b9bdbfbe6d9c631f9ff6 Mon Sep 17 00:00:00 2001
 From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
 Date: Tue, 24 Oct 2017 20:46:55 +0300
 Subject: [PATCH 1/4] build: Disable SOVERSION for liblldb.so
@@ -8,12 +8,12 @@ Subject: [PATCH 1/4] build: Disable SOVERSION for liblldb.so
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/source/API/CMakeLists.txt b/source/API/CMakeLists.txt
-index be9d4115c..081f62d21 100644
+index d93b8b5e3..879c3bc1d 100644
 --- a/source/API/CMakeLists.txt
 +++ b/source/API/CMakeLists.txt
-@@ -110,10 +110,8 @@ if (LLVM_COMPILER_IS_GCC_COMPATIBLE AND
-     PROPERTY COMPILE_FLAGS " -Wno-sequence-point -Wno-cast-qual")
- endif ()
+@@ -128,10 +128,8 @@ if(lldb_python_wrapper)
+   endif ()
+ endif()
  
 -set_target_properties(liblldb
 -  PROPERTIES
@@ -25,5 +25,5 @@ index be9d4115c..081f62d21 100644
  if (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
    if (NOT LLDB_EXPORT_ALL_SYMBOLS)
 -- 
-2.17.1
+2.23.0
 

@@ -1,0 +1,29 @@
+From 0bd7969811f5f8c43f41a288dc55d8e58d63224a Mon Sep 17 00:00:00 2001
+From: Eldar Abusalimov <eldar.abusalimov@jetbrains.com>
+Date: Wed, 18 Sep 2019 16:35:21 +0300
+Subject: [PATCH 4/4] Support LLDB_VERSION_STRING in reported version
+
+---
+ source/lldb.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/source/lldb.cpp b/source/lldb.cpp
+index c96f5d9ee..21b80d4db 100644
+--- a/source/lldb.cpp
++++ b/source/lldb.cpp
+@@ -44,6 +44,12 @@ const char *lldb_private::GetVersion() {
+     g_version_str += "lldb version ";
+     g_version_str += CLANG_VERSION_STRING;
+ 
++#ifdef LLDB_VERSION_STRING
++    g_version_str += " (";
++    g_version_str += EXPAND_AND_QUOTE(LLDB_VERSION_STRING);
++    g_version_str += ")";
++#endif // LLDB_VERSION_STRING
++
+     const char *lldb_repo = GetLLDBRepository();
+     const char *lldb_rev = GetLLDBRevision();
+     if (lldb_repo || lldb_rev) {
+-- 
+2.23.0
+
