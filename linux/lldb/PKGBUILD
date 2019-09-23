@@ -13,7 +13,7 @@
 # Contributor: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 
 pkgname=lldb
-pkgver=9.0.0rc6
+pkgver=9.0.0
 pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
@@ -42,9 +42,9 @@ source+=(0001-Support-LLVM_APPEND_VC_REV-option-in-clang.patch
          0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch
          0004-Support-LLDB_VERSION_STRING-in-reported-version.patch)
 
-sha256sums=('8d7f9db854c1d078387e9a707c57d69ad66c7a27b47d785fde6e105b8cd802c1'
-            'be920682bf410e808a42f80b36f366c12f8a137b642a67fc50665af56756699c'
-            '3827c5ab26ff5120ca296a51f0a039784ba9fa3662ac6f3d52ebe181664c1ef9'
+sha256sums=('d6a0565cf21f22e9b4353b2eb92622e8365000a9e90a16b09b56f8157eabfe84'
+            '7ba81eef7c22ca5da688fdf9d88c20934d2d6b40bfe150ffd338900890aa4610'
+            '1e4c2f6a1f153f4b8afa2470d2e99dab493034c1ba8b7ffbbd7600de016d0794'
             'd6bc8b7e1b9a1d9a857c6c2670f9bdf59f9c4a3e1121a61c433e5b01729b519b'
             '024d10a7fb32a5992e59349ca0fe21340f9641aab17c460f708556d3bc32bc97'
             '5c9fbc5fd1b62d5961fdc4ad2a919b9c886545345c0d92cbbde783910399617d'
