@@ -12,8 +12,13 @@
 # Contributor: Roberto Alsina <ralsina@kde.org>
 # Contributor: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 
+_llvm_repository_name='llvm-project'
+_llvm_git_repository=${LLVM_GIT_REPOSITORY-"git+https://github.com/llvm/$_llvm_repository_name.git"}
+_llvm_git_reftype=${LLVM_GIT_REFTYPE-'branch'}
+_llvm_git_ref=${LLVM_GIT_REF-'master'}
+
 pkgname=lldb
-pkgver=9.0.0
+pkgver=unknown
 pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=(i686 x86_64)
@@ -27,39 +32,37 @@ makedepends=('python' 'swig')
 depends=(zlib python)
 options=(!staticlibs !debug)
 
-if [[ $pkgver != *rc* ]]; then
-source=(https://releases.llvm.org/${pkgver}/llvm-${pkgver}.src.tar.xz
-        https://releases.llvm.org/${pkgver}/cfe-${pkgver}.src.tar.xz
-        https://releases.llvm.org/${pkgver}/lldb-${pkgver}.src.tar.xz)
-else
-source=(https://prereleases.llvm.org/${pkgver/rc//rc}/llvm-${pkgver}.src.tar.xz
-        https://prereleases.llvm.org/${pkgver/rc//rc}/cfe-${pkgver}.src.tar.xz
-        https://prereleases.llvm.org/${pkgver/rc//rc}/lldb-${pkgver}.src.tar.xz)
-fi
-source+=(0001-Support-LLVM_APPEND_VC_REV-option-in-clang.patch
-         0001-build-Disable-SOVERSION-for-liblldb.so.patch
-         0002-Allow-Python-to-find-its-home-when-relocated.patch
-         0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch
-         0004-Support-LLDB_VERSION_STRING-in-reported-version.patch)
+source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm_git_ref"
+        '0001-Support-LLVM_APPEND_VC_REV-option-in-clang.patch'
+        '0001-build-Disable-SOVERSION-for-liblldb.so.patch'
+        '0002-Allow-Python-to-find-its-home-when-relocated.patch'
+        '0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch'
+        '0004-Support-LLDB_VERSION_STRING-in-reported-version.patch')
 
-sha256sums=('d6a0565cf21f22e9b4353b2eb92622e8365000a9e90a16b09b56f8157eabfe84'
-            '7ba81eef7c22ca5da688fdf9d88c20934d2d6b40bfe150ffd338900890aa4610'
-            '1e4c2f6a1f153f4b8afa2470d2e99dab493034c1ba8b7ffbbd7600de016d0794'
+sha256sums=('SKIP'
             'd6bc8b7e1b9a1d9a857c6c2670f9bdf59f9c4a3e1121a61c433e5b01729b519b'
             '024d10a7fb32a5992e59349ca0fe21340f9641aab17c460f708556d3bc32bc97'
             '5c9fbc5fd1b62d5961fdc4ad2a919b9c886545345c0d92cbbde783910399617d'
             'c8d6fa829c7d2971d6042658c55fce5e1eb51fc8b85dcb71f13aca37289008a6'
             'c0985e0e99059b64bfdfa49cbae4ceb4b0508e99e5586bd191572f7896022173')
 
-prepare() {
-  ln -s "$srcdir/llvm-${pkgver}.src" "$srcdir/llvm"
-  ln -s "$srcdir/cfe-${pkgver}.src" "$srcdir/clang"
-  ln -s "$srcdir/lldb-${pkgver}.src" "$srcdir/lldb"
+pkgver() {
+  cd "$srcdir/$_llvm_repository_name"
 
-  cd "$srcdir/clang"
+  if [ "$_llvm_git_reftype" == "branch" ]; then
+    printf '%s.%s' "$_llvm_git_ref" "$(git rev-parse --short HEAD)"
+  elif [ "$_llvm_git_reftype" == "commit" ]; then
+    git rev-parse --short HEAD
+  else
+    echo "$_llvm_git_ref"
+  fi | sed 's/[^a-z0-9]/./gI'
+}
+
+prepare() {
+  cd "$srcdir/$_llvm_repository_name/clang"
   patch -p1 -i "${srcdir}/0001-Support-LLVM_APPEND_VC_REV-option-in-clang.patch"
 
-  cd "$srcdir/lldb"
+  cd "$srcdir/$_llvm_repository_name/lldb"
   patch -p1 -i "${srcdir}/0001-build-Disable-SOVERSION-for-liblldb.so.patch"
   patch -p1 -i "${srcdir}/0002-Allow-Python-to-find-its-home-when-relocated.patch"
   patch -p1 -i "${srcdir}/0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
@@ -94,7 +97,7 @@ build() {
     -DLLVM_INCLUDE_TESTS=OFF \
     -DLLVM_APPEND_VC_REV=OFF \
     -DLLDB_VERSION_STRING="$(_llvm_pkgversion | _cmake_escape_semicolon)" \
-    "$srcdir/llvm"
+    "$srcdir/$_llvm_repository_name/llvm"
 
   make
 
@@ -146,6 +149,8 @@ package() {
   # python2 -m compileall "${pkgdir}${PREFIX}/lib/python2.7/site-packages/lldb"
   # python2 -O -m compileall "${pkgdir}${PREFIX}/lib/python2.7/site-packages/lldb"
 
-  install -Dm644 "${srcdir}"/llvm/LICENSE.TXT "${pkgdir}${PREFIX}/share/licenses/llvm/LICENSE"
-  install -Dm644 "${srcdir}"/lldb/LICENSE.TXT "${pkgdir}${PREFIX}/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 "$srcdir/$_llvm_repository_name/llvm/LICENSE.TXT" \
+    "${pkgdir}${PREFIX}/share/licenses/llvm/LICENSE"
+  install -Dm644 "$srcdir/$_llvm_repository_name/lldb/LICENSE.TXT" \
+    "${pkgdir}${PREFIX}/share/licenses/${pkgname}/LICENSE"
 }
