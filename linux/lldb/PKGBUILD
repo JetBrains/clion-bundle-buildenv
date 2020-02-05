@@ -14,8 +14,8 @@
 
 _llvm_repository_name='llvm-project'
 _llvm_git_repository=${LLVM_GIT_REPOSITORY-"git+https://github.com/llvm/$_llvm_repository_name.git"}
-_llvm_git_reftype=${LLVM_GIT_REFTYPE-'branch'}
-_llvm_git_ref=${LLVM_GIT_REF-'master'}
+_llvm_git_reftype=${LLVM_GIT_REFTYPE-'tag'}
+_llvm_git_ref=${LLVM_GIT_REF-'llvmorg-9.0.1'}
 
 pkgname=lldb
 pkgver=unknown
@@ -53,7 +53,7 @@ pkgver() {
     printf '%s.%s' "$_llvm_git_ref" "$(git rev-parse --short HEAD)"
   elif [ "$_llvm_git_reftype" == "commit" ]; then
     git rev-parse --short HEAD
-  else
+  else # tag
     echo "$_llvm_git_ref"
   fi | sed 's/[^a-z0-9]/./gI'
 }
