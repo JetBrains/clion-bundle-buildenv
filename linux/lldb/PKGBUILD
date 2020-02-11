@@ -84,7 +84,7 @@ build() {
   CFLAGS="${CPPFLAGS} ${CFLAGS}" \
   CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}" \
   cmake \
-    -G Ninja \
+    -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
     -DPYTHON_EXECUTABLE=${PREFIX}/bin/python \
@@ -99,7 +99,7 @@ build() {
     -DLLDB_VERSION_STRING="$(_llvm_pkgversion | _cmake_escape_semicolon)" \
     "$srcdir/$_llvm_repository_name/llvm"
 
-  cmake --build .
+  make
 
   # # Disable automatic installation of components that go into subpackages
   # sed -i '/\(clang\|lld\|lldb\)\/cmake_install.cmake/d' tools/cmake_install.cmake
@@ -107,10 +107,15 @@ build() {
   # sed -i '/compiler-rt\/cmake_install.cmake/d' projects/cmake_install.cmake
 }
 
+check() {
+  cd "${srcdir}"/build-${CHOST}
+  make check-{llvm,clang}
+}
+
 package() {
   cd "${srcdir}"/build-${CHOST}
 
-  DESTDIR="${pkgdir}" cmake -DCMAKE_INSTALL_COMPONENT="lldb" --build . --target install
+  make -C "${srcdir}"/build-${CHOST}/tools/lldb DESTDIR="${pkgdir}" install
 
   # This resolves to something like ${PREFIX}/lib/python3.6/site-packages
   local python_site_packages=$(${PREFIX}/bin/python -c \
@@ -126,7 +131,7 @@ package() {
 
   # No one knows what the lldb-argdumper symlink in python site-packages is for anyway
   # http://lists.llvm.org/pipermail/lldb-dev/2015-February/006625.html
-  rm -f "${pkgdir}${python_site_packages}/lldb/lldb-argdumper"
+  rm "${pkgdir}${python_site_packages}/lldb/lldb-argdumper"
 
   # LLDB 9
   rm -f "${pkgdir}${PREFIX}/bin/lldb-instr"
