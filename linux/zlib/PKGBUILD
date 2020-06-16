@@ -14,8 +14,8 @@ license=('custom')
 url="https://www.zlib.net/"
 #depends=('glibc')
 options=('!staticlibs')
-source=("https://zlib.net/zlib-${pkgver}.tar.gz")
-md5sums=('1c9f62f0778697a09d36121ead88e08e')
+source=("https://github.com/madler/zlib/archive/v${pkgver}.tar.gz")
+sha256sums=('629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff')
 
 prepare() {
 	cd ${srcdir}/zlib-$pkgver

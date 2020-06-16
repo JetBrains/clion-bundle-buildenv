@@ -6,16 +6,16 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gdb
-pkgver=8.3
+pkgver=9.2
 pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
-depends=(libiconv expat xz zlib python)
+depends=(libiconv expat xz zlib python libipt)
 options=('!staticlibs' 'strip')
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('bbd95b2f9b34621ad7a19a3965476314')
+md5sums=('db95524e554870209ab7d9f8fd8dc557')
 
 source "PKGBUILD.inc"
 
@@ -35,7 +35,8 @@ prepare() {
 }
 
 build() {
-  cd gdb-$pkgver
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
 
   ../gdb-${pkgver}/configure \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
@@ -57,7 +58,7 @@ build() {
 }
 
 package() {
-  cd gdb-$pkgver
+  cd "${srcdir}/build-${CHOST}"
   make DESTDIR=${pkgdir} install
 
   rm -rf ${pkgdir}${PREFIX}/share/{man,info}
