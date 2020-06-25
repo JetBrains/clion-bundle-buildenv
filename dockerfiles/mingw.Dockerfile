@@ -1,7 +1,7 @@
 # Centos-based image with makepkg, ccache and mingw-w64 toolchain
 # for building PKGBUILD packages.
 
-FROM centos:7
+FROM fedora:32
 
 RUN groupadd -r --gid 1001 build \
  && useradd --no-log-init --create-home -g build -r --uid 1001 build \
@@ -11,8 +11,6 @@ RUN groupadd -r --gid 1001 build \
 
 # some of Development Tools (build-essential)
 RUN yum -y update \
- && yum -y install \
-      epel-release \
  && yum -y install \
       autoconf \
       automake \

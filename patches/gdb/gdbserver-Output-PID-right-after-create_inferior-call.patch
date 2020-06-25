@@ -6,31 +6,24 @@ Subject: [PATCH] gdbserver: Output PID right after create_inferior () call
 Instead of doing so from inside post_fork_inferior (), which is only invoked
 on Linux and several more OS', print PID unconditionally so that the
 behaviour is consistent across the platforms.
----
- gdb/gdbserver/fork-child.c |  2 --
- gdb/gdbserver/server.c     | 22 +++++++++++++++++-----
- 2 files changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/gdb/gdbserver/fork-child.c b/gdb/gdbserver/fork-child.c
-index 0dfd69d626..215a72ac4a 100644
---- a/gdb/gdbserver/fork-child.c
-+++ b/gdb/gdbserver/fork-child.c
-@@ -113,6 +113,4 @@ post_fork_inferior (int pid, const char *program)
+diff -Naur a/gdb/gdbserver/fork-child.c b/gdb/gdbserver/fork-child.c
+--- a/gdb/gdbserver/fork-child.c	2020-06-10 15:46:03.599597814 +0300
++++ b/gdb/gdbserver/fork-child.c	2020-06-10 16:24:00.052559009 +0300
+@@ -113,6 +113,4 @@
    current_thread->last_status = cs.last_status;
    signal_pid = pid;
    target_post_create_inferior ();
 -  fprintf (stderr, "Process %s created; pid = %d\n", program, pid);
 -  fflush (stderr);
  }
-diff --git a/gdb/gdbserver/server.c b/gdb/gdbserver/server.c
-index a491ae0257..c0b15d6288 100644
---- a/gdb/gdbserver/server.c
-+++ b/gdb/gdbserver/server.c
-@@ -288,6 +288,18 @@ get_environ ()
-   return &our_environ;
+diff -Naur a/gdb/gdbserver/server.c b/gdb/gdbserver/server.c
+--- a/gdb/gdbserver/server.c	2020-06-10 15:46:03.609597783 +0300
++++ b/gdb/gdbserver/server.c	2020-06-10 16:24:00.055892332 +0300
+@@ -283,6 +283,18 @@
  }
  
-+static int
+ static int
 +do_create_inferior (const char *program,
 +                    const std::vector<char *> &program_args)
 +{
@@ -42,10 +35,11 @@ index a491ae0257..c0b15d6288 100644
 +  return pid;
 +}
 +
- static int
++static int
  attach_inferior (int pid)
  {
-@@ -1637,7 +1649,7 @@ handle_qxfer_statictrace (const char *annex,
+   client_state &cs = get_client_state ();
+@@ -1622,7 +1634,7 @@
    if (writebuf != NULL)
      return -2;
  
@@ -54,7 +48,7 @@ index a491ae0257..c0b15d6288 100644
        || cs.current_traceframe == -1)
      return -1;
  
-@@ -2947,7 +2959,7 @@ handle_v_run (char *own_buf)
+@@ -2927,7 +2939,7 @@
    char *p, *next_p;
    std::vector<char *> new_argv;
    char *new_program_name = NULL;
@@ -63,7 +57,7 @@ index a491ae0257..c0b15d6288 100644
  
    new_argc = 0;
    for (p = own_buf + strlen ("vRun;"); p && *p; p = strchr (p, ';'))
-@@ -3048,7 +3060,7 @@ handle_v_run (char *own_buf)
+@@ -3028,7 +3040,7 @@
    free_vector_argv (program_args);
    program_args = new_argv;
  
@@ -72,7 +66,7 @@ index a491ae0257..c0b15d6288 100644
  
    if (cs.last_status.kind == TARGET_WAITKIND_STOPPED)
      {
-@@ -3806,7 +3818,7 @@ captured_main (int argc, char *argv[])
+@@ -3784,7 +3796,7 @@
        program_args.push_back (NULL);
  
        /* Wait till we are at first instruction in program.  */
@@ -81,7 +75,7 @@ index a491ae0257..c0b15d6288 100644
  
        /* We are now (hopefully) stopped at the first instruction of
  	 the target process.  This assumes that the target process was
-@@ -4325,7 +4337,7 @@ process_serial_event (void)
+@@ -4303,7 +4315,7 @@
  	  /* Wait till we are at 1st instruction in prog.  */
  	  if (program_path.get () != NULL)
  	    {
@@ -90,6 +84,3 @@ index a491ae0257..c0b15d6288 100644
  
  	      if (cs.last_status.kind == TARGET_WAITKIND_STOPPED)
  		{
--- 
-2.17.1
-

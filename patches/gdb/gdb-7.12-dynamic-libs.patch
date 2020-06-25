@@ -5,24 +5,20 @@ Subject: [PATCH] configure: Disable static linking with standard libs
 
 Linking statically causes spurious crashes on exception handling
 with mingw32.
----
- configure | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/configure b/configure
-index a5f4fc5aa7..f5a9766c39 100755
---- a/configure
-+++ b/configure
-@@ -5902,7 +5902,7 @@ else
-  # if supported.  But if the user explicitly specified the libraries to use,
+diff -Naur a/configure b/configure
+--- a/configure	2020-06-10 15:45:46.199650637 +0300
++++ b/configure	2020-06-10 15:58:29.327323615 +0300
+@@ -5878,7 +5878,7 @@
   # trust that they are doing what they want.
-  if test "$stage1_libs" = "" -a "$have_static_libs" = yes; then
+  if test "$with_static_standard_libraries" = yes -a "$stage1_libs" = "" \
+      -a "$have_static_libs" = yes; then
 -   stage1_ldflags="-static-libstdc++ -static-libgcc"
 +   stage1_ldflags=""
   fi
  fi
  
-@@ -5938,7 +5938,7 @@ else
+@@ -5914,7 +5914,7 @@
   # statically.  But if the user explicitly specified the libraries to
   # use, trust that they are doing what they want.
   if test "$poststage1_libs" = ""; then
@@ -30,7 +26,4 @@ index a5f4fc5aa7..f5a9766c39 100755
 +   poststage1_ldflags=""
   fi
  fi
- 
--- 
-2.12.0.windows.1
 
