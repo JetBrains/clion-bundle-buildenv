@@ -9,7 +9,7 @@ Subject: [PATCH 3/4] python: Make compatible with Python 3 w.r.t. integer
 #	scripts/Python/modify-python-lldb.py
 ---
  examples/synthetic/libcxx.py | 6 ++++--
- scripts/interface/SBData.i   | 2 +-
+ bindings/interface/SBData.i   | 2 +-
  scripts/lldb.swig            | 3 +++
  3 files changed, 8 insertions(+), 3 deletions(-)
 
@@ -41,10 +41,10 @@ index 97593725a..5579b3f53 100644
          else:
              self.block_size = 16
  
-diff --git a/scripts/interface/SBData.i b/scripts/interface/SBData.i
+diff --git a/bindings/interface/SBData.i b/bindings/interface/SBData.i
 index 464a6e692..c8f718137 100644
---- a/scripts/interface/SBData.i
-+++ b/scripts/interface/SBData.i
+--- a/bindings/interface/SBData.i
++++ b/bindings/interface/SBData.i
 @@ -157,7 +157,7 @@ public:
                  else:
                      return my_data
@@ -54,10 +54,10 @@ index 464a6e692..c8f718137 100644
              def all(self):
                  return self[0:len(self)]
  
-diff --git a/scripts/lldb.swig b/scripts/lldb.swig
+diff --git a/bindings/python.swig b/bindings/python.swig
 index ec39ad1b3..3e3069987 100644
---- a/scripts/lldb.swig
-+++ b/scripts/lldb.swig
+--- a/bindings/python.swig
++++ b/bindings/python.swig
 @@ -5,6 +5,9 @@
     functions for various scripting languages, to enable them to call the
     liblldb Script Bridge functions.
