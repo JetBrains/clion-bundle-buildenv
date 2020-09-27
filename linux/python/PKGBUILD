@@ -30,11 +30,13 @@ depends=(expat zlib)
 source=("https://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz"
         '0001-python-config-Ignore-first-argument-if-it-s-a-.py-sc.patch'
         '0002-Suppress-writing-bytecode-files-by-default.patch'
-        '0003-make-install-Don-t-compile-__pycache__.patch')
+        '0003-make-install-Don-t-compile-__pycache__.patch'
+        '0004-python-packages-hints.patch')
 md5sums=('35b5a3d0254c1c59be9736373d429db7'
          '5c364c89632fd5080f6ec067d1df886e'
          'ae5fc24e9afa693f967a6f4687f662e8'
-         '14b0bd9e47a0976374927f08c65b93b4')
+         '14b0bd9e47a0976374927f08c65b93b4'
+         '130f5a0fad69b467dd3388c7f7050d1b')
 
 prepare() {
   cd Python-${pkgver}
@@ -47,6 +49,9 @@ prepare() {
 
   # Don't do unnecessary job
   patch -p1 -i ../0003-make-install-Don-t-compile-__pycache__.patch
+
+  # Help python to find bundled packages
+  patch -p1 -i ../0004-python-packages-hints.patch
 
   # FS#23997
   sed -i -e "s|^#.* /usr/local/bin/python|#!/usr/bin/python|" Lib/cgi.py
