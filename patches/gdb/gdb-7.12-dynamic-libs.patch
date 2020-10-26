@@ -7,9 +7,9 @@ Linking statically causes spurious crashes on exception handling
 with mingw32.
 
 diff -Naur a/configure b/configure
---- a/configure	2020-06-10 15:45:46.199650637 +0300
-+++ b/configure	2020-06-10 15:58:29.327323615 +0300
-@@ -5878,7 +5878,7 @@
+--- a/configure
++++ b/configure
+@@ -5883,7 +5883,7 @@ else
   # trust that they are doing what they want.
   if test "$with_static_standard_libraries" = yes -a "$stage1_libs" = "" \
       -a "$have_static_libs" = yes; then
@@ -18,7 +18,7 @@ diff -Naur a/configure b/configure
   fi
  fi
  
-@@ -5914,7 +5914,7 @@
+@@ -5919,7 +5919,7 @@ else
   # statically.  But if the user explicitly specified the libraries to
   # use, trust that they are doing what they want.
   if test "$poststage1_libs" = ""; then
@@ -26,4 +26,3 @@ diff -Naur a/configure b/configure
 +   poststage1_ldflags=""
   fi
  fi
-
