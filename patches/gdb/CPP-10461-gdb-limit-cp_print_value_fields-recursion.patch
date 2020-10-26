@@ -1,7 +1,7 @@
 diff -Naur a/gdb/cp-valprint.c b/gdb/cp-valprint.c
---- a/gdb/cp-valprint.c	2020-06-10 15:46:03.506264764 +0300
-+++ b/gdb/cp-valprint.c	2020-06-10 15:40:43.973949676 +0300
-@@ -622,6 +622,12 @@
+--- a/gdb/cp-valprint.c
++++ b/gdb/cp-valprint.c
+@@ -562,6 +562,12 @@ cp_print_static_field (struct type *type,
        return;
      }
  
@@ -12,5 +12,5 @@ diff -Naur a/gdb/cp-valprint.c b/gdb/cp-valprint.c
 +  }
 +
    struct type *real_type = check_typedef (type);
-   if (TYPE_CODE (real_type) == TYPE_CODE_STRUCT)
+   if (real_type->code () == TYPE_CODE_STRUCT)
      {
