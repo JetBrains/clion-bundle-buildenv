@@ -14,7 +14,7 @@ arch=(i686 x86_64)
 url='http://expat.sourceforge.net/'
 license=(custom)
 #depends=(glibc)
-source=(http://downloads.sourceforge.net/sourceforge/expat/$pkgname-$pkgver.tar.bz2)
+source=(https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.bz2)
 md5sums=('f053af63ef5f39bd9b78d01fbc203334')
 options=('!staticlibs')
 

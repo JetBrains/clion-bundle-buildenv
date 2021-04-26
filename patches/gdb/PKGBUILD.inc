@@ -11,12 +11,16 @@ source+=('gdb-fix-using-gnu-print.patch'
          'gdbserver-Output-PID-right-after-create_inferior-call.patch'
 
          # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
-         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch')
+         'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
+
+         # https://sourceware.org/pipermail/gdb-patches/2021-April/178119.html
+         'gdb-10.2-expand-partial-symtabs-fix.patch')
 
 md5sums+=('6b485bc8b1025610804fef9e111ade24'
           '225646ec91143b400e54c4a7cba4a674'
           'aaf3a9e88684c8606084c6e8073619ab'
-          '7ce3fc34c6800e735c52895c7e1d8372')
+          '7ce3fc34c6800e735c52895c7e1d8372'
+          'a170bd7f885c08387604f567c3f83e7f')
 
 
 gdb_enable_targets=(
