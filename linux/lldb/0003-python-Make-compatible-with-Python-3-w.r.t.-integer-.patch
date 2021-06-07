@@ -8,13 +8,32 @@ Subject: [PATCH 3/4] python: Make compatible with Python 3 w.r.t. integer
 #	examples/synthetic/gnu_libstdcpp.py
 #	scripts/Python/modify-python-lldb.py
 ---
- examples/synthetic/libcxx.py | 6 ++++--
- bindings/interface/SBData.i   | 2 +-
- scripts/lldb.swig            | 3 +++
- 3 files changed, 8 insertions(+), 3 deletions(-)
+diff --git a/bindings/interface/SBData.i b/bindings/interface/SBData.i
+--- a/bindings/interface/SBData.i
++++ b/bindings/interface/SBData.i
+@@ -163,7 +163,7 @@ public:
+                 else:
+                     return my_data
+             def __len__(self):
+-                return int(self.sbdata.GetByteSize()/self.item_size)
++                return int(self.sbdata.GetByteSize()//self.item_size)
+             def all(self):
+                 return self[0:len(self)]
 
+diff --git a/bindings/python/python.swig b/bindings/python/python.swig
+--- a/bindings/python/python.swig
++++ b/bindings/python/python.swig
+@@ -5,6 +5,9 @@
+    functions for various scripting languages, to enable them to call the
+    liblldb Script Bridge functions.
+ */
++%pythonbegin %{
++from __future__ import division
++%}
+
+ /* Define our module docstring. */
+ %define DOCSTRING
 diff --git a/examples/synthetic/libcxx.py b/examples/synthetic/libcxx.py
-index 97593725a..5579b3f53 100644
 --- a/examples/synthetic/libcxx.py
 +++ b/examples/synthetic/libcxx.py
 @@ -1,3 +1,5 @@
@@ -22,7 +41,7 @@ index 97593725a..5579b3f53 100644
 +
  import lldb
  import lldb.formatters.Logger
- 
+
 @@ -101,7 +103,7 @@ class stdvector_SynthProvider:
              if (num_children % self.data_size) != 0:
                  return 0
@@ -40,34 +59,7 @@ index 97593725a..5579b3f53 100644
 +            self.block_size = 4096 // self.element_size
          else:
              self.block_size = 16
- 
-diff --git a/bindings/interface/SBData.i b/bindings/interface/SBData.i
-index 464a6e692..c8f718137 100644
---- a/bindings/interface/SBData.i
-+++ b/bindings/interface/SBData.i
-@@ -157,7 +157,7 @@ public:
-                 else:
-                     return my_data
-             def __len__(self):
--                return int(self.sbdata.GetByteSize()/self.item_size)
-+                return int(self.sbdata.GetByteSize()//self.item_size)
-             def all(self):
-                 return self[0:len(self)]
- 
-diff --git a/bindings/python.swig b/bindings/python.swig
-index ec39ad1b3..3e3069987 100644
---- a/bindings/python.swig
-+++ b/bindings/python.swig
-@@ -5,6 +5,9 @@
-    functions for various scripting languages, to enable them to call the
-    liblldb Script Bridge functions.
- */
-+%pythonbegin %{
-+from __future__ import division
-+%}
- 
- /* Define our module docstring. */
- %define DOCSTRING
+
 -- 
 2.23.0
 

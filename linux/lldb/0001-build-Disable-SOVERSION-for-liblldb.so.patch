@@ -4,24 +4,20 @@ Date: Tue, 24 Oct 2017 20:46:55 +0300
 Subject: [PATCH 1/4] build: Disable SOVERSION for liblldb.so
 
 ---
- source/API/CMakeLists.txt | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
 diff --git a/source/API/CMakeLists.txt b/source/API/CMakeLists.txt
-index d93b8b5e3..879c3bc1d 100644
 --- a/source/API/CMakeLists.txt
 +++ b/source/API/CMakeLists.txt
-@@ -128,10 +128,8 @@ if(lldb_python_wrapper)
-   endif ()
+@@ -161,10 +161,8 @@ if(LLDB_ENABLE_LUA)
+   set_source_files_properties(${lldb_lua_wrapper} PROPERTIES GENERATED ON)
  endif()
- 
+
 -set_target_properties(liblldb
 -  PROPERTIES
 -  VERSION ${LLDB_VERSION}
 -)
 +set_property(TARGET liblldb PROPERTY VERSION)
 +set_property(TARGET liblldb PROPERTY SOVERSION)
- 
+
  if (NOT CMAKE_SYSTEM_NAME MATCHES "Windows")
    if (NOT LLDB_EXPORT_ALL_SYMBOLS)
 -- 
