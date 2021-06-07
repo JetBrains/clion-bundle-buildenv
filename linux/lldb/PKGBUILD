@@ -38,9 +38,9 @@ source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm
         '0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch')
 
 sha256sums=('SKIP'
-            '024d10a7fb32a5992e59349ca0fe21340f9641aab17c460f708556d3bc32bc97'
-            '5c9fbc5fd1b62d5961fdc4ad2a919b9c886545345c0d92cbbde783910399617d'
-            '9ceae456a1196c0282835e7f64d76db0ae6fc59bdc30339d773e94f7f7ab6e50')
+            'b00f39b06ad8041b7043ec277f3932aac7a9ddd3c5c095ca2954c02415954d6c'
+            'bfd0fc38b6a88d7fd0772d16b1018e967e7279f84def1835b026ad26e7828097'
+            '612d3fd41104286de283b52acc74784d68935eeff33bc23b2fa11930dd896022')
 
 pkgver() {
   cd "$srcdir/$_llvm_repository_name"
@@ -79,11 +79,11 @@ build() {
     -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
-    -DPYTHON_EXECUTABLE=${PREFIX}/bin/python \
+    -DPython3_EXECUTABLE=${PREFIX}/bin/python \
     -DLLVM_ENABLE_PROJECTS="clang;lldb" \
     -DLLVM_TARGETS_TO_BUILD="X86" \
-    -DLLDB_DISABLE_LIBEDIT=TRUE \
-    -DLLDB_DISABLE_CURSES=TRUE \
+    -DLLDB_ENABLE_LIBEDIT=OFF \
+    -DLLDB_ENABLE_CURSES=OFF \
     -DLLVM_INCLUDE_EXAMPLES=OFF \
     -DLLVM_INCLUDE_BENCHMARKS=OFF \
     -DLLVM_INCLUDE_TESTS=OFF \

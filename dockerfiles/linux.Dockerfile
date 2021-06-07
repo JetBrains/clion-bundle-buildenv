@@ -58,11 +58,8 @@ RUN yum -y update \
  && yum clean all \
  && ln -s "$(command -v bsdtar3)" /usr/local/bin/bsdtar
 
-RUN yum -y update \
- && yum -y install \
-      cmake3 \
- && yum clean all \
- && ln -s "$(command -v cmake3)" /usr/local/bin/cmake
+RUN curl -sL https://github.com/Kitware/CMake/releases/download/v3.20.3/cmake-3.20.3-linux-x86_64.tar.gz \
+     | sudo tar xzvf - --strip=1 -C /usr/local
 
 ENV PATH="/opt/rh/devtoolset-7/root/usr/bin:${PATH}"
 
