@@ -41,7 +41,7 @@ build() {
   ../gdb-${pkgver}/configure \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --prefix=${PREFIX} \
-    --enable-targets=$(IFS=','; echo "${gdb_enable_targets[*]}") \
+    --enable-targets=all \
     --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \

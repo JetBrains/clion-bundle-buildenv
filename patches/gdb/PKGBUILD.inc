@@ -21,37 +21,3 @@ md5sums+=('6b485bc8b1025610804fef9e111ade24'
           'aaf3a9e88684c8606084c6e8073619ab'
           '7ce3fc34c6800e735c52895c7e1d8372'
           'a170bd7f885c08387604f567c3f83e7f')
-
-
-gdb_enable_targets=(
-    'i686-pc-mingw32'
-
-    'i686-linux-gnu'
-    'i686-w64-mingw32'
-    'x86_64-linux-gnu'
-    'x86_64-w64-mingw32'
-
-    'aarch64-linux-gnu'
-    'alpha-linux-gnu'
-    'arm-linux-gnu'
-    'arm-linux-gnueabi'
-    'arm-linux-gnueabihf'
-    'hppa-linux-gnu'
-    'm68k-linux-gnu'
-    'm68k-rtems'
-    'mips-linux-gnu'
-    'mipsel-linux-gnu'
-    'mips64-linux-gnu'
-    'mips64el-linux-gnu'
-    'powerpc-linux-gnu'
-    'powerpc-linux-gnuspe'
-    'powerpc64le-linux-gnu'
-    'powerpc64-linux-gnu'
-    's390-linux-gnu'
-    's390x-linux-gnu'
-    'sh-linux-gnu'
-    'sparc-linux-gnu'
-    'sparc64-linux-gnu'
-    'm32r-linux-gnu'
-)
-

@@ -50,7 +50,7 @@ build() {
     --host=${CHOST} \
     --target=${CHOST} \
     --prefix=${PREFIX} \
-    --enable-targets=$(IFS=','; echo "${gdb_enable_targets[*]}") \
+    --enable-targets=all \
     --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \
