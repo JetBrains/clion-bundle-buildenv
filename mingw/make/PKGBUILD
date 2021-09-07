@@ -1,0 +1,52 @@
+pkgname=make
+pkgver=4.3
+pkgrel=1
+pkgdesc="GNU make utility to maintain groups of programs"
+arch=(x86_64)
+url="https://www.gnu.org/software/make"
+license=(GPL3)
+
+options=('strip')
+depends=('crt' 'winpthreads')
+
+source=("https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.gz"
+        'make-getopt.patch'
+        'make-gnulib-fcntl.patch'
+        'make-homegrown-dirent.patch'
+	      'make-linebuf-mingw.patch')
+
+sha256sums=('e05fdde47c5f7ca45cb697e973894ff4f5d79e13b750ed57d7b66d8defc78e19'
+            '910617131a7f85420dee50f0540335cc138ad4f891c43a5777a053396b6b97b0'
+            'd2b181313296463066334f7c11b0d8bb46ea440b8790cfcad4a061b32818dac8'
+            '09afcf90dcbbf88595dcaff075dcb57ed9374d27114854a7399508f9b8691ba9'
+            '48ddd4d98c02b323bd7c8c5979b30daba91b8df1965a54bc8853e325d859b5b5')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --program-prefix=mingw32- \
+    --enable-case-insensitive-file-system \
+    --enable-job-server \
+    --without-libintl-prefix \
+    --without-libiconv-prefix \
+    --without-guile \
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install-strip
+  install_copying
+}

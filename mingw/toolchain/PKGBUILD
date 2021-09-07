@@ -1,0 +1,14 @@
+pkgname=toolchain
+pkgver=1
+pkgrel=1
+pkgdesc="Complete mingw toolchain"
+arch=(x86_64)
+options=('staticlibs')
+depends=(binutils gcc make)
+makedepends=(gmp)
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

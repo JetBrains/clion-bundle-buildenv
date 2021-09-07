@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 # Author: Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
 # This work is derived from: https://github.com/Alexpux/MINGW-packages
@@ -353,13 +355,13 @@ PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
 if [ ! -d "${PKG_ROOT_DIR}" ]; then
     error "${PKG_ROOT_DIR}: Directory doesn't exist"
 fi
-export PKG_ROOT_DIR=$(readlink -e "${PKG_ROOT_DIR}")
+export PKG_ROOT_DIR=$(realpath "${PKG_ROOT_DIR}")
 
 MAKEPKG_CONF="${MAKEPKG_CONF:-${PKG_ROOT_DIR}/makepkg.conf}"
 if [ ! -f "${MAKEPKG_CONF}" ]; then
     error "${MAKEPKG_CONF}: File not found"
 fi
-export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}")
+export MAKEPKG_CONF=$(realpath "${MAKEPKG_CONF}")
 
 
 source "${MAKEPKG_CONF}"
@@ -376,7 +378,7 @@ fi
 export PATH="$PATH:$PREFIX/bin"
 
 # makepkg environmental variables
-export DESTDIR=$(readlink -m ${DESTDIR:-artifacts-${CHOST}})
+export DESTDIR=$PWD/${DESTDIR:-artifacts-${CHOST}}
 export PKGDEST=${PKGDEST:-${DESTDIR}/makepkg/pkg}      #-- Destination: where all packages will be placed
 export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where source files will be cached
 export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all log files will be placed
@@ -433,7 +435,7 @@ do_build_install() {
 
         if (( ! NOINSTALL )); then
             execute "install" \
-                bsdtar -xvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
+                bsdtar -mxvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
         fi
     done
 }
@@ -441,6 +443,28 @@ do_build_install() {
 
 do_bundle() {
     message "target packages:" "${target_packages[@]}"
+
+    (
+        set -e
+
+        cd ${PREFIX#}
+        mv lib/gcc/x86_64-w64-mingw32/libgcc_s_seh-1.dll bin
+        mv lib/gcc/x86_64-w64-mingw32/lib/libgcc_s.a lib/gcc/x86_64-w64-mingw32/11.2.0
+
+        rm -rf \
+            sysroot \
+            makedepends \
+            bin/x86_64-w64-mingw32-* \
+            bin/{c++.exe,ld.bfd.exe} \
+            share/{info,man,licence} \
+            lib/gcc/x86_64-w64-mingw32/lib \
+            x86_64-w64-mingw32/bin \
+            x86_64-w64-mingw32/share
+
+        execute "Archiving ${BUNDLE_TARBALL}" tar -Jcvf "${BUNDLE_TARBALL}" *
+    )
+
+    return
 
     local package binary
 

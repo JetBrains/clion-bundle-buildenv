@@ -1,0 +1,49 @@
+pkgname=isl
+pkgver=0.24
+pkgrel=1
+pkgdesc="Library for manipulating sets and relations of integer points bounded by linear constraints"
+arch=(x86_64)
+url="https://isl.gforge.inria.fr/"
+
+license=('MIT')
+source=("http://isl.gforge.inria.fr/${pkgname}-${pkgver}.tar.xz"
+        'isl-0.14.1-no-undefined.patch')
+sha256sums=('043105cc544f416b48736fff8caf077fb0663a717d06b1113f16e391ac99ebad'
+            '83655a7202f0a0dcce1782d4b365252bf1ad12a522b7ad82ab578ee5ec46433b')
+
+options=('staticlibs')
+makedepends=(gmp)
+
+prepare() {
+  cd $srcdir/${pkgname}-${pkgver}
+  apply_patches
+  autoreconf -fi
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX}/makedepends \
+    --enable-static \
+    --disable-shared \
+    --with-gmp-prefix=${PREFIX}/makedepends
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

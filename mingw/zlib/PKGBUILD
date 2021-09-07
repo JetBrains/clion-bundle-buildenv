@@ -17,28 +17,31 @@ url="http://www.zlib.net/"
 #depends=("bzip2")
 #makedepends=('git')
 options=('staticlibs')
+
 source=("http://zlib.net/current/${pkgname}-${pkgver}.tar.gz"
-        01-zlib-1.2.11-1-buildsys.mingw.patch
-        03-dont-put-sodir-into-L.mingw.patch
-        04-fix-largefile-support.patch)
+        '01-zlib-1.2.11-1-buildsys.mingw.patch'
+        '03-dont-put-sodir-into-L.mingw.patch'
+        '04-fix-largefile-support.patch')
+
 md5sums=('1c9f62f0778697a09d36121ead88e08e'
-         '37d809648eee8f5cf5bf257bbb32a396'
-         'bb6c8eeb7f03978982406bca35f62ca3'
+         '508d3a2d258cd808a6f2138256ddfef8'
+         '44e20c3e1445075df929a5501449f329'
          '78c2f67bb20e6b2f491a5c4060d18257')
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}
-  grep -A 24 '^  Copyright' zlib.h > LICENSE
-
-  patch -p1 -i ${srcdir}/01-zlib-1.2.11-1-buildsys.mingw.patch
-  patch -p2 -i ${srcdir}/03-dont-put-sodir-into-L.mingw.patch
-  patch -p1 -i ${srcdir}/04-fix-largefile-support.patch
+  grep -A 24 '^  Copyright' zlib.h >LICENSE
+  apply_patches
 }
 
 build() {
   cd ${srcdir}/${pkgname}-${pkgver}
-  CHOST=${CHOST} ./configure \
-    --prefix=${PREFIX} \
+
+  CC=$CHOST-gcc \
+  AR=$CHOST-ar \
+  RANLIB=$CHOST-ranlib \
+  ./configure \
+    --prefix=${PREFIX}/${CHOST} \
     --static
 
   make -j1 all
@@ -52,5 +55,6 @@ check() {
 package() {
   cd ${srcdir}/${pkgname}-${pkgver}
   make install DESTDIR="${pkgdir}"
-  install -Dm644 LICENSE "${pkgdir}${PREFIX}/share/licenses/${pkgname}/LICENSE"
+
+  install -Dm644 LICENSE ${pkgdir}${PREFIX}/licenses/${pkgname}/LICENSE
 }

@@ -12,19 +12,23 @@ pkgdesc="An XML parser library (mingw-w64)"
 arch=(i686 x86_64)
 url="https://libexpat.github.io/"
 license=(MIT)
-#makedepends=("gcc" "pkg-config")
 options=('strip' 'staticlibs')
-source=(https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.bz2
-        001-fix-extension.patch
-        002-fix-tests.patch)
-md5sums=('d9c3baeab58774cefc2f04faf29f2cf8'
-         'f0896e172059ce210ce70d2a37f4a04e'
-         '64340503ab966d5059db5ae564b7b6ec')
+
+source=(
+  "https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.bz2"
+  '001-fix-extension.patch'
+  '002-fix-tests.patch'
+)
+
+md5sums=(
+  'd9c3baeab58774cefc2f04faf29f2cf8'
+  'f0896e172059ce210ce70d2a37f4a04e'
+  '64340503ab966d5059db5ae564b7b6ec'
+)
 
 prepare() {
   cd "${srcdir}/${pkgname}-${pkgver}"
-  patch -p1 -i ${srcdir}/001-fix-extension.patch
-  patch -p1 -i ${srcdir}/002-fix-tests.patch
+  apply_patches
   autoreconf -fiv
 }
 
@@ -51,5 +55,5 @@ check() {
 package() {
   cd "${srcdir}/build-${CHOST}"
   make DESTDIR="${pkgdir}" install
-  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING" "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING"
+  install_copying
 }

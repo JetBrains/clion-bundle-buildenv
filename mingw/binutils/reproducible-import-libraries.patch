@@ -1,0 +1,18 @@
+Description: Make DLL import libraries reproducible
+Author: Benjamin Moody <benjamin.moody@gmail.com>
+Bug-Debian: https://bugs.debian.org/915055
+
+Index: binutils-mingw-w64/upstream/ld/pe-dll.c
+===================================================================
+diff --git a/ld/pe-dll.c b/ld/pe-dll.c
+index e7b82ba6..9d1aa70f 100644
+--- a/ld/pe-dll.c
++++ b/ld/pe-dll.c
+@@ -2854,6 +2854,7 @@ pe_dll_generate_implib (def_file *def, const char *impfilename, struct bfd_link_
+
+   bfd_set_format (outarch, bfd_archive);
+   outarch->has_armap = 1;
++  outarch->flags |= BFD_DETERMINISTIC_OUTPUT;
+
+   /* Work out a reasonable size of things to put onto one line.  */
+   ar_head = make_head (outarch);

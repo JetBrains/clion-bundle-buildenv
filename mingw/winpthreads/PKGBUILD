@@ -1,0 +1,52 @@
+pkgname=winpthreads
+pkgver=v9.0.0
+pkgrel=1
+pkgdesc="MinGW-w64 winpthreads"
+arch=(i686 x86_64)
+url='https://mingw-w64.sourceforge.io/'
+license=('MIT' 'BSD')
+options=('strip' 'staticlibs' '!emptydirs')
+depends=(crt)
+
+source=("http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2"
+        '0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch')
+
+sha256sums=('1929b94b402f5ff4d7d37a9fe88daa9cc55515a6134805c104d1794ae22a4181'
+            'd9e8af81682d9bf70e3d87506f51156cec61260b810a234bce861cb2eb3a5919')
+
+prepare() {
+  cd "${srcdir}/mingw-w64-${pkgver}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../mingw-w64-${pkgver}/mingw-w64-libraries/${pkgname}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-static \
+    --enable-shared
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR=${pkgdir} install-strip
+  make DESTDIR=${PREFIX}/sysroot install
+
+  mkdir -p ${pkgdir}${PREFIX}/${CHOST}
+  
+  mv ${pkgdir}${PREFIX}/{include,lib} \
+    ${pkgdir}${PREFIX}/${CHOST}
+
+  install -Dm644 ${srcdir}/mingw-w64-${pkgver}/COPYING \
+    ${pkgdir}${PREFIX}/licenses/${pkgname}/COPYING
+  install -Dm644 ${srcdir}/mingw-w64-${pkgver}/mingw-w64-libraries/${pkgname}/COPYING \
+    ${pkgdir}${PREFIX}/licenses/winpthreads/COPYING.winpthreads
+}

@@ -1,0 +1,47 @@
+pkgname=headers
+pkgver=v9.0.0
+pkgrel=1
+pkgdesc="MinGW-w64 headers"
+arch=(x86_64)
+url='https://mingw-w64.sourceforge.io/'
+license=('custom')
+options=('!strip' '!libtool' '!emptydirs')
+
+source=("http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2"
+        '0001-Allow-to-use-bessel-and-complex-functions-without-un.patch')
+
+sha256sums=('1929b94b402f5ff4d7d37a9fe88daa9cc55515a6134805c104d1794ae22a4181'
+            '22e2752f6df782aaeeca373c32fb9d436beb9a416b702405622b5c0132c0eec4')
+
+prepare() {
+  cd "${srcdir}/mingw-w64-${pkgver}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../mingw-w64-${pkgver}/mingw-w64-headers/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --prefix=${PREFIX}/${CHOST} \
+    --enable-sdk=all \
+    --disable-idl \
+    --with-default-win32-winnt=0x601 \
+    --with-default-msvcrt=msvcrt \
+    --without-widl
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR=${pkgdir} install
+  make DESTDIR=${PREFIX}/sysroot install
+
+  install_copying
+  install -Dm644 ${srcdir}/mingw-w64-${pkgver}/mingw-w64-headers/ddk/readme.txt \
+    ${pkgdir}${PREFIX}/licenses/${pkgname}/ddk-readme.txt
+}

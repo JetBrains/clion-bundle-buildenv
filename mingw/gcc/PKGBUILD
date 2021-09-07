@@ -1,0 +1,124 @@
+pkgname='gcc'
+pkgver=11.2.0
+pkgrel=1
+pkgdesc="GCC for the MinGW-w64"
+arch=(x86_64)
+url="https://gcc.gnu.org"
+license=(GPL)
+
+makedepends=(mpc libiconv crt headers winpthreads manifest)
+
+source=(
+  "https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz"
+  0002-Relocate-libintl.patch
+  0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
+  0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
+  0005-Windows-Don-t-ignore-native-system-header-dir.patch
+  0006-Windows-New-feature-to-allow-overriding.patch
+  0008-Prettify-linking-no-undefined.patch
+  0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
+  0010-Fix-using-large-PCH.patch
+  0012-Handle-spaces-in-path-for-default-manifest.patch
+  0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
+  0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
+  0140-gcc-8.2.0-diagnostic-color.patch
+  0150-gcc-10.2.0-libgcc-ldflags.patch
+  gcc-10-ktietz-libgomp.patch
+  gcc-4.7-stdthreads.patch
+  gcc-4.8-libstdc++export.patch
+  gcc-5.1.0-make-xmmintrin-header-cplusplus-compatible.patch
+  gcc-5.1-iconv.patch
+  gcc-5-dwarf-regression.patch
+  gcc-libgomp-ftime64.patch)
+
+sha256sums=(
+  f0837f1bf8244a5cc23bd96ff6366712a791cfae01df8e25b137698aca26efc1
+  1247e81571c908548b4d9aaa3df1ad8fd73aad7b81e7eafea12d53bbada70e94
+  5b8ab5a54ebdd10c9802ea431b935ff4ba225eec6ca92824cfddfcf2ee8ac910
+  388f423a67e4be6f547ca7e340ff8ee4c78b1ed83f3fd698daa409e309911807
+  bd1c201febdf292570b0da9dcc066a237916ab3166dce3610487814f131517e5
+  43126ad31f0c4a0bac37edbe4c7491203fdbd373d60545ef6869af32ec0114b9
+  2e4f7d0ef739aec8986eb06a2baadee552ebc2e8be661c39a448e93515179eb5
+  513a824ee500d063f09ec920a9ad317a3a117e5468bf201aaf3f70dd0000e769
+  ec58aafba0174313451c282339bbd67ed0b11bca034c29023e0138b61441cf71
+  11dd5388a1e1c0a2bc8bc3824726598784b9b9e0896a3d77950ba6a4569f1128
+  21e31addcf13bc6fa6650b02ed0f2e195a1226260ae48c536840cc9230de2cfc
+  276ecc392c777d4b17d771a987e80dca50ff25d8f65671d5de139be73997064b
+  5240a9e731b45c17a164066c7eb193c1fbee9fd8d9a2a5afa2edbcde9510da47
+  7f0b4e45d933e18c9d8bd2afcd83e4f52e97e2e25dd41bfa0cba755c70e591c7
+  d4e03d2ce096b6c59d7c256da4293c4e0229d57398d5073b6228491a27c56323
+  5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b
+  21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d
+  a253ff798060bf19780bd695b4d96187932a247b2e0c9a9b92b4c92efa55b69f
+  6185baad2f10d1f399e1492caf19f717d8a15822537364ed9cd1356a8291b25e
+  0768864eba737cf7be59e8469d039a2246e015e40ba139cd2d20aa798c3362ef
+  9a8868214a338aa20a9d893089fb74568c8b512f70680e4d18ac3d74e64c580f)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+
+  sed -i 's/${prefix}\/mingw\//${prefix}\//g' configure
+
+  find libstdc++-v3 -type f -exec \
+    sed -i "{}" \
+      -e 's/\(__out\)\([^0-9a-zA-Z_]\)/___out\2/g' \
+      -e 's/\(__in\)\([^0-9a-zA-Z_]\)/___in\2/g' \;
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+	  --prefix=${PREFIX} \
+    --enable-checking=release \
+    --enable-fully-dynamic-string \
+	  --enable-languages='c,c++' \
+    --enable-libatomic \
+	  --enable-libgomp \
+    --enable-libstdcxx-filesystem-ts=yes \
+	  --enable-libstdcxx-time=yes \
+    --enable-seh-exceptions \
+    --enable-shared \
+    --enable-static \
+    --enable-threads=posix \
+	  --enable-version-specific-runtime-libs \
+    --disable-bootstrap \
+    --disable-graphite \
+    --disable-libada \
+  	--disable-libstdcxx-pch \
+	  --disable-libstdcxx-debug \
+    --disable-libquadmath \
+    --disable-lto \
+    --disable-nls \
+    --disable-multilib \
+	  --disable-rpath \
+    --disable-symvers \
+    --disable-werror \
+	  --disable-win32-registry \
+	  --with-gnu-as \
+	  --with-gnu-ld \
+	  --with-system-libiconv \
+    --with-system-libz \
+	  --with-gmp=$PREFIX/makedepends \
+    --with-mpfr=$PREFIX/makedepends \
+    --with-mpc=$PREFIX/makedepends
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

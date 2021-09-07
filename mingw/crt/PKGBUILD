@@ -1,0 +1,49 @@
+pkgname=crt
+pkgver=v9.0.0
+pkgrel=1
+pkgdesc="MinGW CRT"
+arch=(i686 x86_64)
+url='https://mingw-w64.sourceforge.io/'
+license=('custom')
+options=('!strip' 'staticlibs' '!buildflags' '!emptydirs')
+depends=('headers')
+
+source=("http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2"
+        '0001-Allow-to-use-bessel-and-complex-functions-without-un.patch')
+
+sha256sums=('1929b94b402f5ff4d7d37a9fe88daa9cc55515a6134805c104d1794ae22a4181'
+            '22e2752f6df782aaeeca373c32fb9d436beb9a416b702405622b5c0132c0eec4')
+
+prepare() {
+  cd "${srcdir}/mingw-w64-${pkgver}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../mingw-w64-${pkgver}/mingw-w64-crt/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX}/${CHOST} \
+    --enable-wildcard \
+    $(
+      [ "${CARCH}" == "x86_64" ] && {
+        echo "--disable-lib32 --enable-lib64"
+      } || {
+        echo "--enable-lib32 --disable-lib64"
+      }
+    ) \
+    CFLAGS="-Wno-expansion-to-defined"
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR=${pkgdir} install
+  make DESTDIR=${PREFIX}/sysroot install
+  install_copying
+}

@@ -45,4 +45,19 @@ tidy_strip() {
 	fi
 }
 
+apply_patches() {
+	local p s="${1:-1}"
+
+	for p in "${srcdir}/"*.patch; do
+		echo "Applying ${p}"
+		patch -p${s} -i "${p}"
+	done
+}
+
+install_copying() {
+	find "${srcdir}" -type f -name "COPYING*" | while read c; do
+	    install -Dm644 -t "${pkgdir}${PREFIX}/licenses/${pkgname}" "${c}"
+	done
+}
+
 # vim: set ft=sh ts=2 sw=2 et:

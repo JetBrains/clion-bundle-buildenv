@@ -1,0 +1,39 @@
+pkgname=mpfr
+pkgver=4.1.0
+pkgrel=1
+pkgdesc="Multiple-precision floating-point library"
+arch=(i686 x86_64)
+license=('LGPL')
+options=('staticlibs')
+depends=(gmp)
+makedepends=(gmp)
+source=("https://ftp.gnu.org/gnu/mpfr/mpfr-${pkgver}.tar.xz")
+sha256sums=('0c98a3f1732ff6ca4ea690552079da9c597872d30e96ec28414ee23c95558a7f')
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX}/makedepends \
+    --enable-static \
+    --disable-shared \
+    --with-gmp=${PREFIX}/makedepends
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

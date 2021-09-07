@@ -1,0 +1,76 @@
+pkgname=binutils
+pkgver=2.37
+pkgrel=1
+pkgdesc="A set of programs to assemble and manipulate binary and object files (mingw-w64)"
+arch=(x86_64)
+url="https://www.gnu.org/software/binutils/"
+license=('GPL')
+
+source=("https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.xz"
+        '0002-check-for-unusual-file-harder.patch'
+        '0008-fix-libiberty-makefile.mingw.patch'
+	      '0009-fix-libiberty-configure.mingw.patch'
+        '0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch'
+        '0110-binutils-mingw-gnu-print.patch'
+        '0600-Change-uint-to-unsigned.patch'
+        '2001-ld-option-to-move-default-bases-under-4GB.patch'
+        '2003-Restore-old-behaviour-of-windres-so-that-options-con-reversed.patch'
+        '2004-bfd-Close-the-file-descriptor-if-there-is-no-archive.patch'
+        'reproducible-import-libraries.patch'
+        'specify-timestamp.patch')
+
+sha256sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP'
+            'SKIP')
+
+makedepends=(libiconv zlib)
+options=('staticlibs' 'strip')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --target=${CHOST} \
+    --prefix=${PREFIX} \
+    --with-libiconv-prefix=${PREFIX}/${CHOST} \
+    --enable-static \
+    --enable-64-bit-bfd \
+    --enable-install-libiberty \
+    --enable-deterministic-archives \
+    --disable-gold \
+    --disable-rpath \
+	  --disable-nls \
+	  --disable-shared \
+    --disable-multilib
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install-strip
+  install_copying
+}

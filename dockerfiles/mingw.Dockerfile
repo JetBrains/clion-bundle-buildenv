@@ -1,71 +1,126 @@
-# Centos-based image with makepkg, ccache and mingw-w64 toolchain
-# for building PKGBUILD packages.
+FROM alpine:edge as gcc
 
-FROM fedora:32
+RUN apk update \
+ && apk upgrade --no-cache
 
-RUN groupadd -r --gid 1001 build \
- && useradd --no-log-init --create-home -g build -r --uid 1001 build \
- && mkdir -p /etc/sudoers.d \
- && echo "build ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/build \
- && chmod 0440 /etc/sudoers.d/build
+RUN apk add --no-cache \
+     g++ \
+     gcc \
+     binutils
 
-# some of Development Tools (build-essential)
-RUN yum -y update \
- && yum -y install \
-      autoconf \
-      automake \
-      binutils \
-      bison \
-      flex \
-      gcc \
-      gcc-c++ \
-      gettext \
-      libtool \
-      make \
-      patch \
-      pkgconfig \
- && yum -y install \
-      elfutils \
-      file \
-      git \
- && yum clean all
+FROM alpine:edge
 
-RUN yum -y update \
- && yum -y install \
-      mingw32-gcc \
-      mingw32-gcc-c++ \
-      mingw64-gcc \
-      mingw64-gcc-c++ \
- && yum clean all
+COPY --from=gcc /usr /usr/local
 
-RUN yum -y update \
- && yum -y install \
-      bsdtar \
-      bzip2 \
-      chrpath \
-      fakeroot \
-      libarchive-devel \
-      openssl \
-      sudo \
-      texinfo \
-      xz \
- && yum clean all
+RUN apk update \
+ && apk upgrade --no-cache
 
-# makepkg has /usr/lib/ccache/bin directory hardcoded
-RUN yum -y update \
- && yum -y install \
-      ccache \
- && yum clean all \
- && mkdir -p /usr/lib/ccache \
- && ln -s /usr/lib64/ccache /usr/lib/ccache/bin
+RUN apk add --no-cache \
+     bash \
+     ccache \
+     curl \
+     git \
+     file \
+     fakeroot \
+     m4 \
+     make \
+     mingw-w64-gcc \
+     pacman-makepkg \
+     patch \
+     perl \
+     texinfo \
+     xz
 
-COPY assets/ /tmp/build-prerequisites
-RUN chmod a+x /tmp/build-prerequisites/*.sh \
- && /tmp/build-prerequisites/install-pacman.sh \
- && rm -rf /tmp/build-prerequisites
+# some tools/libraries reuquire build system
+# compiler, we avoid gnu to 
+# RUN apk add --no-cache \
+#      clang \
+#      compiler-rt \
+#      compiler-rt-static \
+#      lld \
+#      llvm \
+#      musl-dev
 
-RUN mkdir -p /win /workdir \
- && chown build:build /win /workdir
+# RUN apk add --no-cache \
+#      gcc \
+#      musl-dev
 
-USER build
-WORKDIR /workdir
+# # some of Development Tools (build-essential)
+# RUN yum -y update \
+#  && yum -y install \
+#       autoconf \
+#       automake \
+#       binutils \
+#       bison \
+#       flex \
+#       gcc \
+#       gcc-c++ \
+#       gettext \
+#       libtool \
+#       make \
+#       patch \
+#       pkgconfig \
+#  && yum -y install \
+#       elfutils \
+#       file \
+#       git \
+#  && yum clean all
+
+# RUN yum -y update \
+#  && yum -y install \
+#       mingw32-gcc \
+#       mingw32-gcc-c++ \
+#       mingw64-gcc \
+#       mingw64-gcc-c++ \
+#  && yum clean all
+
+#      #  gmp-devel \
+#      #  libmpc-devel \
+#      #  mpfr-devel \
+
+# # RUN mkdir /tmp/gcc \
+# #  && pushd /tmp/gcc \
+# #  && curl -sL 'ftpmirror.gnu.org/gcc/gcc-11.1.0/gcc-11.1.0.tar.gz' \
+# #   | tar xzf - --strip=1 \
+# #  && ./configure --prefix=/usr --disable-multilib --enable-languages=c,c++ \
+# #  && make -j "$(nproc)" \
+# #  && make install-strip \
+# #  && popd \
+# #  && rm -rf /tmp/gcc
+
+# RUN yum -y update \
+#  && yum -y install \
+#       bsdtar \
+#       bzip2 \
+#       chrpath \
+#       fakeroot \
+#       libarchive-devel \
+#       openssl \
+#       sudo \
+#       texinfo \
+#       xz \
+#  && yum clean all
+
+# # makepkg has /usr/lib/ccache/bin directory hardcoded
+# RUN yum -y update \
+#  && yum -y install \
+#       ccache \
+#  && yum clean all \
+#  && mkdir -p /usr/lib/ccache \
+#  && ln -s /usr/lib64/ccache /usr/lib/ccache/bin
+
+# COPY assets/ /tmp/build-prerequisites
+# RUN chmod a+x /tmp/build-prerequisites/*.sh \
+#  && /tmp/build-prerequisites/install-pacman.sh \
+#  && rm -rf /tmp/build-prerequisites
+
+# RUN mkdir -p /win /workdir \
+#  && chown build:build /win /workdir
+
+# RUN yum -y update \
+#  && yum -y install \
+#       diffutils \
+#  && yum clean all
+
+# USER build
+# WORKDIR /workdir

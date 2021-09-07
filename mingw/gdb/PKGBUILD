@@ -45,7 +45,7 @@ build() {
   mkdir ${srcdir}/build-${CHOST}
   cd ${srcdir}/build-${CHOST}
 
-  ../${pkgname}-${pkgver}/configure \
+  ../${pkgname}-${pkgver}/gdb/configure \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --host=${CHOST} \
     --target=${CHOST} \
@@ -63,7 +63,7 @@ build() {
     --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
     --disable-tui
 
-  make
+  make VERBOSE=1 -j1
 }
 
 package() {
