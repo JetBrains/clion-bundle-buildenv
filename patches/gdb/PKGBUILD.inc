@@ -13,11 +13,10 @@ source+=('gdb-fix-using-gnu-print.patch'
          # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
          'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
 
-         # https://sourceware.org/pipermail/gdb-patches/2021-April/178119.html
-         'gdb-10.2-expand-partial-symtabs-fix.patch')
+         '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch')
 
 md5sums+=('6b485bc8b1025610804fef9e111ade24'
           '225646ec91143b400e54c4a7cba4a674'
           'aaf3a9e88684c8606084c6e8073619ab'
           '7ce3fc34c6800e735c52895c7e1d8372'
-          'a170bd7f885c08387604f567c3f83e7f')
+          '5772cd1777ab34d588e8676ce873c936')

@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=10.2
+pkgver=11.1
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
@@ -18,11 +18,11 @@ depends=("mingw-w64-runtime"
          "zlib"
          "xz"
          "python3-embed-prebuilt")
-makedepends=("libiconv")
+makedepends=("gmp" "libiconv")
 
 options=('!staticlibs' 'strip')
-source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz)
-md5sums=('c044b7146903ec51c9d2337a29aee93b')
+source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
+md5sums=('257cb0f67927f79acf636d8c01e19990')
 source "PKGBUILD.inc"
 
 prepare() {

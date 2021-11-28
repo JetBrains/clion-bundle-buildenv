@@ -1,7 +1,7 @@
 # Centos-based image with makepkg, ccache and mingw-w64 toolchain
 # for building PKGBUILD packages.
 
-FROM fedora:32
+FROM fedora:35
 
 RUN groupadd -r --gid 1001 build \
  && useradd --no-log-init --create-home -g build -r --uid 1001 build \

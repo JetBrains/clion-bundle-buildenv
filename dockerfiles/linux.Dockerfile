@@ -1,7 +1,7 @@
-# Centos-based image with makepkg, ccache and devtoolset-7
+# Centos-based image with makepkg, ccache and devtoolset-11
 # for building PKGBUILD packages.
 
-FROM centos:6
+FROM centos:7
 
 RUN groupadd -r --gid 1001 build \
  && useradd --no-log-init --create-home -g build -r --uid 1001 build \
@@ -34,10 +34,10 @@ RUN yum -y update \
 
 RUN yum -y update \
  && yum -y install \
-      centos-release-scl \
- && yum -y install \
-      devtoolset-7-gcc \
-      devtoolset-7-gcc-c++ \
+      centos-release-scl-rh \
+ && yum -y --enablerepo=centos-sclo-rh-testing install \
+      devtoolset-11-gcc \
+      devtoolset-11-g++ \
  && yum clean all
 
 RUN yum -y update \
@@ -54,14 +54,13 @@ RUN yum -y update \
 
 RUN yum -y update \
  && yum -y install \
-      bsdtar3 \
- && yum clean all \
- && ln -s "$(command -v bsdtar3)" /usr/local/bin/bsdtar
+      bsdtar \
+ && yum clean all
 
 RUN curl -sL https://github.com/Kitware/CMake/releases/download/v3.20.3/cmake-3.20.3-linux-x86_64.tar.gz \
      | sudo tar xzvf - --strip=1 -C /usr/local
 
-ENV PATH="/opt/rh/devtoolset-7/root/usr/bin:${PATH}"
+ENV PATH="/opt/rh/devtoolset-11/root/usr/bin:${PATH}"
 
 # makepkg has /usr/lib/ccache/bin directory hardcoded
 RUN yum -y update \
