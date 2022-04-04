@@ -1,0 +1,35 @@
+pkgname=(xz{,-dev})
+pkgver=5.2.5
+pkgrel=1
+pkgdesc="Library and command line tools for XZ and LZMA compressed files"
+arch=(aarch64 x86_64 unknown)
+url="http://tukaani.org/xz"
+
+# TODO: check situation with getopt_long mentioned in COPYING for possible
+# removal of LGPL from this field
+license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
+
+options=('staticlibs' 'strip')
+source=("${url}/${pkgname}-${pkgver}.tar.gz")
+md5sums=('SKIP')
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=/ \
+    --enable-shared \
+    --disable-debug \
+    --disable-lzma-links \
+    --disable-silent-rules \
+    --disable-static \
+    --disable-rpath
+
+  install_for_package
+}
+
+package_dylib_with_dev

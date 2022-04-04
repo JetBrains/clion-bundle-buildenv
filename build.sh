@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -e -o pipefail
 
 # Author: Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
@@ -26,6 +26,11 @@ else
     cyan=""
 fi
 
+function error() (
+    echo $@ >&2
+    exit 1
+    kill -9 $$ 2>/dev/null
+)
 
 # https://confluence.jetbrains.com/display/TCD10/Configuring+Build+Parameters
 teamcity() {
@@ -62,7 +67,6 @@ _status() {
 }
 
 # Status functions
-error() { echo "$@" >&2; exit -1; }
 failure() { local status="${1}"; local items=("${@:2}"); _status failure "${status}" "${items[@]}"; exit 1; }
 success() { local status="${1}"; local items=("${@:2}"); _status success "${status}" "${items[@]}"; exit 0; }
 message() { local status="${1}"; local items=("${@:2}"); _status message "${status}" "${items[@]}"; }
@@ -79,122 +83,129 @@ git_config() {
     failure 'Could not configure Git for makepkg'
 }
 
+_index_packages() {
+    local pkg_root_dir=$1
+    local makepkg_config=$2
 
-# Passes arguments to `find` and removes found files verbosely
-find_and_rm() {
-    local f
-    while read -rd '' f; do
-        rm -vf "$f"
-    done < <(find "$@" -print0)
-}
+    declare -Ag _PKG
 
+    local property_names=(
+        depends
+        makedepends
+        # custom:
+        # pkgname = splitted pkgname
+        # pkgbuild = path to pkgbuild
+        # pkgfile = package filename
+        # builddir = 
+    )
+    
+    local pkgbuild
+    for pkgbuild in "${pkg_root_dir}/"*/PKGBUILD; do
+        {
+            declare ${property_names[@]}
+            local pkgnames pkgfile_suffix
+            read -a pkgnames
+            read pkgfile_suffix
 
-# Get package information
-_package_info() {
-    local package="${1}"
-    local properties=("${@:2}")
-    test -f "${PKG_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package: ${PKG_ROOT_DIR}/${package}/PKGBUILD"
-    for property in "${properties[@]}"; do
-        eval "${property}=()"
-        local value=($(
-            source "${MAKEPKG_CONF}" > /dev/null && \
-            cd "${PKG_ROOT_DIR}/${package}" && \
-            source "PKGBUILD" > /dev/null
-            eval echo "\${${property}[@]}"))
-        eval "${property}=(\"\${value[@]}\")"
+            local line
+            while read -r line; do
+                declare -a "${line%%:*}=(${line#*:})"
+            done
+
+            local pkgname 
+            for pkgname in ${pkgnames[@]}; do
+                if [ -n "${_PKG[$pkgname]-}" ]; then
+                    error "$pkgname redefined"
+                else
+                    local package_id=${#_PKG[@]}
+                    _PKG[$pkgname]=$package_id
+
+                    declare -rg "_PKG_${package_id}_pkgname=$pkgname"
+                    declare -rg "_PKG_${package_id}_pkgbuild=$pkgbuild"
+                    declare -rg "_PKG_${package_id}_pkgfile=$PKGDEST/$pkgname$pkgfile_suffix"
+                    declare -rg "_PKG_${package_id}_builddir=$BUILDDIR/$pkgnames"
+
+                    local property_name
+                    for property_name in ${property_names[@]}; do
+                        declare -n "property=$property_name"
+                        declare -rg "_PKG_${package_id}_${property_name}=${property[*]}"
+                    done
+                fi
+            done
+
+            unset ${property_names[@]}
+        }<<<$(
+            cd "${pkgbuild%/*}"
+
+            {
+                set +u
+                source "$makepkg_config"
+                source "$pkgbuild"
+            } >/dev/null 2>&1
+
+            echo "${pkgname[@]}"
+
+            if [[ $arch != "any" ]]; then
+                arch="$CARCH"
+            fi
+
+            echo "-$pkgver-$pkgrel-$arch$PKGEXT"
+
+            local property_name
+            for property_name in ${property_names[@]}; do
+                declare -n "property=$property_name"
+                echo "$property_name:${property[*]}"
+            done
+        )
     done
 }
 
-# Package provides another
-_package_provides() {
-    local package="${1}"
-    local another="${2}"
-    local pkgname provides
-    _package_info "${package}" pkgname provides
-    for pkg_name in "${pkgname[@]}";  do [[ "${pkg_name}" = "${another}" ]] && return 0; done
-    for provided in "${provides[@]}"; do [[ "${provided}" = "${another}" ]] && return 0; done
-    return 1
-}
+_get_package_property() {
+    local package=$1
+    local property_name=$2
 
-# Add package to build after required dependencies
-_build_add() {
-    local include_makedepends="${1}"  # 0 or 1
-    local package="${2}"
+    if [ -z "${_PKG[$package]-}" ]; then
+        error "package $package not defined"
+    fi
+    
+    local property="_PKG_${_PKG[$package]}_${property_name}"
 
-    local depends makedepends
-    local seen_package
-
-    for seen_package in "${seen_packages[@]}"; do
-        [[ "${seen_package}" = "${package}" ]] && return 0
-    done
-    seen_packages+=("${package}")
-
-    _package_info "${package}" depends makedepends
-
-    local kind='runtime'
-    if (( include_makedepends )); then
-        kind='build'
-        depends+=("${makedepends[@]}")
+    if [ -z "${!property+x}" ]; then
+        error "package $package does not have $property_name property"
     fi
 
-    message "Resolving ${kind} dependencies" "${depends[@]}"
+    echo "${!property}"
+}
 
-    for dependency in "${depends[@]}"; do
-        _build_add ${include_makedepends} "${dependency}"
+_get_package_depends_tree() {
+    local package=$1
+    local depends_property_name=$2
+
+    local depends=($(_get_package_property $package $depends_property_name))
+
+    echo $package
+
+    local depends
+    for depend in ${depends[@]}; do
+        _get_package_depends_tree $depend $depends_property_name
     done
-    sorted_packages+=("${package}")
 }
 
-# Sort packages by dependency
-define_build_order() {
-    local unsorted_packages=("$@")
+_flatten_packages_by_property() {
+    local packages=($(printf '%s\n' "${@: 1:$#-1}" | tac))
+    local property_name=${@: -1:1}
 
-    local seen_packages
-    local sorted_packages
-    local unsorted_package
+    declare -a seen_properties 
 
-    seen_packages=()
-    sorted_packages=()
-    for unsorted_package in "${unsorted_packages[@]}"; do
-        _build_add 1 "${unsorted_package}"
+    for package in ${packages[@]}; do
+        local _property=$(_get_package_property $package $property_name)
+        
+        if ! [[ " ${seen_properties[*]} " =~ " $_property " ]]; then
+            echo $package
+            seen_properties+=$_property
+        fi
     done
-    make_packages=("${sorted_packages[@]}")
-
-    seen_packages=()
-    sorted_packages=()
-    for unsorted_package in "$@"; do
-        _build_add 0 "${unsorted_package}"
-    done
-    packages=("${sorted_packages[@]}")
 }
-
-
-get_pkgfile() {
-    local pkgfile_noext
-    pkgfile_noext=$(get_pkgfile_noext "${1}") || failure "Unknown package file"
-    printf "%s%s\n" "${pkgfile_noext}" "${PKGEXT}"
-}
-
-get_pkgfile_noext() {
-    epoch=0
-    _package_info "${1}" pkgname epoch pkgver pkgrel arch
-
-    if [[ $arch != "any" ]]; then
-        arch="$CARCH"
-    fi
-
-    if (( epoch > 0 )); then
-        printf "%s\n" "${pkgname}-$epoch:$pkgver-$pkgrel-$arch"
-    else
-        printf "%s\n" "${pkgname}-$pkgver-$pkgrel-$arch"
-    fi
-}
-
-pkgfilename() {
-    [[ -n "${package}" ]] || failure "\${package} undefined"
-    get_pkgfile "${package}"
-}
-
 
 # Run command with status
 execute(){
@@ -326,30 +337,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 target_packages+=("$@")
-for package in "${target_packages[@]}"; do
-    _package_info "${package}"  # check package exists
-done
-
-
-is_target_package() {
-    local target_package
-    for target_package in "${target_packages[@]}"; do
-        if [[ "${1}" == "${target_package}" ]]; then
-            return 0  # true
-        fi
-    done
-    return 1  # false
-}
-
-filter_out_target_packages() {
-    local ret_packages=()
-    local package
-    for package in "$@"; do
-        is_target_package "${package}" || ret_packages+=("${package}")
-    done
-    printf "%s\n" "${ret_packages[@]}"
-}
-
 
 PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
 if [ ! -d "${PKG_ROOT_DIR}" ]; then
@@ -362,7 +349,6 @@ if [ ! -f "${MAKEPKG_CONF}" ]; then
     error "${MAKEPKG_CONF}: File not found"
 fi
 export MAKEPKG_CONF=$(realpath "${MAKEPKG_CONF}")
-
 
 source "${MAKEPKG_CONF}"
 
@@ -389,22 +375,10 @@ export CCACHE_DIR=${CCACHE_DIR:-${DESTDIR}/ccache}     #-- where ccache will kee
 export CCACHE_BASEDIR=${BUILDDIR}
 export CCACHE_COMPILERCHECK=content
 
+_index_packages $PKG_ROOT_DIR $MAKEPKG_CONF 
 
 BUNDLE_DIR="${DESTDIR}/bundle"
 BUNDLE_TARBALL="${BUNDLE_DIR%%/}".tar.xz
-
-
-[[ -n "${target_packages[*]}" ]] || failure 'No packages specified'
-if (( ! NODEPS )); then
-    define_build_order "${target_packages[@]}" || failure 'Could not determine build order'
-    if (( ONLYDEPS )); then
-        make_packages=($(filter_out_target_packages "${make_packages[@]}"))
-        packages=($(filter_out_target_packages "${packages[@]}"))
-    fi
-else
-    make_packages=("${target_packages[@]}")
-    packages=("${target_packages[@]}")
-fi
 
 mkdir -p "${DESTDIR}" "${PKGDEST}" "${SRCDEST}" || failure "Couldn't create directories"
 if (( LOGGING )); then
@@ -414,147 +388,85 @@ fi
 git_config user.name  "${GIT_COMMITTER_NAME}"
 git_config user.email "${GIT_COMMITTER_EMAIL}"
 
-export TMPDIR=$(mktemp -d)
-trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
+# export TMPDIR=$(mktemp -d)
+# trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
 
 export PACMAN=false  # just to be sure makepkg won't call it
 
-dependency_packages=($(filter_out_target_packages "${packages[@]}"))
 
-
-do_build_install() {
-    message "packages to build:" "${make_packages[@]}"
+_calculate_packages_build_queue() {
+    local packages=($@)
+    local packages_with_makedeps=()
 
     local package
-
-    for package in "${make_packages[@]}"; do
-        if (( ! NOMAKEPKG )); then
-            execute_cd "${PKG_ROOT_DIR}/${package}" 'makepkg' \
-                makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
-        fi
-
-        if (( ! NOINSTALL )); then
-            execute "install" \
-                bsdtar -mxvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
-        fi
+    for package in ${packages[@]}; do
+        packages_with_makedeps+=(
+            $(_get_package_depends_tree $package makedepends)
+        )
     done
+
+    _flatten_packages_by_property ${packages_with_makedeps[@]} pkgbuild
 }
 
+_build_package() {
+    local package=$1
+    local pkgbuild=$(_get_package_property $package pkgbuild)
+    local pkgfile=$(_get_package_property $package pkgfile)
+    local builddir=$(_get_package_property $package builddir)
+    local makedepends=($(_get_package_property $package makedepends))
 
-do_bundle() {
-    message "target packages:" "${target_packages[@]}"
-
-    (
-        set -e
-
-        cd ${PREFIX#}
-        mv lib/gcc/x86_64-w64-mingw32/libgcc_s_seh-1.dll bin
-        mv lib/gcc/x86_64-w64-mingw32/lib/libgcc_s.a lib/gcc/x86_64-w64-mingw32/11.2.0
-
-        rm -rf \
-            sysroot \
-            makedepends \
-            bin/x86_64-w64-mingw32-* \
-            bin/{c++.exe,ld.bfd.exe} \
-            share/{info,man,licence} \
-            lib/gcc/x86_64-w64-mingw32/lib \
-            x86_64-w64-mingw32/bin \
-            x86_64-w64-mingw32/share
-
-        execute "Archiving ${BUNDLE_TARBALL}" tar -Jcvf "${BUNDLE_TARBALL}" *
-    )
-
-    return
-
-    local package binary
-
-    if [[ -n ${dependency_packages[*]} ]]; then
-        message "dependencies:" "${dependency_packages[@]}"
-
-        for package in "${dependency_packages[@]}"; do
-            execute "extract (dep)" \
-                bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
-        done
-        unset package
-
-        message 'Removing dependency binaries...'
-        [[ -d ${PREFIX#/}/bin ]] || continue
-
-        find_and_rm -L ${PREFIX#/}/bin -xtype l
-
-        while read -rd '' binary ; do
-            case "$(file -bi "$binary")" in
-                *text/x-shellscript*) ;;
-                *)
-                     if (( ISMINGW )) && [[ "$binary" != *.exe ]]; then
-                         continue
-                     fi
-                     ;;
-            esac
-            rm -vf "$binary"
-        done < <(find ${PREFIX#/}/bin ! -type d -print0)
-        unset binary
+    if [ -f $pkgfile ]; then
+        return
     fi
 
-    for package in "${target_packages[@]}"; do
-        execute "extract" \
-            bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
+    local pkgbuild_dir=${pkgbuild%/*}
+    local makedepends_dir=$builddir/makedepends
+
+    mkdir -p $makedepends_dir
+
+    local makedepend
+    for makedepend in ${makedepends[@]}; do
+        local makedepend_pkgfile=$(_get_package_property $makedepend pkgfile)
+        bsdtar -mxvf $makedepend_pkgfile -C $makedepends_dir
     done
-    unset package
 
-    message 'Removing shared library symlinks...'
-    [[ -d ${PREFIX#/}/lib ]] && find_and_rm -L ${PREFIX#/}/lib -xtype l
+    MAKEDEPENDS=$makedepends_dir \
+    execute_cd "${pkgbuild_dir}" makepkg \
+        makepkg "${MAKEPKG_OPTS[@]}" --config "${MAKEPKG_CONF}"
 
-    message 'Removing doc and man directories...'
-    rm -rvf "${DOC_DIRS[@]}" "${MAN_DIRS[@]}"
-
-    message 'Removing l10n files...'
-    rm -rvf ${PREFIX#/}/share/locale
-
-    message 'Removing leftover development files...'
-    find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
-    find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
-    rm -rvf ${PREFIX#/}/lib/pkgconfig
-    rm -rvf ${PREFIX#/}/include
-
-    # Remove empty directories
-    find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
-
-    execute "Archiving ${BUNDLE_TARBALL}" tar -Jcvf "${BUNDLE_TARBALL}" ${PREFIX#/}
-
-    if [[ -n ${TEAMCITY_VERSION} ]]; then
-        local pkgname pkgver
-        local tgt_tags=()
-        local dep_tags=()
-        local all_tags=()
-        for package in "${packages[@]}"; do
-            _package_info "${package}" pkgname pkgver
-            if is_target_package "${package}"; then
-                tgt_tags=("${pkgname}-${pkgver}" "${tgt_tags[@]}")
-            else
-                dep_tags=("${pkgname}-${pkgver}" "${dep_tags[@]}")
-            fi
-            all_tags=("${pkgname}-${pkgver}" "${all_tags[@]}")
-            teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.pkg.${pkgname}.pkgver'" value="'${pkgver}'"
-        done
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags'" value="'${tgt_tags[@]}'"
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.dep'" value="'${dep_tags[@]}'"
-        teamcity setParameter name="'${TEAMCITY_PARAMETER_PREFIX}bundle.tags.all'" value="'${all_tags[@]}'"
-    fi
+    chmod 755 "$builddir/pkg"
 }
 
+_bundle_package() {
+    local package=$1
+    local builddir=$(_get_package_property $package builddir)
+    local depends=($(
+        _flatten_packages_by_property $(
+            _get_package_depends_tree $package depends
+        ) pkgfile
+    ))
 
-# Build
-execute 'build' do_build_install
+    local bundle_dir=$builddir/bundle
+    mkdir -p $bundle_dir
 
+    local depend
+    for depend in ${depends[@]}; do
+        local depend_pkgfile=$(_get_package_property $depend pkgfile)
+        bsdtar -mxvf $depend_pkgfile -C $bundle_dir \
+            --exclude=\.BUILDINFO,\.MTREE,\.PKGINFO
+    done
 
-if (( ! NOBUNDLE )); then
-    rm -rf "${BUNDLE_DIR}" "${BUNDLE_TARBALL}"
-    mkdir -p "${BUNDLE_DIR}"
+    cd $bundle_dir
+    mkdir -p $BUNDLE_DIR
+    bsdtar -cvzf $BUNDLE_DIR/$package-bundle.tar.gz * 
+}
 
-    execute_cd "${BUNDLE_DIR}" 'bundle' do_bundle
-    echo "${PREFIX}" > "${BUNDLE_DIR}/.prefix"
-    ln -s "${PREFIX#/}" "${BUNDLE_DIR}/.sysroot"
-fi
+build_queue=$(_calculate_packages_build_queue ${target_packages[@]})
 
-success 'All packages built successfully'
+for package in ${build_queue[@]}; do
+    _build_package $package
+done
+
+for target_package in ${target_packages[@]}; do
+    _bundle_package $target_package
+done

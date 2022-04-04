@@ -1,0 +1,31 @@
+pkgname=(zlib{,-dev})
+pkgver=1.2.12
+pkgrel=1
+pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (mingw-w64)"
+arch=(aarch64 x86_64 universal)
+
+license=(ZLIB)
+url="http://www.zlib.net/"
+
+options=(strip !staticlibs)
+
+source=("https://github.com/madler/zlib/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('d8688496ea40fb61787500e863cc63c9afcbc524468cedeb478068924eb54932')
+
+prepare() {
+  cd $srcdir/${pkgname}-${pkgver}
+  sed -i "s#/usr/bin/libtool#$(which $CHOST-libtool)#g" ./configure
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --prefix=/
+
+  install_for_package
+}
+
+package_dylib_with_dev

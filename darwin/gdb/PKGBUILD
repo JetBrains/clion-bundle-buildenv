@@ -1,0 +1,84 @@
+pkgname=gdb
+pkgver=11.1
+pkgrel=1
+pkgdesc="GNU Debugger (mingw-w64)"
+arch=(aarch64 x86_64 universal)
+url="https://www.gnu.org/software/gdb/"
+license=(GPL)
+depends=(expat gmp libiconv mpfr python)
+makedepends=(expat{,-dev} gmp{,-dev} libiconv{,-dev} mpfr{,-dev} python{,-dev})
+
+options=(!staticlibs strip)
+
+source=(
+  'https://ftp.gnu.org/gnu/gdb/gdb-11.1.tar.xz'
+  configure.patch
+  disable-native.patch
+  python.patch
+)
+
+md5sums=(
+  SKIP
+  SKIP
+  SKIP
+  SKIP
+)
+
+prepare() {
+  cd $srcdir/${pkgname}-${pkgver}
+  patch -p1 <../configure.patch
+  patch -p1 <../python.patch
+
+  if [ "$CARCH" == "aarch64" ]; then
+    patch -p1 <../disable-native.patch
+  fi
+}
+
+build() {
+  [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
+  mkdir ${srcdir}/build-${CHOST}
+  cd ${srcdir}/build-${CHOST}
+
+  CFLAGS="$CFLAGS -g -O0 -I$MAKEDEPENDS/include/python3.10 -I$MAKEDEPENDS/include" \
+  CXXFLAGS="$CXXFLAGS -g -O0 -I$MAKEDEPENDS/include/python3.10 -I$MAKEDEPENDS/include" \
+  LDFLAGS="$LDFLAGS -L$MAKEDEPENDS/lib -lpython3" \
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=/ \
+    --disable-binutils \
+    --disable-debug \
+    --disable-dependency-tracking \
+    --disable-gas \
+    --disable-gdbserver \
+    --disable-gold \
+    --disable-gprof \
+    --disable-ld \
+    --disable-sim \
+    --disable-tui \
+    --disable-unit-tests \
+    --enable-targets=all \
+    --with-lib{`
+      `expat,`
+      `gmp,`
+      `iconv,`
+      `lzma,`
+      `mpfr`
+    `}-prefix="$MAKEDEPENDS" \
+    --with-python \
+    --with-system-zlib \
+    --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}"
+
+  make -j4 V=1
+  install_for_package
+}
+
+package () {
+  local install_dir="$srcdir/_install"
+
+  cp -r "$install_dir/bin" \
+    "$pkgdir/bin"
+  
+  cp -r "$install_dir/share" \
+    "$pkgdir/share"
+}

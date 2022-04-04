@@ -1,0 +1,39 @@
+pkgname=(gmp{,-dev})
+pkgver=6.2.1
+pkgrel=1
+pkgdesc="GNU multiple precision arithmetic library"
+arch=(aarch64 x86_64 universal)
+url="https://gmplib.org"
+license=("LGPL-3.0 GPL-2.0")
+
+options=('!staticlibs' 'strip')
+
+source=(
+  "https://gmplib.org/download/gmp/gmp-$pkgver.tar.xz"
+  'monterey-x18.patch'
+)
+
+sha256sums=(
+  'fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2'
+  '5e859d31f173f4280e0e038c6b0dc1179c7791706b7eff5515da66ba8afc2be0'
+)
+
+prepare() {
+	cd ${srcdir}/$pkgname-$pkgver
+	apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=/
+
+  install_for_package
+}
+
+package_dylib_with_dev

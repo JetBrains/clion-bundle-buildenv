@@ -1,0 +1,13 @@
+diff --git a/gdb/configure b/gdb/configure
+index 5d89635..07e1aed 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -6649,7 +6649,7 @@ fi
+ # configuration.
+ gdb_host_obs=posix-hdep.o
+ 
+-if test "${target}" = "${host}"; then
++if test "${target}" = "${host}" && false; then
+   gdb_native=yes
+ else
+   gdb_native=no

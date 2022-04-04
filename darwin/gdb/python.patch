@@ -1,0 +1,25 @@
+diff --git a/gdb/configure b/gdb/configure
+index 07e1aed6b95..d72f228aa3a 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -11245,7 +11245,7 @@ $as_echo "${found_usable_python}" >&6; }
+ 
+ 
+   new_CPPFLAGS=${python_includes}
+-  new_LIBS="-lpython2.7 ${python_libs}"
++  new_LIBS="-lpython3 ${python_libs}"
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for python" >&5
+ $as_echo_n "checking for python... " >&6; }
+   save_CPPFLAGS=$CPPFLAGS
+diff --git a/gdb/python/python.c b/gdb/python/python.c
+index e42cbc4fd5e..2dbf9cd04f4 100644
+--- a/gdb/python/python.c
++++ b/gdb/python/python.c
+@@ -1763,6 +1763,7 @@ do_start_initialization ()
+ #endif
+ #endif
+ 
++  PyImport_AppendInittab ("_gdb", init__gdb_module);
+   Py_Initialize ();
+ #if PY_VERSION_HEX < 0x03090000
+   /* PyEval_InitThreads became deprecated in Python 3.9 and will

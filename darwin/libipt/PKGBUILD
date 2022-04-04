@@ -1,0 +1,22 @@
+pkgname=(libipt{,-dev})
+pkgver=2.0.5
+pkgrel=1
+pkgdesc='An Intel(R) Processor Trace decoder library'
+arch=(aarch64 x86_64 universal)
+url='https://github.com/intel/libipt'
+source=("https://github.com/intel/${pkgname}/archive/v${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cd "$srcdir/${pkgname}-${pkgver}"
+
+  cmake \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_STATIC_LIBS=OFF`` \
+    -DCMAKE_INSTALL_PREFIX=/ \
+    -DCMAKE_BUILD_TYPE=Release .
+
+  install_for_package
+}
+
+package_dylib_with_dev

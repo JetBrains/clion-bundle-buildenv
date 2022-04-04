@@ -4,6 +4,7 @@
 
 PKGVERSION="JetBrains IDE bundle${BUILD_NUMBER:+; build ${BUILD_NUMBER}}"
 
+#set -x
 
 #########################################################################
 # SOURCE ACQUISITION
@@ -63,7 +64,7 @@ LDFLAGS="-Wl,-O1,--sort-common,--as-needed,-z,relro"
 #LDFLAGS="-pipe -Wl,--dynamicbase,--high-entropy-va,--nxcompat"
 #-- Make Flags: change this for DistCC/SMP systems
 # The Make job server doesn't work under fakeroot for some reason.
-if [[ -z $FAKEROOTKEY ]]; then
+if [[ -z ${FAKEROOTKEY-} ]]; then
   MAKEFLAGS="-j$(($(nproc)+1))"
 else
   MAKEFLAGS=""
