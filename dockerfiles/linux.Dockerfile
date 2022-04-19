@@ -37,7 +37,7 @@ RUN yum -y update \
       centos-release-scl-rh \
  && yum -y --enablerepo=centos-sclo-rh-testing install \
       devtoolset-11-gcc \
-      devtoolset-11-g++ \
+      devtoolset-11-gcc-c++ \
  && yum clean all
 
 RUN yum -y update \
