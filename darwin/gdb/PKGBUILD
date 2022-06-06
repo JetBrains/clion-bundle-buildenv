@@ -1,5 +1,5 @@
 pkgname=gdb
-pkgver=11.1
+pkgver=12.1
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 x86_64 universal)
@@ -11,7 +11,7 @@ makedepends=(expat{,-dev} gmp{,-dev} libiconv{,-dev} mpfr{,-dev} python{,-dev})
 options=(!staticlibs strip)
 
 source=(
-  'https://ftp.gnu.org/gnu/gdb/gdb-11.1.tar.xz'
+  "https://ftp.gnu.org/gnu/gdb/gdb-$pkgver.tar.xz"
   configure.patch
   disable-native.patch
   python.patch
