@@ -1,0 +1,32 @@
+pkgname=(gmp)
+pkgver=6.2.1
+pkgrel=1
+pkgdesc="A free library for arbitrary precision arithmetic"
+arch=(aarch64 x86_64)
+url="https://gmplib.org/"
+license=(LGPL3 GPL)
+
+source=("https://gmplib.org/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.xz")
+sha256sums=('fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2')
+
+options=('staticlibs' 'strip')
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --prefix=${PREFIX} \
+    --build=${MINGW_CHOST} \
+    --host=${CHOST} \
+    --enable-static \
+    --disable-shared
+
+  make
+}
+
+package_gmp() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+}

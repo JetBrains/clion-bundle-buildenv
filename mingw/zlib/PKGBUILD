@@ -17,11 +17,11 @@ url="http://www.zlib.net/"
 #depends=("bzip2")
 #makedepends=('git')
 options=('staticlibs')
-source=("http://zlib.net/current/${pkgname}-${pkgver}.tar.gz"
+source=("https://github.com/madler/zlib/archive/v${pkgver}.tar.gz"
         01-zlib-1.2.11-1-buildsys.mingw.patch
         03-dont-put-sodir-into-L.mingw.patch
         04-fix-largefile-support.patch)
-md5sums=('1c9f62f0778697a09d36121ead88e08e'
+md5sums=('0095d2d2d1f3442ce1318336637b695f'
          '37d809648eee8f5cf5bf257bbb32a396'
          'bb6c8eeb7f03978982406bca35f62ca3'
          '78c2f67bb20e6b2f491a5c4060d18257')

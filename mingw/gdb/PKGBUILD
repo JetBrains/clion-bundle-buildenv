@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=9.2
+pkgver=12.1
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(i686 x86_64)
@@ -18,11 +18,11 @@ depends=("mingw-w64-runtime"
          "zlib"
          "xz"
          "python3-embed-prebuilt")
-makedepends=("libiconv")
+makedepends=("gmp" "libiconv")
 
 options=('!staticlibs' 'strip')
-source=(https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz)
-md5sums=('db95524e554870209ab7d9f8fd8dc557')
+source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
+md5sums=('759a1b8d2b4d403367dd0e14fa04643d')
 source "PKGBUILD.inc"
 
 prepare() {
@@ -50,7 +50,7 @@ build() {
     --host=${CHOST} \
     --target=${CHOST} \
     --prefix=${PREFIX} \
-    --enable-targets=$(IFS=','; echo "${gdb_enable_targets[*]}") \
+    --enable-targets=all \
     --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \

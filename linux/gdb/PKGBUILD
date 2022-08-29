@@ -6,16 +6,16 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gdb
-pkgver=9.2
+pkgver=12.1
 pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
-depends=(libiconv expat xz zlib python libipt)
+depends=(libiconv gmp expat xz zlib python libipt)
 options=('!staticlibs' 'strip')
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('db95524e554870209ab7d9f8fd8dc557')
+md5sums=('759a1b8d2b4d403367dd0e14fa04643d')
 
 source "PKGBUILD.inc"
 
@@ -41,7 +41,7 @@ build() {
   ../gdb-${pkgver}/configure \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --prefix=${PREFIX} \
-    --enable-targets=$(IFS=','; echo "${gdb_enable_targets[*]}") \
+    --enable-targets=all \
     --enable-gdbserver \
     --enable-64-bit-bfd \
     --disable-sim \

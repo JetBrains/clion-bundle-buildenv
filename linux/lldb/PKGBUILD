@@ -15,7 +15,7 @@
 _llvm_repository_name='llvm-project'
 _llvm_git_repository=${LLVM_GIT_REPOSITORY-"git+https://github.com/llvm/$_llvm_repository_name.git"}
 _llvm_git_reftype=${LLVM_GIT_REFTYPE-'tag'}
-_llvm_git_ref=${LLVM_GIT_REF-'llvmorg-9.0.1'}
+_llvm_git_ref=${LLVM_GIT_REF-'llvmorg-10.0.1'}
 
 pkgname=lldb
 pkgver=unknown
@@ -33,18 +33,14 @@ depends=(zlib python)
 options=(!staticlibs !debug)
 
 source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm_git_ref"
-        '0001-Support-LLVM_APPEND_VC_REV-option-in-clang.patch'
         '0001-build-Disable-SOVERSION-for-liblldb.so.patch'
         '0002-Allow-Python-to-find-its-home-when-relocated.patch'
-        '0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch'
-        '0004-Support-LLDB_VERSION_STRING-in-reported-version.patch')
+        '0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch')
 
 sha256sums=('SKIP'
-            'd6bc8b7e1b9a1d9a857c6c2670f9bdf59f9c4a3e1121a61c433e5b01729b519b'
-            '024d10a7fb32a5992e59349ca0fe21340f9641aab17c460f708556d3bc32bc97'
-            '5c9fbc5fd1b62d5961fdc4ad2a919b9c886545345c0d92cbbde783910399617d'
-            'c8d6fa829c7d2971d6042658c55fce5e1eb51fc8b85dcb71f13aca37289008a6'
-            'c0985e0e99059b64bfdfa49cbae4ceb4b0508e99e5586bd191572f7896022173')
+            'b00f39b06ad8041b7043ec277f3932aac7a9ddd3c5c095ca2954c02415954d6c'
+            'bfd0fc38b6a88d7fd0772d16b1018e967e7279f84def1835b026ad26e7828097'
+            '70bf8e015860fe59af60e63b5d3ff8f0eeaef68de965217c0354bcccf6fcdf23')
 
 pkgver() {
   cd "$srcdir/$_llvm_repository_name"
@@ -59,14 +55,10 @@ pkgver() {
 }
 
 prepare() {
-  cd "$srcdir/$_llvm_repository_name/clang"
-  patch -p1 -i "${srcdir}/0001-Support-LLVM_APPEND_VC_REV-option-in-clang.patch"
-
   cd "$srcdir/$_llvm_repository_name/lldb"
   patch -p1 -i "${srcdir}/0001-build-Disable-SOVERSION-for-liblldb.so.patch"
   patch -p1 -i "${srcdir}/0002-Allow-Python-to-find-its-home-when-relocated.patch"
   patch -p1 -i "${srcdir}/0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
-  patch -p1 -i "${srcdir}/0004-Support-LLDB_VERSION_STRING-in-reported-version.patch"
 }
 
 _llvm_pkgversion() {
@@ -87,11 +79,11 @@ build() {
     -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
-    -DPYTHON_EXECUTABLE=${PREFIX}/bin/python \
+    -DPython3_EXECUTABLE=${PREFIX}/bin/python \
     -DLLVM_ENABLE_PROJECTS="clang;lldb" \
     -DLLVM_TARGETS_TO_BUILD="X86" \
-    -DLLDB_DISABLE_LIBEDIT=TRUE \
-    -DLLDB_DISABLE_CURSES=TRUE \
+    -DLLDB_ENABLE_LIBEDIT=OFF \
+    -DLLDB_ENABLE_CURSES=OFF \
     -DLLVM_INCLUDE_EXAMPLES=OFF \
     -DLLVM_INCLUDE_BENCHMARKS=OFF \
     -DLLVM_INCLUDE_TESTS=OFF \

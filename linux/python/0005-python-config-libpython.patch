@@ -1,0 +1,12 @@
+diff --git a/Misc/python-config.sh.in b/Misc/python-config.sh.in
+--- a/Misc/python-config.sh.in
++++ b/Misc/python-config.sh.in
+@@ -41,7 +41,7 @@ LIBM="@LIBM@"
+ LIBC="@LIBC@"
+ SYSLIBS="$LIBM $LIBC"
+ ABIFLAGS="@ABIFLAGS@"
+-LIBS="@LIBPYTHON@ @LIBS@ $SYSLIBS"
++LIBS="-lpython${VERSION} @LIBS@ $SYSLIBS"
+ LIBS_EMBED="-lpython${VERSION}${ABIFLAGS} @LIBS@ $SYSLIBS"
+ BASECFLAGS="@BASECFLAGS@"
+ LDLIBRARY="@LDLIBRARY@"

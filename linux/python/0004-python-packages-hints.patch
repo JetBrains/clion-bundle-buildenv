@@ -1,0 +1,237 @@
+From a67923ce5293e883997700224434d2026d8b4ac6 Mon Sep 17 00:00:00 2001
+From: Felix Popov <felix.popov@jetbrains.com>
+Date: Sun, 27 Sep 2020 19:01:57 +0300
+Subject: [PATCH] [clion] hint python to look for packages relative to
+ LD_PRELOAD
+
+If lldb are loaded by app outside the bundle (cidr-debugger
+preloads liblldb.so to support third party lldb distributions)
+python will fail to find bundled packages. This change adds hints
+to find them relative to LD_PRELOAD.
+---
+ Modules/getpath.c | 136 ++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 118 insertions(+), 18 deletions(-)
+
+diff --git a/Modules/getpath.c b/Modules/getpath.c
+index b727f66953..7d149a5902 100644
+--- a/Modules/getpath.c
++++ b/Modules/getpath.c
+@@ -139,7 +139,6 @@ typedef struct {
+ static const wchar_t delimiter[2] = {DELIM, '\0'};
+ static const wchar_t separator[2] = {SEP, '\0'};
+ 
+-
+ /* Get file status. Encode the path to the locale encoding. */
+ static int
+ _Py_wstat(const wchar_t* path, struct stat *buf)
+@@ -361,6 +360,22 @@ add_exe_suffix(wchar_t *progpath, size_t progpathlen)
+ }
+ #endif
+ 
++static PyStatus
++add_lldb_bundled_landmark(wchar_t *path, size_t path_len)
++{
++    PyStatus status;
++
++    status = joinpath(path, L"python0.0/os.py", path_len);
++    if (_PyStatus_EXCEPTION(status)) {
++        return status;
++    }
++
++    size_t bufsz = wcslen(path);
++    path[bufsz - 9] = VERSION[0];
++    path[bufsz - 7] = VERSION[2];
++
++    return _PyStatus_OK();
++}
+ 
+ /* search_for_prefix requires that argv0_path be no more than MAXPATHLEN
+    bytes long.
+@@ -376,6 +391,74 @@ search_for_prefix(PyCalculatePath *calculate, _PyPathConfig *pathconfig,
+ 
+     PyStatus status;
+ 
++    size_t ld_preload_len;
++    wchar_t *ld_preload_env = NULL;
++    const char *ld_preload = getenv("LD_PRELOAD");
++
++    if (ld_preload) {
++        ld_preload_env = Py_DecodeLocale(ld_preload, &ld_preload_len);
++        if (!ld_preload_env) {
++            return DECODE_LOCALE_ERR("LD_PRELOAD environment variable", ld_preload_len);
++        }
++    }
++
++    if (ld_preload_env) {
++        wchar_t *iter_path = ld_preload_env;
++
++        while (1) {
++            wchar_t *delim = wcschr(iter_path, DELIM);
++
++            if (delim) {
++                size_t len = delim - iter_path;
++                if (len >= prefix_len) {
++                    return PATHLEN_ERR();
++                }
++                wcsncpy(prefix, iter_path, len);
++                prefix[len] = '\0';
++            } else {
++                if (safe_wcscpy(prefix, iter_path, prefix_len) < 0) {
++                    return PATHLEN_ERR();
++                }
++            }
++
++            reduce(prefix);
++            status = add_lldb_bundled_landmark(prefix, prefix_len);
++            if (_PyStatus_EXCEPTION(status)) {
++                return status;
++            }
++
++            if (ismodule(prefix, prefix_len)) {
++                *found = 1;
++                reduce(prefix);
++                return _PyStatus_OK();
++            }
++
++            if (!delim) {
++                prefix[0] = L'\0';
++                break;
++            }
++
++            iter_path = delim + 1;
++        }
++    }
++
++    status = copy_absolute(prefix, argv0_path, prefix_len);
++    if (_PyStatus_EXCEPTION(status)) {
++        return status;
++    }
++
++    reduce(prefix);
++    status = add_lldb_bundled_landmark(prefix, prefix_len);
++    if (_PyStatus_EXCEPTION(status)) {
++        return status;
++    }
++
++    if (ismodule(prefix, prefix_len)) {
++        *found = 1;
++        reduce(prefix);
++        return _PyStatus_OK();
++    }
++
+     /* If PYTHONHOME is set, we believe it unconditionally */
+     if (pathconfig->home) {
+         /* Path: <home> / <lib_python> */
+@@ -615,12 +698,29 @@ calculate_pybuilddir(const wchar_t *argv0_path,
+ */
+ static PyStatus
+ search_for_exec_prefix(PyCalculatePath *calculate, _PyPathConfig *pathconfig,
+-                       const wchar_t *argv0_path,
++                       const wchar_t *argv0_path, const wchar_t *prefix,
+                        wchar_t *exec_prefix, size_t exec_prefix_len,
+                        int *found)
+ {
+     PyStatus status;
+ 
++    if (calculate->prefix_found && prefix) {
++        status = copy_absolute(exec_prefix, prefix, exec_prefix_len);
++        if (_PyStatus_EXCEPTION(status)) {
++            return status;
++        }
++
++        status = joinpath(exec_prefix, L"lib-dynload", exec_prefix_len);
++        if (_PyStatus_EXCEPTION(status)) {
++            return status;
++        }
++
++        if (isdir(exec_prefix)) {
++            *found = 1;
++            return _PyStatus_OK();
++        }
++    }
++
+     /* If PYTHONHOME is set, we believe it unconditionally */
+     if (pathconfig->home) {
+         /* Path: <home> / <lib_python> / "lib-dynload" */
+@@ -710,12 +810,12 @@ search_for_exec_prefix(PyCalculatePath *calculate, _PyPathConfig *pathconfig,
+ 
+ static PyStatus
+ calculate_exec_prefix(PyCalculatePath *calculate, _PyPathConfig *pathconfig,
+-                      const wchar_t *argv0_path,
++                      const wchar_t *argv0_path, const wchar_t *prefix,
+                       wchar_t *exec_prefix, size_t exec_prefix_len)
+ {
+     PyStatus status;
+ 
+-    status = search_for_exec_prefix(calculate, pathconfig, argv0_path,
++    status = search_for_exec_prefix(calculate, pathconfig, argv0_path, prefix,
+                                     exec_prefix, exec_prefix_len,
+                                     &calculate->exec_prefix_found);
+     if (_PyStatus_EXCEPTION(status)) {
+@@ -1054,20 +1154,13 @@ calculate_zip_path(PyCalculatePath *calculate, const wchar_t *prefix,
+ {
+     PyStatus status;
+ 
+-    if (calculate->prefix_found > 0) {
+-        /* Use the reduced prefix returned by Py_GetPrefix() */
+-        if (safe_wcscpy(zip_path, prefix, zip_path_len) < 0) {
+-            return PATHLEN_ERR();
+-        }
+-        reduce(zip_path);
+-        reduce(zip_path);
+-    }
+-    else {
+-        if (safe_wcscpy(zip_path, calculate->prefix, zip_path_len) < 0) {
+-            return PATHLEN_ERR();
+-        }
++    status = copy_absolute(zip_path, prefix, zip_path_len);
++    if (_PyStatus_EXCEPTION(status)) {
++        return status;
+     }
+-    status = joinpath(zip_path, L"lib/python00.zip", zip_path_len);
++
++    reduce(zip_path);
++    status = joinpath(zip_path, L"python00.zip", zip_path_len);
+     if (_PyStatus_EXCEPTION(status)) {
+         return status;
+     }
+@@ -1087,6 +1180,8 @@ calculate_module_search_path(PyCalculatePath *calculate,
+                              const wchar_t *exec_prefix,
+                              const wchar_t *zip_path)
+ {
++    const wchar_t *site_packages_subdir = L"/site-packages";
++
+     /* Calculate size of return buffer */
+     size_t bufsz = 0;
+     if (calculate->pythonpath_env != NULL) {
+@@ -1114,6 +1209,7 @@ calculate_module_search_path(PyCalculatePath *calculate,
+     }
+ 
+     bufsz += wcslen(zip_path) + 1;
++    bufsz += wcslen(prefix) + wcslen(site_packages_subdir) + 1;
+     bufsz += wcslen(exec_prefix) + 1;
+ 
+     /* Allocate the buffer */
+@@ -1133,6 +1229,10 @@ calculate_module_search_path(PyCalculatePath *calculate,
+     wcscat(buf, zip_path);
+     wcscat(buf, delimiter);
+ 
++    wcscat(buf, prefix);
++    wcscat(buf, site_packages_subdir);
++    wcscat(buf, delimiter);
++
+     /* Next goes merge of compile-time $PYTHONPATH with
+      * dynamically located prefix.
+      */
+@@ -1269,7 +1369,7 @@ calculate_path(PyCalculatePath *calculate, _PyPathConfig *pathconfig)
+ 
+     wchar_t exec_prefix[MAXPATHLEN+1];
+     memset(exec_prefix, 0, sizeof(exec_prefix));
+-    status = calculate_exec_prefix(calculate, pathconfig, argv0_path,
++    status = calculate_exec_prefix(calculate, pathconfig, argv0_path, prefix,
+                                    exec_prefix, Py_ARRAY_LENGTH(exec_prefix));
+     if (_PyStatus_EXCEPTION(status)) {
+         return status;
+-- 
+2.28.0
+

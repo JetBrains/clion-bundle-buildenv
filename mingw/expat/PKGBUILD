@@ -14,7 +14,7 @@ url="https://libexpat.github.io/"
 license=(MIT)
 #makedepends=("gcc" "pkg-config")
 options=('strip' 'staticlibs')
-source=("https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+source=(https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.bz2
         001-fix-extension.patch
         002-fix-tests.patch)
 md5sums=('d9c3baeab58774cefc2f04faf29f2cf8'
