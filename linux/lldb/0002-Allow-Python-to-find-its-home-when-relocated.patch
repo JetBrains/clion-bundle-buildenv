@@ -7,10 +7,10 @@ Subject: [PATCH 2/4] Allow Python to find its home when relocated
 diff --git a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 --- a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 +++ b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
-@@ -323,6 +323,22 @@ private:
-     static char path[] =
-         "/System/Library/Frameworks/Python.framework/Versions/2.7";
-     Py_SetPythonHome(path);
+@@ -159,6 +159,22 @@ private:
+     if (g_python_home != nullptr) {
+       Py_SetPythonHome(g_python_home);
+     }
 +#elif PY_MAJOR_VERSION >= 3
 +    // Make the program relocatable, that is, compute Python location relative
 +    // to the running executable (LLDB or a frontend).
@@ -28,8 +28,8 @@ diff --git a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 +    }
 +    Py_SetProgramName(g_python_prog);
  #endif
- #endif
    }
+
 -- 
 2.23.0
 

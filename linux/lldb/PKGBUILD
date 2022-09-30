@@ -39,7 +39,7 @@ source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm
 
 sha256sums=('SKIP'
             'b00f39b06ad8041b7043ec277f3932aac7a9ddd3c5c095ca2954c02415954d6c'
-            'bfd0fc38b6a88d7fd0772d16b1018e967e7279f84def1835b026ad26e7828097'
+            '223e24223df759a86b2c3a886377438e69f5191237150a4911127bd68211e2cf'
             '70bf8e015860fe59af60e63b5d3ff8f0eeaef68de965217c0354bcccf6fcdf23')
 
 pkgver() {
