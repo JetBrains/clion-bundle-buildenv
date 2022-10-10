@@ -28,8 +28,8 @@ license=('custom:University of Illinois/NCSA Open Source License')
 #              'ocaml-ctypes' 'ocaml-findlib' 'libedit' 'swig')
 # depends=('llvm-libs' 'libxml2' 'python2' 'python2-six')
 # depends=('gcc-libs' 'zlib' 'libffi' 'libedit' 'ncurses')
-makedepends=('python' 'swig')
-depends=(zlib python)
+makedepends=('python' 'swig' 'libxml2' 'xz')
+depends=(zlib python libxml2 xz)
 options=(!staticlibs !debug)
 
 source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm_git_ref"
@@ -84,6 +84,8 @@ build() {
     -DLLVM_TARGETS_TO_BUILD="X86" \
     -DLLDB_ENABLE_LIBEDIT=OFF \
     -DLLDB_ENABLE_CURSES=OFF \
+    -DLLDB_ENABLE_LIBXML2=ON \
+    -DLLDB_ENABLE_LZMA=ON \
     -DLLVM_INCLUDE_EXAMPLES=OFF \
     -DLLVM_INCLUDE_BENCHMARKS=OFF \
     -DLLVM_INCLUDE_TESTS=OFF \

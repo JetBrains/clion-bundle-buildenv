@@ -1,0 +1,35 @@
+pkgname=libxml2
+pkgver=2.9.12
+pkgrel=1
+pkgdesc="The XML C parser and toolkit of Gnome"
+arch=(i686 x86_64)
+url="http://xmlsoft.org/"
+license=('custom')
+depends=('xz' 'zlib')
+makedepends=('xz' 'zlib')
+options=('staticlibs')
+source=("http://xmlsoft.org/sources/$pkgname-$pkgver.tar.gz")
+sha256sums=('c8d6681e38c56f172892c85ddc0852e1fd4b53b4209e7f4ebf17f7e2eae71d92')
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  NOCONFIGURE=1 ./autogen.sh
+  ./configure \
+  	--prefix=${PREFIX} \
+    --disable-static \
+	--enable-shared \
+    --without-history \
+    --without-icu \
+	--without-python
+  
+  make
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  make DESTDIR="$pkgdir" install
+  install -d -m755 "${pkgdir}${PREFIX}/share/licenses/$pkgname"
+  install -D -m644 "Copyright" "${pkgdir}${PREFIX}/share/licenses/$pkgname"
+}
