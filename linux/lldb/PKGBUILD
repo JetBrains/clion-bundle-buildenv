@@ -13,15 +13,15 @@
 # Contributor: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
 
 _llvm_repository_name='llvm-project'
-_llvm_git_repository=${LLVM_GIT_REPOSITORY-"git+https://github.com/llvm/$_llvm_repository_name.git"}
-_llvm_git_reftype=${LLVM_GIT_REFTYPE-'tag'}
-_llvm_git_ref=${LLVM_GIT_REF-'llvmorg-10.0.1'}
+_llvm_git_repository=${LLVM_GIT_REPOSITORY-"git+ssh://git@git.jetbrains.team/llvm/llvm-project.git"}
+_llvm_git_reftype=${LLVM_GIT_REFTYPE-'branch'}
+_llvm_git_ref=${LLVM_GIT_REF-'rust-lldb-15'}
 
 pkgname=lldb
-pkgver=unknown
+pkgver=rust.lldb.15.023ca6547ee9
 pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
-arch=(i686 x86_64)
+arch=(aarch64 i686 x86_64)
 url="http://lldb.llvm.org/"
 license=('custom:University of Illinois/NCSA Open Source License')
 # makedepends=('cmake' 'libffi' 'python2' "ocaml=$_ocaml_ver" 'python-sphinx'
@@ -81,7 +81,7 @@ build() {
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
     -DPython3_EXECUTABLE=${PREFIX}/bin/python \
     -DLLVM_ENABLE_PROJECTS="clang;lldb" \
-    -DLLVM_TARGETS_TO_BUILD="X86" \
+    -DLLVM_TARGETS_TO_BUILD="$(if [ "$CARCH" == "aarch64" ]; then echo AArch64; else echo X86; fi)" \
     -DLLDB_ENABLE_LIBEDIT=OFF \
     -DLLDB_ENABLE_CURSES=OFF \
     -DLLDB_ENABLE_LIBXML2=ON \

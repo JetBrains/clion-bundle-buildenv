@@ -2,7 +2,7 @@ pkgname=libxml2
 pkgver=2.9.12
 pkgrel=1
 pkgdesc="The XML C parser and toolkit of Gnome"
-arch=(i686 x86_64)
+arch=(aarch64 i686 x86_64)
 url="http://xmlsoft.org/"
 license=('custom')
 depends=('xz' 'zlib')
@@ -16,7 +16,7 @@ build() {
 
   NOCONFIGURE=1 ./autogen.sh
   ./configure \
-  	--prefix=${PREFIX} \
+    --prefix=${PREFIX} \
     --disable-static \
 	--enable-shared \
     --without-history \
