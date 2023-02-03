@@ -16,8 +16,7 @@ url="http://tukaani.org/xz"
 # removal of LGPL from this field
 license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
 
-#makedepends=("gcc" "pkg-config")
-#depends=("gcc-libs" "gettext")
+makedepends=("libiconv")
 options=('staticlibs' 'strip')
 source=("${url}/${pkgname}-${pkgver}.tar.gz")
 md5sums=('ef68674fb47a8b8e741b34e429d86e9d')

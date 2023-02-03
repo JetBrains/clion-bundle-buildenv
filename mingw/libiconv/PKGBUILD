@@ -6,24 +6,21 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 pkgname=libiconv
-pkgver=1.16
+pkgver=1.17
 pkgrel=1
 arch=(i686 x86_64)
 url='https://www.gnu.org/software/libiconv/'
 source=("https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
-        0001-compile-relocatable-in-gnulib.mingw.patch
         0002-fix-cr-for-awk-in-configure.all.patch
         fix-pointer-buf.patch)
-sha256sums=('e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04'
-            '7e905d21d670672b8a6a3bd80e5b8244b38bb7021a15fc7bdd0229125a3a68ee'
-            'fe1a82f0836d65f895bebe9307bbe70ae53e5c872dd727f2042c46edc7cf060d'
-            'fc1921f9d8ae21be0d1ee8a037fbb89aa066865f193a4883aa6e673827abba88')
+sha256sums=('8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313'
+            '89d5c0f666e50a0186cfb142ba7b77e8fe1ac4d65bdfd9ae14ae8d2f0045a87c'
+            '7105be2643864f48022cc9ef5869637d1906c0edc2518f3e5eb6db12fcb71f1a')
 options=('!libtool' 'staticlibs')
 #makedepends=(gcc)
 
 prepare() {
   cd $srcdir/${pkgname}-${pkgver}
-  patch -p1 -i ${srcdir}/0001-compile-relocatable-in-gnulib.mingw.patch
   patch -p1 -i ${srcdir}/0002-fix-cr-for-awk-in-configure.all.patch
   patch -p1 -i ${srcdir}/fix-pointer-buf.patch
 }
@@ -58,8 +55,7 @@ package() {
   license=(LGPL2 documentation:'GPL3') # This is LGPL except for documentation, see README
 
   cd "${srcdir}/build-${CHOST}"
-  make -C lib        install DESTDIR="${pkgdir}"
-  make -C libcharset install DESTDIR="${pkgdir}"
+  make install DESTDIR="${pkgdir}"
 
   rm -f  "${pkgdir}${PREFIX}"/lib/charset.alias
   rm -fr "${pkgdir}${PREFIX}"/share/locale
