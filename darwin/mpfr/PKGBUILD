@@ -1,14 +1,14 @@
 pkgname=(mpfr{,-dev})
-pkgver=4.1.0
+pkgver=4.2.0
 pkgrel=1
 pkgdesc="C library for multiple-precision floating-point computations"
 arch=(aarch64 x86_64 universal)
-url="http://tukaani.org/xz"
+url="https://www.mpfr.org"
 license=("LGPL-3.0")
 
 options=('!staticlibs' 'strip')
-source=("https://www.mpfr.org/mpfr-current/mpfr-$pkgver.tar.xz")
-sha256sums=('0c98a3f1732ff6ca4ea690552079da9c597872d30e96ec28414ee23c95558a7f')
+source=("https://ftp.gnu.org/gnu/mpfr/mpfr-$pkgver.tar.xz")
+sha256sums=('06a378df13501248c1b2db5aa977a2c8126ae849a9d9b7be2546fb4a9c26d993')
 
 depends=(gmp)
 makedepends=(gmp{,-dev})
