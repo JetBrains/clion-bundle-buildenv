@@ -7,20 +7,23 @@ Instead of doing so from inside post_fork_inferior (), which is only invoked
 on Linux and several more OS', print PID unconditionally so that the
 behaviour is consistent across the platforms.
 
-diff -Naur a/gdbserver/fork-child.cc b/gdbserver/fork-child.cc
+
+diff --git a/gdbserver/fork-child.cc b/gdbserver/fork-child.cc
+index e791a8d..7e153cf 100644
 --- a/gdbserver/fork-child.cc
 +++ b/gdbserver/fork-child.cc
-@@ -114,6 +114,4 @@ post_fork_inferior (int pid, const char *program)
+@@ -124,6 +124,4 @@ post_fork_inferior (int pid, const char *program)
    current_thread->last_status = cs.last_status;
    signal_pid = pid;
    target_post_create_inferior ();
 -  fprintf (stderr, "Process %s created; pid = %d\n", program, pid);
 -  fflush (stderr);
  }
-diff -Naur a/gdbserver/server.cc b/gdbserver/server.cc
+diff --git a/gdbserver/server.cc b/gdbserver/server.cc
+index d802e8b..594b818 100644
 --- a/gdbserver/server.cc
 +++ b/gdbserver/server.cc
-@@ -289,6 +289,18 @@ get_environ ()
+@@ -295,6 +295,18 @@ get_environ ()
    return &our_environ;
  }
  
@@ -39,7 +42,7 @@ diff -Naur a/gdbserver/server.cc b/gdbserver/server.cc
  static int
  attach_inferior (int pid)
  {
-@@ -1631,7 +1643,7 @@ handle_qxfer_statictrace (const char *annex,
+@@ -1619,7 +1631,7 @@ handle_qxfer_statictrace (const char *annex,
    if (writebuf != NULL)
      return -2;
  
@@ -48,25 +51,25 @@ diff -Naur a/gdbserver/server.cc b/gdbserver/server.cc
        || cs.current_traceframe == -1)
      return -1;
  
-@@ -2960,7 +2972,7 @@ handle_v_run (char *own_buf)
+@@ -2983,7 +2995,7 @@ handle_v_run (char *own_buf)
    char *p, *next_p;
    std::vector<char *> new_argv;
    char *new_program_name = NULL;
--  int i, new_argc;
-+  int i, new_argc, pid;
+-  int i;
++  int i, pid;
  
-   new_argc = 0;
-   for (p = own_buf + strlen ("vRun;"); p && *p; p = strchr (p, ';'))
-@@ -3060,7 +3072,7 @@ handle_v_run (char *own_buf)
+   for (i = 0, p = own_buf + strlen ("vRun;"); *p; p = next_p, ++i)
+     {
+@@ -3076,7 +3088,7 @@ handle_v_run (char *own_buf)
    free_vector_argv (program_args);
    program_args = new_argv;
  
 -  target_create_inferior (program_path.get (), program_args);
 +  do_target_create_inferior (program_path.get (), program_args);
  
-   if (cs.last_status.kind == TARGET_WAITKIND_STOPPED)
+   if (cs.last_status.kind () == TARGET_WAITKIND_STOPPED)
      {
-@@ -3850,7 +3862,7 @@ captured_main (int argc, char *argv[])
+@@ -3932,7 +3944,7 @@ captured_main (int argc, char *argv[])
  	program_args.push_back (xstrdup (next_arg[i]));
  
        /* Wait till we are at first instruction in program.  */
@@ -75,12 +78,12 @@ diff -Naur a/gdbserver/server.cc b/gdbserver/server.cc
  
        /* We are now (hopefully) stopped at the first instruction of
  	 the target process.  This assumes that the target process was
-@@ -4369,7 +4381,7 @@ process_serial_event (void)
+@@ -4449,7 +4461,7 @@ process_serial_event (void)
  	  /* Wait till we are at 1st instruction in prog.  */
  	  if (program_path.get () != NULL)
  	    {
 -	      target_create_inferior (program_path.get (), program_args);
 +	      do_target_create_inferior (program_path.get (), program_args);
  
- 	      if (cs.last_status.kind == TARGET_WAITKIND_STOPPED)
+ 	      if (cs.last_status.kind () == TARGET_WAITKIND_STOPPED)
  		{

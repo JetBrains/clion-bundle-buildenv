@@ -15,8 +15,8 @@ source+=('gdb-fix-using-gnu-print.patch'
 
          '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch')
 
-md5sums+=('6b485bc8b1025610804fef9e111ade24'
-          '225646ec91143b400e54c4a7cba4a674'
-          'aaf3a9e88684c8606084c6e8073619ab'
-          '7ce3fc34c6800e735c52895c7e1d8372'
-          '5772cd1777ab34d588e8676ce873c936')
+md5sums+=('b43570a387098fe57681fdb6032ab37c'
+          '0094c8e11f4df1a0e78ea7926628223c'
+          '05cf28cc032408f88a99b407d6dc3098'
+          '241f843c093567e3f04b690a2023c68a'
+          '7acec8129b8cc4c0bb8d34cbab27e18d')

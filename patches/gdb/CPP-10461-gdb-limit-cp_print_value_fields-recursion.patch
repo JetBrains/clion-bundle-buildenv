@@ -1,13 +1,14 @@
-diff -Naur a/gdb/cp-valprint.c b/gdb/cp-valprint.c
+diff --git a/gdb/cp-valprint.c b/gdb/cp-valprint.c
+index 31b89cd..9699229 100644
 --- a/gdb/cp-valprint.c
 +++ b/gdb/cp-valprint.c
-@@ -562,6 +562,12 @@ cp_print_static_field (struct type *type,
+@@ -556,6 +556,12 @@ cp_print_static_field (struct type *type,
        return;
      }
  
 +  if (recurse > 99)
 +  {
-+    fputs_filtered ("<recursion limit reached>", stream);
++    gdb_puts ("<recursion limit reached>", stream);
 +    return;
 +  }
 +
