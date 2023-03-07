@@ -4,7 +4,7 @@ pkgname=mingw-w64-runtime
 pkgver=1.0
 pkgrel=1
 pkgdesc="MinGW runtime DLLs for Windows (mingw-w64)"
-arch=(i686 x86_64)
+arch=(aarch64 i686 x86_64)
 url='https://mingw-w64.sourceforge.io/'
 license=('custom')
 groups=("toolchain")
@@ -13,15 +13,15 @@ source=('COPYING.MinGW-w64-runtime.txt')
 md5sums=('3edacf7e64e1b7a634666ac043f6b13c')
 
 package() {
-  local sysroot
-  sysroot=$(${CHOST}-gcc -print-sysroot) && [[ -d "${sysroot}" ]] || return 1
-
   install -dm755 ${pkgdir}${PREFIX}/bin
 
-  install -m755 -t ${pkgdir}${PREFIX}/bin/ "${sysroot}"/mingw/bin/libgcc*-1.dll
-  install -m755 -t ${pkgdir}${PREFIX}/bin/ "${sysroot}"/mingw/bin/libssp-0.dll
-  install -m755 -t ${pkgdir}${PREFIX}/bin/ "${sysroot}"/mingw/bin/libstdc++-6.dll
-  install -m755 -t ${pkgdir}${PREFIX}/bin/ "${sysroot}"/mingw/bin/libwinpthread-1.dll
+  install -m755 -t ${pkgdir}${PREFIX}/bin/ $(
+    if [ $CARCH = aarch64 ]; then
+      echo "$CROSS_ROOT/$CROSS_TRIPLE/bin/"{libc++,libssp-0,libunwind}.dll
+    else
+      echo "$($CHOST-gcc -print-sysroot)/mingw/bin/"{libgcc*-1,libssp-0,libstdc++-6,libwinpthread-1}.dll
+    fi
+  )
 
   install -Dm644 "${srcdir}/COPYING.MinGW-w64-runtime.txt" "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING"
 }

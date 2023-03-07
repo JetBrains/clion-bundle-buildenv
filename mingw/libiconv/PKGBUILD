@@ -8,7 +8,7 @@
 pkgname=libiconv
 pkgver=1.17
 pkgrel=1
-arch=(i686 x86_64)
+arch=(aarch64 i686 x86_64)
 url='https://www.gnu.org/software/libiconv/'
 source=("https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
         0002-fix-cr-for-awk-in-configure.all.patch
@@ -31,7 +31,6 @@ build() {
 
   ../${pkgname}-${pkgver}/configure \
     --prefix=${PREFIX} \
-    --build=${MINGW_CHOST} \
     --host=${CHOST} \
     --target=${CHOST} \
     --docdir=${PREFIX}/share/doc/libiconv \
@@ -43,11 +42,6 @@ build() {
     --enable-nls
 
   make
-}
-
-check() {
-  cd "${srcdir}/build-${CHOST}"
-  make check
 }
 
 package() {

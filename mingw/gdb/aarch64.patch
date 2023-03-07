@@ -1,0 +1,109 @@
+diff --git a/bfd/configure b/bfd/configure
+index 31dfac5..8b9d59d 100755
+--- a/bfd/configure
++++ b/bfd/configure
+@@ -13536,7 +13536,7 @@ selarchs=
+ TDEFINES=
+ for targ in $target $canon_targets
+ do
+-    if test $targ = all; then
++    if test $targ = all || true; then
+         all_targets=true
+ 	assocvecs="$assocvecs $targ_defvec $targ_selvecs"
+     elif test $targ != plugin; then
+diff --git a/gdb/configure b/gdb/configure
+index bdc84be..65a9ef5 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -17934,7 +17934,7 @@ fi
+ # configuration.
+ gdb_host_obs=posix-hdep.o
+ 
+-if test "${target}" = "${host}"; then
++if test "${target}" = "${host} && false"; then
+   gdb_native=yes
+ else
+   gdb_native=no
+@@ -18007,7 +18007,7 @@ gdb_osabi=
+ targ=$target; . ${srcdir}/configure.tgt
+ 
+ # Fetch the default architecture and default target vector from BFD.
+-targ=$target; . $srcdir/../bfd/config.bfd
++#targ=$target; . $srcdir/../bfd/config.bfd
+ 
+ # We only want the first architecture, so strip off the others if
+ # there is more than one.
+diff --git a/gdb/configure.host b/gdb/configure.host
+index da71675..c39f327 100644
+--- a/gdb/configure.host
++++ b/gdb/configure.host
+@@ -107,6 +107,9 @@ i[34567]86-*-go32*)	gdb_host=go32 ;;
+ i[34567]86-*-mingw32*)	gdb_host=mingw
+ 			gdb_host_obs=mingw-hdep.o
+ 			;;
++aarch64-*-mingw32*)	gdb_host=mingw
++			gdb_host_obs=mingw-hdep.o
++			;;
+ i[34567]86-*-msdosdjgpp*) gdb_host=go32 ;;
+ i[34567]86-*-linux*)	gdb_host=linux ;;
+ i[34567]86-*-gnu*)	gdb_host=i386gnu ;;
+diff --git a/gnulib/import/setenv.c b/gnulib/import/setenv.c
+index ebfd4e5..b0e8cad 100644
+--- a/gnulib/import/setenv.c
++++ b/gnulib/import/setenv.c
+@@ -219,7 +219,11 @@ __add_to_environ (const char *name, const char *value, const char *combined,
+ 
+       new_environ[size + 1] = NULL;
+ 
+-      last_environ = __environ = new_environ;
++      memcpy ((char *) __environ, (char *) new_environ,
++        size * sizeof (char *));
++      __environ[size + 1] = NULL;
++
++      last_environ = new_environ;
+     }
+   else if (replace)
+     {
+@@ -315,7 +319,7 @@ clearenv (void)
+     }
+ 
+   /* Clear the environment pointer removes the whole environment.  */
+-  __environ = NULL;
++  __environ[0] = NULL;
+ 
+   UNLOCK;
+ 
+diff --git a/libiberty/setenv.c b/libiberty/setenv.c
+index d57e90c..99ee9c1 100644
+--- a/libiberty/setenv.c
++++ b/libiberty/setenv.c
+@@ -133,7 +133,11 @@ setenv (const char *name, const char *value, int replace)
+ 
+       new_environ[size + 1] = NULL;
+ 
+-      last_environ = __environ = new_environ;
++      memcpy ((char *) __environ, (char *) new_environ,
++        size * sizeof (char *));
++      __environ[size + 1] = NULL;
++
++      last_environ = new_environ;
+     }
+   else if (replace)
+     {
+diff --git a/opcodes/configure b/opcodes/configure
+index 9dc87d6..a7e3fed 100755
+--- a/opcodes/configure
++++ b/opcodes/configure
+@@ -12489,10 +12489,10 @@ all_targets=false
+ selarchs=
+ for targ in $target $canon_targets
+ do
+-    if test "x$targ" = "xall" ; then
++    if test "x$targ" = "xall" || true ; then
+         all_targets=true
+     else
+-	. $srcdir/../bfd/config.bfd
++#	. $srcdir/../bfd/config.bfd
+ 	selarchs="$selarchs $targ_archs"
+     fi
+ done

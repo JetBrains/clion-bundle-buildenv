@@ -123,5 +123,5 @@ do
         ;;
 esac
 done
-echo -ne $RESULT
+printf -- "$RESULT"
 
