@@ -449,7 +449,7 @@ do_bundle() {
 
         cd ${PREFIX#}
         mv lib/gcc/x86_64-w64-mingw32/libgcc_s_seh-1.dll bin
-        mv lib/gcc/x86_64-w64-mingw32/lib/libgcc_s.a lib/gcc/x86_64-w64-mingw32/11.2.0
+        mv lib/gcc/x86_64-w64-mingw32/lib/libgcc_s.a lib/gcc/x86_64-w64-mingw32/13.1.0
 
         rm -rf \
             sysroot \

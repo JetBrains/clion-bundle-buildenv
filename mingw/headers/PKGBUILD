@@ -1,5 +1,5 @@
 pkgname=headers
-pkgver=v9.0.0
+pkgver=v11.0.0
 pkgrel=1
 pkgdesc="MinGW-w64 headers"
 arch=(x86_64)
@@ -7,11 +7,15 @@ url='https://mingw-w64.sourceforge.io/'
 license=('custom')
 options=('!strip' '!libtool' '!emptydirs')
 
-source=("http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2"
-        '0001-Allow-to-use-bessel-and-complex-functions-without-un.patch')
+source=(
+  http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2
+  0001-Allow-to-use-bessel-and-complex-functions-without-un.patch
+)
 
-sha256sums=('1929b94b402f5ff4d7d37a9fe88daa9cc55515a6134805c104d1794ae22a4181'
-            '22e2752f6df782aaeeca373c32fb9d436beb9a416b702405622b5c0132c0eec4')
+sha256sums=(
+  bd0ea1633bd830204cc23a696889335e9d4a32b8619439ee17f22188695fcc5f
+  d641257f7e1469aff89adc33e57702b75fe9667ca035978f890eae1020b6814c
+)
 
 prepare() {
   cd "${srcdir}/mingw-w64-${pkgver}"
@@ -27,8 +31,8 @@ build() {
     --host=${CHOST} \
     --target=${CHOST} \
     --prefix=${PREFIX}/${CHOST} \
+    --enable-idl \
     --enable-sdk=all \
-    --disable-idl \
     --with-default-win32-winnt=0x601 \
     --with-default-msvcrt=msvcrt \
     --without-widl

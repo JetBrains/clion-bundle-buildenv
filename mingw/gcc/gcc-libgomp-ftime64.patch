@@ -1,5 +1,5 @@
---- a/libgomp/config/mingw32/time.c
-+++ b/libgomp/config/mingw32/time.c
+--- gcc/libgomp/config/mingw32/time.c
++++ gcc/libgomp/config/mingw32/time.c
 @@ -31,8 +31,8 @@
  double
  omp_get_wtime (void)

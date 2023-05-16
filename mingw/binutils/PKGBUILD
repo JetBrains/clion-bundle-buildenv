@@ -1,39 +1,48 @@
 pkgname=binutils
-pkgver=2.37
+pkgver=2.40
 pkgrel=1
 pkgdesc="A set of programs to assemble and manipulate binary and object files (mingw-w64)"
 arch=(x86_64)
 url="https://www.gnu.org/software/binutils/"
 license=('GPL')
-
-source=("https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.xz"
-        '0002-check-for-unusual-file-harder.patch'
-        '0008-fix-libiberty-makefile.mingw.patch'
-	      '0009-fix-libiberty-configure.mingw.patch'
-        '0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch'
-        '0110-binutils-mingw-gnu-print.patch'
-        '0600-Change-uint-to-unsigned.patch'
-        '2001-ld-option-to-move-default-bases-under-4GB.patch'
-        '2003-Restore-old-behaviour-of-windres-so-that-options-con-reversed.patch'
-        '2004-bfd-Close-the-file-descriptor-if-there-is-no-archive.patch'
-        'reproducible-import-libraries.patch'
-        'specify-timestamp.patch')
-
-sha256sums=('SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP'
-            'SKIP')
-
 makedepends=(libiconv zlib)
 options=('staticlibs' 'strip')
+
+source=(
+  https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.xz
+  0001-enable-gold-on.mingw32.patch
+  0002-check-for-unusual-file-harder.patch
+  0008-fix-libiberty-makefile.mingw.patch
+  0009-fix-libiberty-configure.mingw.patch
+  0010-bfd-Increase-_bfd_coff_max_nscns-to-65279.patch
+  0022-libiberty-missing-typedef.patch
+  0110-binutils-mingw-gnu-print.patch
+  2001-ld-option-to-move-default-bases-under-4GB.patch
+  2003-Restore-old-behaviour-of-windres-so-that-options-con-revert.patch
+  3001-try-fix-compare_section-abort.patch
+  bfd-real-fopen-handle-windows-nul.patch
+  libiberty-unlink-handle-windows-nul.patch
+  reproducible-import-libraries.patch
+  specify-timestamp.patch
+)
+
+sha256sums=(
+  0f8a4c272d7f17f369ded10a4aca28b8e304828e95526da482b0ccc4dfc9d8e1
+  93296b909e1a4f9d8a4bbe2437aafa17ca565ef6642a9812b0360c05be228c9d
+  2c99345fc575c3a060d6677537f636c6c4154fac0fde508070f3b6296c1060d4
+  35a3f7ac2ee4b655da6c3cee116a8d5edff48f312a38eadf336793bdc86249ee
+  4849fe969fc7abb6b6dfcef4d4c6506f23831d86ba22c6dbf8d3039212654837
+  4e8ac055df61b1b5d6ae29dc87e1154737c2e87c7b244b44866702cabf1a5d18
+  db80b05aaa927cc2906e23714dbbda9c592755a9ba18b3b91075d68e630cab41
+  5f3fc3949172d2d6e7cd595f9359077e012391a8c3c2aebc02e30fa656ded833
+  328ed91bdc9c729ab19f2a566d2d1cbb5ac1beb4775bd71d85e9777b4ed4c17a
+  e5150c0a77af3b15999a95444701d8d4023f57f32767b467563d6647aaabc472
+  ddfa01ed6ce1c0608bbcd462ced8383b5f9f686c2b49fb510a41637fff2ca019
+  dda1cf0c1825283a8b3708d1a4087dd650f4fbc3f8aa571e211cfe3e1458c8f8
+  7ccbd418695733c50966068fa9755a6abb156f53af23701d2bc097c63e9e0030
+  e868c4c0c657e8960466705cc798985c925161f64339c4390ce9de53a704a6a7
+  1d41353f9a4a9d24c48314be3390edaef3ffb3dc5a10f8ec6935b8e8de753ed2
+)
 
 prepare() {
   cd "${srcdir}/${pkgname}-${pkgver}"
@@ -56,8 +65,9 @@ build() {
     --enable-install-libiberty \
     --enable-deterministic-archives \
     --disable-gold \
-    --disable-rpath \
+    --disable-lto \
 	  --disable-nls \
+    --disable-rpath \
 	  --disable-shared \
     --disable-multilib
 

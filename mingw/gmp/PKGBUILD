@@ -5,24 +5,42 @@ pkgdesc="A free library for arbitrary precision arithmetic"
 arch=(x86_64)
 url="https://gmplib.org/"
 license=(LGPL3 GPL)
-
-source=("https://gmplib.org/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.xz")
-sha256sums=('fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2')
-
 options=('staticlibs' 'strip')
+
+source=(
+  https://gmplib.org/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.xz
+  do-not-use-dllimport.patch
+)
+
+sha256sums=(
+  fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2
+  SKIP
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  rm -rf ../stash && mkdir ../stash
+  cp config.{guess,sub} ../stash
+  apply_patches
+  autoreconf -fiv
+  cp -f ../stash/config.{guess,sub} .
+}
 
 build() {
   [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
   mkdir -p "${srcdir}/build-${CHOST}"
   cd "${srcdir}/build-${CHOST}"
 
-  # CC_FOR_BUILD="$CC_FO53R_BUILD $CFLAGS_FOR_BUILD" \
+  CFLAGS+=" -Wno-attributes -Wno-ignored-attributes"
+  
   ../${pkgname}-${pkgver}/configure \
     --host=${CHOST} \
     --target=${CHOST} \
     --build=${MACHTYPE} \
     --prefix=${PREFIX}/makedepends \
     --enable-cxx \
+    --enable-fat \
     --enable-static \
     --disable-shared
 

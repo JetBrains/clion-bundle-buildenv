@@ -1,58 +1,63 @@
 pkgname='gcc'
-pkgver=11.2.0
+pkgver=13.1.0
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
 arch=(x86_64)
 url="https://gcc.gnu.org"
 license=(GPL)
-
 makedepends=(mpc libiconv crt headers winpthreads manifest)
 
 source=(
-  "https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz"
+  https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz
   0002-Relocate-libintl.patch
   0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
-  0004-Windows-Use-not-in-progpath-and-leave-case-as-is.patch
   0005-Windows-Don-t-ignore-native-system-header-dir.patch
   0006-Windows-New-feature-to-allow-overriding.patch
+  0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
   0008-Prettify-linking-no-undefined.patch
-  0009-gcc-make-xmmintrin-header-cplusplus-compatible-depre.patch
-  0010-Fix-using-large-PCH.patch
+  0011-Enable-shared-gnat-implib.patch
   0012-Handle-spaces-in-path-for-default-manifest.patch
   0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
   0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
-  0140-gcc-8.2.0-diagnostic-color.patch
-  0150-gcc-10.2.0-libgcc-ldflags.patch
-  gcc-10-ktietz-libgomp.patch
-  gcc-4.7-stdthreads.patch
+  0021-PR14940-Allow-a-PCH-to-be-mapped-to-a-different-addr.patch
+  0140-gcc-diagnostic-color.patch
+  0200-add-m-no-align-vector-insn-option-for-i386.patch
+  0300-override-builtin-printf-format.patch
+  gcc-10-libgcc-ldflags.patch
+  gcc-12-ktietz-libgomp.patch
+  gcc-12-replace-abort-with-fancy_abort.patch
   gcc-4.8-libstdc++export.patch
-  gcc-5.1.0-make-xmmintrin-header-cplusplus-compatible.patch
-  gcc-5.1-iconv.patch
   gcc-5-dwarf-regression.patch
-  gcc-libgomp-ftime64.patch)
+  gcc-5.1-iconv.patch
+  gcc-5.1.0-make-xmmintrin-header-cplusplus-compatible.patch
+  gcc-libgomp-ftime64.patch
+)
 
 sha256sums=(
-  f0837f1bf8244a5cc23bd96ff6366712a791cfae01df8e25b137698aca26efc1
-  1247e81571c908548b4d9aaa3df1ad8fd73aad7b81e7eafea12d53bbada70e94
-  5b8ab5a54ebdd10c9802ea431b935ff4ba225eec6ca92824cfddfcf2ee8ac910
-  388f423a67e4be6f547ca7e340ff8ee4c78b1ed83f3fd698daa409e309911807
-  bd1c201febdf292570b0da9dcc066a237916ab3166dce3610487814f131517e5
-  43126ad31f0c4a0bac37edbe4c7491203fdbd373d60545ef6869af32ec0114b9
-  2e4f7d0ef739aec8986eb06a2baadee552ebc2e8be661c39a448e93515179eb5
-  513a824ee500d063f09ec920a9ad317a3a117e5468bf201aaf3f70dd0000e769
-  ec58aafba0174313451c282339bbd67ed0b11bca034c29023e0138b61441cf71
-  11dd5388a1e1c0a2bc8bc3824726598784b9b9e0896a3d77950ba6a4569f1128
-  21e31addcf13bc6fa6650b02ed0f2e195a1226260ae48c536840cc9230de2cfc
-  276ecc392c777d4b17d771a987e80dca50ff25d8f65671d5de139be73997064b
-  5240a9e731b45c17a164066c7eb193c1fbee9fd8d9a2a5afa2edbcde9510da47
-  7f0b4e45d933e18c9d8bd2afcd83e4f52e97e2e25dd41bfa0cba755c70e591c7
-  d4e03d2ce096b6c59d7c256da4293c4e0229d57398d5073b6228491a27c56323
-  5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b
+  bacd4c614d8bd5983404585e53478d467a254249e0f1bb747c8bc6d787bd4fa2
+  3fab890be4b0d4e9e309749c4de5ce00f069eee4fe6080baa100f768264e6218
+  3fc35067823f87e48dd3bfd265e7593000dc110fa9ad5f16c81b896765fc897a
+  57f0081655ba9a94ed7cc3d8b67a79aee8442a56613bd17f9809a7b0e68e43cd
+  a3637466910fae6145c947095051e3b91b16e4715d4abddc474eeb00539e9dc2
+  90d5cb570083f9dea4ac0f0f87e3e8d2230f5052e6f9b946061a20a224a9d195
+  8a40ea004a803b7e6aabd6c58d859502a57c87755dbcfedbdfed161f2fb7eb62
+  5ef4148acc4a2b7ed648d4fe75fab5545e84b4b93a12d6ba4e4ea6061dd635fa
+  e98805ead7d78ee2a92f237894c4b2b7ddc1688e1b517d8c04f28d440202e40f
+  fd9bdecb2bbc4796bbc9f00b708dac42ef9e3464a06d6d27e5475cee117de5be
+  ad1f7b5e7afaaec008b7cbd14feea13a10989fa91bda7003af72d457619bb199
+  6c272078340a27b3f147e497115b0a6e9fc0da720a2602f12b086524522caa59
+  e0a5b470f49a29f20215cc9f9d04c1cb9969dff6f0e546542799d3a693ef1c84
+  c34f9e71b5a092be1987ad4c65891742c74c9eb8ef6560100e751cd31375f579
+  f73c8d1701762fed7d8102d17d8e4416a4cc5e600e297a89c2e1fe09cd743a1c
+  8b5c8267189d043e489264167ecf2f5472906b5ff54e88802a4b39b3cfb45cd5
+  845d348aff07de4721492ed7834474a97730d664cb29fd6008831f0fa4cc7a7c
+  95160ecb5aac3422c0610ea52f8efe1f87e62feb5e2bf50c8be0ad7136d7c3da
   21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d
-  a253ff798060bf19780bd695b4d96187932a247b2e0c9a9b92b4c92efa55b69f
-  6185baad2f10d1f399e1492caf19f717d8a15822537364ed9cd1356a8291b25e
   0768864eba737cf7be59e8469d039a2246e015e40ba139cd2d20aa798c3362ef
-  9a8868214a338aa20a9d893089fb74568c8b512f70680e4d18ac3d74e64c580f)
+  6185baad2f10d1f399e1492caf19f717d8a15822537364ed9cd1356a8291b25e
+  a253ff798060bf19780bd695b4d96187932a247b2e0c9a9b92b4c92efa55b69f
+  d71ba65929207fa851b0741af3b2efa849b9bea4894d58d59b3eba843789f1da
+)
 
 prepare() {
   cd "${srcdir}/${pkgname}-${pkgver}"
@@ -71,6 +76,11 @@ build() {
   mkdir -p "${srcdir}/build-${CHOST}"
   cd "${srcdir}/build-${CHOST}"
 
+  export lt_cv_deplibs_check_method='pass_all'
+
+  CFLAGS+=" -fno-stack-protector -I../../../gcc-13.1.0/gcc/config/i386"
+  CPPFLAGS+=" -DCOM_NO_WINDOWS_H -I../../../gcc-13.1.0/gcc/config/i386"
+
   ../${pkgname}-${pkgver}/configure \
     --host=${CHOST} \
     --target=${CHOST} \
@@ -79,10 +89,12 @@ build() {
     --enable-checking=release \
     --enable-fully-dynamic-string \
 	  --enable-languages='c,c++' \
+    --with-arch=nocona \
+    --with-tune=generic \
     --enable-libatomic \
 	  --enable-libgomp \
-    --enable-libstdcxx-filesystem-ts=yes \
-	  --enable-libstdcxx-time=yes \
+    --enable-libstdcxx-filesystem-ts \
+	  --enable-libstdcxx-time \
     --enable-seh-exceptions \
     --enable-shared \
     --enable-static \

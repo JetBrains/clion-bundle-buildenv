@@ -1,5 +1,5 @@
 pkgname=mpfr
-pkgver=4.1.0
+pkgver=4.2.0
 pkgrel=1
 pkgdesc="Multiple-precision floating-point library"
 arch=(i686 x86_64)
@@ -7,8 +7,22 @@ license=('LGPL')
 options=('staticlibs')
 depends=(gmp)
 makedepends=(gmp)
-source=("https://ftp.gnu.org/gnu/mpfr/mpfr-${pkgver}.tar.xz")
-sha256sums=('0c98a3f1732ff6ca4ea690552079da9c597872d30e96ec28414ee23c95558a7f')
+
+source=(
+  https://ftp.gnu.org/gnu/mpfr/mpfr-${pkgver}.tar.xz
+  patches.patch
+)
+
+sha256sums=(
+  06a378df13501248c1b2db5aa977a2c8126ae849a9d9b7be2546fb4a9c26d993
+  811d3b45c8fc98affbeb0aba2d183ff17339ca2c31958b2f1dfeda1249cc3366
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+  autoreconf -fiv
+}
 
 build() {
   [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"

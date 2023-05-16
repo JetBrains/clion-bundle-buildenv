@@ -8,25 +8,28 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=zlib
-pkgver=1.2.11
+pkgver=1.2.13
 pkgrel=1
 pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (mingw-w64)"
 arch=(i686 x86_64)
 license=(ZLIB)
 url="http://www.zlib.net/"
-#depends=("bzip2")
-#makedepends=('git')
 options=('staticlibs')
 
-source=("http://zlib.net/current/${pkgname}-${pkgver}.tar.gz"
-        '01-zlib-1.2.11-1-buildsys.mingw.patch'
-        '03-dont-put-sodir-into-L.mingw.patch'
-        '04-fix-largefile-support.patch')
+source=(
+  # https://github.com/madler/${pkgname}/releases/download/v${pkgver}/${pkgname}-${pkgver}.zip
+  https://github.com/madler/zlib/releases/download/v1.2.13/zlib1213.zip
+  01-zlib-1.2.11-1-buildsys.mingw.patch
+  03-dont-put-sodir-into-L.mingw.patch
+  04-fix-largefile-support.patch
+)
 
-md5sums=('1c9f62f0778697a09d36121ead88e08e'
-         '508d3a2d258cd808a6f2138256ddfef8'
-         '44e20c3e1445075df929a5501449f329'
-         '78c2f67bb20e6b2f491a5c4060d18257')
+sha256sums=(
+  SKIP
+  8175e70c980ffc48a2e90c6f0431ddb80ef6ff690f9e8906dd6a756238552fa5
+  7287d12db57dcf0f66964c861100bf06ebe1ddcb243e7ee0773fcab1b2935596
+  4d8ebda55b95d19cd7c467c486d4c42d2bad6db9ff5dca361f6d8c24120e5f30
+)
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}

@@ -1,5 +1,5 @@
 pkgname=winpthreads
-pkgver=v9.0.0
+pkgver=v11.0.0
 pkgrel=1
 pkgdesc="MinGW-w64 winpthreads"
 arch=(i686 x86_64)
@@ -8,15 +8,22 @@ license=('MIT' 'BSD')
 options=('strip' 'staticlibs' '!emptydirs')
 depends=(crt)
 
-source=("http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2"
-        '0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch')
+source=(
+  http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-$pkgver.tar.bz2
+  0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+)
 
-sha256sums=('1929b94b402f5ff4d7d37a9fe88daa9cc55515a6134805c104d1794ae22a4181'
-            'd9e8af81682d9bf70e3d87506f51156cec61260b810a234bce861cb2eb3a5919')
+sha256sums=(
+  bd0ea1633bd830204cc23a696889335e9d4a32b8619439ee17f22188695fcc5f
+  d9e8af81682d9bf70e3d87506f51156cec61260b810a234bce861cb2eb3a5919
+)
 
 prepare() {
   cd "${srcdir}/mingw-w64-${pkgver}"
   apply_patches
+
+  cd "${srcdir}/mingw-w64-${pkgver}/mingw-w64-libraries/${pkgname}"
+  autoreconf -vfi
 }
 
 build() {
@@ -30,7 +37,8 @@ build() {
     --build=${MACHTYPE} \
     --prefix=${PREFIX} \
     --enable-static \
-    --enable-shared
+    --enable-shared \
+    "CPPFLAGS=${CPPFLAGS//-D__USE_MINGW_ANSI_STDIO=1/}"
 
   make VERBOSE=1
 }

@@ -1,29 +1,43 @@
 pkgname=make
-pkgver=4.3
+pkgver=4.4
 pkgrel=1
 pkgdesc="GNU make utility to maintain groups of programs"
 arch=(x86_64)
 url="https://www.gnu.org/software/make"
 license=(GPL3)
-
 options=('strip')
 depends=('crt' 'winpthreads')
 
-source=("https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.gz"
-        'make-getopt.patch'
-        'make-gnulib-fcntl.patch'
-        'make-homegrown-dirent.patch'
-	      'make-linebuf-mingw.patch')
+source=(
+  https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.gz
+  make-4.3_undef-HAVE_STRUCT_DIRENT_D_TYPE.patch
+  make-4.4-timestamps.patch
+  make-getopt.patch
+  make-linebuf-mingw.patch
+)
 
-sha256sums=('e05fdde47c5f7ca45cb697e973894ff4f5d79e13b750ed57d7b66d8defc78e19'
-            '910617131a7f85420dee50f0540335cc138ad4f891c43a5777a053396b6b97b0'
-            'd2b181313296463066334f7c11b0d8bb46ea440b8790cfcad4a061b32818dac8'
-            '09afcf90dcbbf88595dcaff075dcb57ed9374d27114854a7399508f9b8691ba9'
-            '48ddd4d98c02b323bd7c8c5979b30daba91b8df1965a54bc8853e325d859b5b5')
+sha256sums=(
+  581f4d4e872da74b3941c874215898a7d35802f03732bdccee1d4a7979105d18
+  952b8decffb25b6083bbda262578f93f2b480789b9d0baaabb7b3a77d7b86fc1
+  a8a4736e1a575c7a94bd38304401aa11076ccdfc912f175d3264d5e03d597e60
+  926f247cb38479add76768802132bec9a5a946a7c7e57260b12a39f3e2c22385
+  1d4ee0af0075eab6ae562c861120edb5f3a5cc9e5ded5b389476fe9012f1d805
+)
 
 prepare() {
   cd "${srcdir}/${pkgname}-${pkgver}"
+
   apply_patches
+
+  local _prog_name=mingw32-make
+  local _prog_name_am=${_prog_name//[^a-zA-Z0-9@]/_}
+  
+  sed -i "/bin_PROGRAMS/ { s:\bmake\b:${_prog_name}:g };
+    s:\bmake_\(SOURCES\|LDADD\|LDFLAGS\)\b:${_prog_name_am}_\1:g ;
+    s:\bEXTRA_make_\([A-Z]\+\):EXTRA_${_prog_name_am}_\1:g ;" \
+      Makefile.am
+  
+  autoreconf -vfi
 }
 
 build() {
@@ -35,12 +49,14 @@ build() {
     --host=${CHOST} \
     --build=${MACHTYPE} \
     --prefix=${PREFIX} \
-    --program-prefix=mingw32- \
     --enable-case-insensitive-file-system \
     --enable-job-server \
     --without-libintl-prefix \
     --without-libiconv-prefix \
     --without-guile \
+    CPPFLAGS=-DMAKE_LOAD \
+    CFLAGS=-mthreads \
+    ac_cv_dos_paths=yes
 
   make VERBOSE=1
 }
