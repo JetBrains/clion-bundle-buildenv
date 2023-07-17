@@ -1,5 +1,5 @@
 pkgname=gdb
-pkgver=13.1
+pkgver=13.2
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 x86_64 universal)
@@ -18,7 +18,7 @@ source=(
 )
 
 md5sums=(
-  "4aaad768ff2585464173c091947287ec"
+  "fbd3cdae16c581e8a742cb766ba35076"
   "9ef26f27615cb050eb0a57541c9fb9b5"
   "dff5da248d083b8aff20dff3db2f0816"
   "5dd516cfada3f5f0b92c40129b3f0015"
