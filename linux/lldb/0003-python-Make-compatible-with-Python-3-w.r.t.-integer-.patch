@@ -8,9 +8,9 @@ Subject: [PATCH 3/4] python: Make compatible with Python 3 w.r.t. integer
 #	examples/synthetic/gnu_libstdcpp.py
 #	scripts/Python/modify-python-lldb.py
 ---
-diff --git a/bindings/interface/SBData.i b/bindings/interface/SBData.i
---- a/bindings/interface/SBData.i
-+++ b/bindings/interface/SBData.i
+diff --git a/bindings/interface/SBDataExtensions.i b/bindings/interface/SBDataExtensions.i
+--- a/bindings/interface/SBDataExtensions.i
++++ b/bindings/interface/SBDataExtensions.i
 @@ -167,7 +167,7 @@ public:
                  else:
                      return my_data
