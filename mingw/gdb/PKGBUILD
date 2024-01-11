@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=13.2
+pkgver=14.1
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 i686 x86_64)
@@ -18,11 +18,11 @@ depends=("mingw-w64-runtime"
          "zlib"
          "xz"
          "python3-embed-prebuilt")
-makedepends=("gmp" "libiconv")
+makedepends=("gmp" "mpfr" "libiconv")
 
 options=('!staticlibs' 'strip')
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('fbd3cdae16c581e8a742cb766ba35076')
+md5sums=('4a084d03915b271f67e9b8ea2ab24972')
 source "PKGBUILD.inc"
 
 if [ $CARCH == aarch64 ]; then
@@ -66,6 +66,7 @@ build() {
     --with-python=${PREFIX}/bin/python-config.sh \
     --without-guile \
     --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
+    --with-{gmp,mpfr}=${PREFIX} \
     --disable-tui
 
   make

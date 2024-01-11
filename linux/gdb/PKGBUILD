@@ -6,16 +6,16 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gdb
-pkgver=13.2
+pkgver=14.1
 pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(aarch64 i686 x86_64)
 url='http://www.gnu.org/software/gdb/'
 license=(GPL3)
-depends=(libiconv gmp expat xz zlib python libipt)
+depends=(libiconv gmp mpfr expat xz zlib python libipt)
 options=('!staticlibs' 'strip')
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('fbd3cdae16c581e8a742cb766ba35076')
+md5sums=('4a084d03915b271f67e9b8ea2ab24972')
 
 source "PKGBUILD.inc"
 
@@ -52,6 +52,7 @@ build() {
     --with-python=${PREFIX}/bin/python-config \
     --without-guile \
     --with-lib{expat,iconv,zlib,lzma}=${PREFIX} \
+    --with-{gmp,mpfr}=${PREFIX} \
     --disable-tui
 
   make

@@ -6,7 +6,7 @@
 # Contributor: Renato Silva <br.renatosilva@gmail.com>
 
 pkgname=xz
-pkgver=5.2.3
+pkgver=5.4.5
 pkgrel=1
 pkgdesc="Library and command line tools for XZ and LZMA compressed files (mingw-w64)"
 arch=(aarch64 i686 x86_64)
@@ -18,8 +18,8 @@ license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
 
 makedepends=("libiconv")
 options=('staticlibs' 'strip')
-source=("${url}/${pkgname}-${pkgver}.tar.gz")
-md5sums=('ef68674fb47a8b8e741b34e429d86e9d')
+source=("https://github.com/tukaani-project/xz/releases/download/v${pkgver}/xz-${pkgver}.tar.gz")
+md5sums=('d2bb81e1a1a7808352c4ca28622f5c72')
 
 build() {
   [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
