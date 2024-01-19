@@ -1,3 +1,5 @@
+[![team project](http://jb.gg/badges/team.svg)](https://github.com/JetBrains#jetbrains-on-github)
+[![license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://raw.githubusercontent.com/JetBrains/clion-bundle-buildenv/master/LICENSE)
 # clion-bundle-buildenv
 Dockerfiles and PKGBUILD scripts for building GDB and LLDB for MinGW-W64 and Linux
 
