@@ -1,6 +1,6 @@
-ARG OSXCROSS_COMMIT="be2b79f444aa0b43b8695a4fb7b920bf49ecc01c"
+ARG OSXCROSS_COMMIT="ff8d100f3f026b4ffbe4ce96d8aac4ce06f1278b"
 ARG OSXCROSS_DIR="/osxcross"
-ARG ALPINE_TAG="20210804"
+ARG ALPINE_TAG="3.17"
 
 FROM alpine:$ALPINE_TAG as osxcross
 
@@ -14,7 +14,7 @@ RUN apk upgrade \
     clang \
     cmake \
     file \
-    fts-dev \
+    musl-fts-dev \
     gcc \
     git \
     libc-dev \
@@ -70,7 +70,7 @@ RUN apk upgrade \
     fakeroot \
     file \
     flex \
-    fts \
+    musl-fts \
     m4 \
     musl-dev \
     libcrypto3 \
@@ -83,8 +83,6 @@ RUN apk upgrade \
     python3 \
     texinfo \
     xz
-
-RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN mkdir -p /darwin /workdir \
   && chmod 777 /darwin /workdir
