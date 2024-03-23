@@ -18,6 +18,7 @@ build() {
 
   ../${pkgname}-${pkgver}/configure \
     --prefix=${PREFIX} \
+    --build=x86_64-pc-linux-gnu \    
     --enable-static \
     --disable-shared
 
