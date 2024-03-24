@@ -18,6 +18,7 @@ build() {
 
   ../${pkgname}-${pkgver}/configure \
     --prefix=${PREFIX} \
+    --build=${CHOST} \
     --enable-static \
     --disable-shared
 
