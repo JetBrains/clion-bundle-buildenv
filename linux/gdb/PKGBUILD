@@ -6,7 +6,7 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=gdb
-pkgver=14.1
+pkgver=14.2
 pkgrel=1
 pkgdesc='The GNU Debugger'
 arch=(aarch64 i686 x86_64)
@@ -15,7 +15,7 @@ license=(GPL3)
 depends=(libiconv gmp mpfr expat xz zlib python libipt)
 options=('!staticlibs' 'strip')
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('4a084d03915b271f67e9b8ea2ab24972')
+md5sums=('4452f575d09f94276cb0a1e95ecff856')
 
 source "PKGBUILD.inc"
 
