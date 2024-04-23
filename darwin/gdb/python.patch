@@ -1,0 +1,25 @@
+diff --git a/gdb/configure b/gdb/configure
+index bdc84be..182a172 100755
+--- a/gdb/configure
++++ b/gdb/configure
+@@ -22600,7 +22600,7 @@ fi
+   # Otherwise fallback on the old way of trying different versions of
+   # python in turn.
+ 
+-  have_libpython=no
++  have_libpython=yes
+   if test "${have_python_config}" = yes; then
+ 
+ 
+diff --git a/gdb/python/python.c b/gdb/python/python.c
+index 9d55811..3c42e94 100644
+--- a/gdb/python/python.c
++++ b/gdb/python/python.c
+@@ -2075,6 +2075,7 @@ do_start_initialization ()
+     return false;
+ #endif
+ #else
++  PyImport_AppendInittab ("_gdb", init__gdb_module);
+   Py_Initialize ();
+ #endif
+ 

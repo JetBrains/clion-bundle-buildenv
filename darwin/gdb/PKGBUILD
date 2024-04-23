@@ -1,0 +1,84 @@
+pkgname=gdb
+pkgver=14.2
+pkgrel=1
+pkgdesc="GNU Debugger (mingw-w64)"
+arch=(aarch64 x86_64 universal)
+url="https://www.gnu.org/software/gdb/"
+license=(GPL)
+depends=(expat gmp libiconv mpfr python)
+makedepends=(expat{,-dev} gmp{,-dev} libiconv{,-dev} mpfr{,-dev} python{,-dev})
+
+options=(!staticlibs strip)
+
+source=(
+  "https://ftp.gnu.org/gnu/gdb/gdb-$pkgver.tar.xz"
+  "configure.patch"
+  "disable-native.patch"
+  "python.patch"
+)
+
+sha256sums=(
+  "2d4dd8061d8ded12b6c63f55e45344881e8226105f4d2a9b234040efa5ce7772"
+  "85eb62d3bd0044ffae17101e1d00c77d2ba9eb5c0934c8cd1e4a2827ff1b6d84"
+  "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
+  "f44531ec20fcd4e8eff2ac1c30416505baa11f6fa177e6e9171384d184966a7c"
+)
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+  patch -p1 <../configure.patch
+  patch -p1 <../python.patch
+
+  if [ "$CARCH" == "aarch64" ]; then
+    patch -p1 <../disable-native.patch
+  fi
+}
+
+build() {
+  mkdir -p "$srcdir/build-$CHOST"
+  cd "$srcdir/build-$CHOST"
+
+  CFLAGS="$CFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
+  CXXFLAGS="$CXXFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
+  LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib -lpython3" \
+  ../$pkgname-$pkgver/configure \
+    --prefix="$PREFIX" \
+    --host="$CHOST" \
+    --build="$MACHTYPE" \
+    --disable-binutils \
+    --disable-debug \
+    --disable-dependency-tracking \
+    --disable-gas \
+    --disable-gdbserver \
+    --disable-gold \
+    --disable-gprof \
+    --disable-ld \
+    --disable-sim \
+    --disable-tui \
+    --disable-unit-tests \
+    --enable-targets=all \
+    --with-lib{`
+      `expat,`
+      `gmp,`
+      `iconv,`
+      `lzma,`
+      `mpfr,`
+      `python,`
+      `zlib`
+    `}-prefix="$MAKEDEPENDS_PREFIX" \
+    --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
+    --without-zstd
+
+  make -j4 V=1
+  install_for_package
+}
+
+package() {
+  mkdir -p "$pkgdir$PREFIX"
+
+  cp -r "$(temp_destdir)$PREFIX/bin" \
+    "$pkgdir$PREFIX/bin"
+
+  cp -r "$(temp_destdir)$PREFIX/share" \
+    "$pkgdir$PREFIX/share"
+}

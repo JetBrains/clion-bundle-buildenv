@@ -1,0 +1,38 @@
+pkgbase=python
+pkgname=($pkgbase{,-dev})
+pkgver=3.12.2
+pkgrel=1
+pkgdesc='Interpreted, interactive, object-oriented programming language'
+arch=(aarch64 x86_64)
+url='https://www.python.org'
+license=(PSF)
+options=(!staticlibs strip)
+depends=(xz)
+makedepends=(xz{,-dev})
+source=("https://www.python.org/ftp/python/$pkgver/Python-$pkgver.tar.xz")
+sha256sums=(be28112dac813d2053545c14bf13a16401a21877f1a69eb6ea5d84c4a0f3d870)
+
+_source_src_subdir="${pkgbase^}-$pkgver"
+
+remove_arch() { sed -E 's/-arch[[:space:]]+[^[:space:]]+//g'; }
+
+build() {
+  mkdir -p "$srcdir/build-$CHOST"
+  cd "$srcdir/build-$CHOST"
+
+  CFLAGS=$(echo $CFLAGS | remove_arch) \
+  CXXFLAGS=$(echo $CXXFLAGS | remove_arch) \
+  LDFLAGS=$(echo $LDFLAGS | remove_arch) \
+  "../$_source_src_subdir/configure" \
+    --prefix="$PREFIX" \
+    --enable-shared \
+    --disable-optimizations \
+    --enable-universalsdk \
+    --with-computed-gotos \
+    --with-universal-archs=universal2 \
+    --with-ensurepip
+
+  install_for_package
+}
+
+package_application_with_dev

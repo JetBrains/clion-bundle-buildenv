@@ -1,0 +1,36 @@
+pkgname=(libiconv{,-dev})
+pkgver=1.17
+pkgrel=1
+pkgdesc='Provides libiconv.so and libcharset.so'
+arch=(aarch64 x86_64)
+url='http://www.gnu.org/software/libiconv'
+license=('LGPL')
+options=(!staticlibs)
+
+source=(
+  "http://ftp.gnu.org/pub/gnu/$pkgname/$pkgname-$pkgver.tar.gz"
+  'https://raw.githubusercontent.com/Homebrew/patches/9be2793af/libiconv/patch-utf8mac.diff'
+)
+
+sha256sums=(
+  '8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313'
+  'e8128732f22f63b5c656659786d2cf76f1450008f36bcf541285268c66cabeab'
+)
+
+build() {
+  mkdir -p "$srcdir/build-$CHOST"
+  cd "$srcdir/build-$CHOST"
+
+  ../$pkgname-$pkgver/configure \
+    --prefix="$PREFIX" \
+    --host=$CHOST \
+    --build=$MACHTYPE \
+    --enable-extra-encodings \
+    --enable-shared \
+    --disable-debug \
+    --disable-static
+
+  install_for_package
+}
+
+package_dylib_with_dev

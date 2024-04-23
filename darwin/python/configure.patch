@@ -1,0 +1,115 @@
+diff --git a/Mac/Makefile.in b/Mac/Makefile.in
+index f969128841..86fcf4088f 100644
+--- a/Mac/Makefile.in
++++ b/Mac/Makefile.in
+@@ -44,7 +44,7 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
+ INSTALL_SCRIPT= @INSTALL_SCRIPT@
+ INSTALL_DATA=@INSTALL_DATA@
+ LN=@LN@
+-STRIPFLAG=-s
++STRIPFLAG=-s --strip-program="${STRIP}"
+ CPMAC=CpMac
+ 
+ APPTEMPLATE=$(srcdir)/Resources/app
+@@ -226,10 +226,10 @@ install_Python:
+ 			esac; \
+ 		done; \
+ 	done
++
+ 	$(INSTALL_PROGRAM) $(STRIPFLAG) $(BUILDPYTHON) "$(DESTDIR)$(APPINSTALLDIR)/Contents/MacOS/$(PYTHONFRAMEWORK)"
+ 	sed -e "s!%bundleid%!$(PYTHONFRAMEWORKIDENTIFIER)!g" \
+-		-e "s!%version%!`$(RUNSHARED) $(BUILDPYTHON) \
+-		-c 'import platform; print(platform.python_version())'`!g" \
++		-e "s!%version%!$(PLATFORM_PYTHON_VERSION)!g" \
+ 		< "$(DESTDIR)$(APPINSTALLDIR)/Contents/Info.plist.in" \
+ 		> "$(DESTDIR)$(APPINSTALLDIR)/Contents/Info.plist"
+ 	rm "$(DESTDIR)$(APPINSTALLDIR)/Contents/Info.plist.in"
+@@ -241,7 +241,7 @@ install_IDLE:
+ 	/bin/cp -PR "$(srcdir)/IDLE/IDLE.app" "$(DESTDIR)$(PYTHONAPPSDIR)"
+ 	ln -sf "$(INSTALLED_PYTHONAPP)" "$(DESTDIR)$(PYTHONAPPSDIR)/IDLE.app/Contents/MacOS/Python"
+ 	sed -e "s!%prefix%!$(prefix)!g" -e 's!%exe%!$(PYTHONFRAMEWORK)!g' < "$(srcdir)/IDLE/IDLE.app/Contents/MacOS/IDLE" > "$(DESTDIR)$(PYTHONAPPSDIR)/IDLE.app/Contents/MacOS/IDLE"
+-	sed "s!%version%!`$(RUNSHARED) $(BUILDPYTHON) -c 'import platform; print(platform.python_version())'`!g" < "$(srcdir)/IDLE/IDLE.app/Contents/Info.plist" > "$(DESTDIR)$(PYTHONAPPSDIR)/IDLE.app/Contents/Info.plist"
++	sed "s!%version%!$(PLATFORM_PYTHON_VERSION)!g" < "$(srcdir)/IDLE/IDLE.app/Contents/Info.plist" > "$(DESTDIR)$(PYTHONAPPSDIR)/IDLE.app/Contents/Info.plist"
+ 	if [ -f "$(DESTDIR)$(LIBDEST)/idlelib/config-main.def" ]; then \
+ 		/bin/cp -p "$(DESTDIR)$(LIBDEST)/idlelib/config-main.def" \
+ 			"$(DESTDIR)$(LIBDEST)/idlelib/config-main.def~" ; \
+@@ -265,7 +265,7 @@ $(INSTALLED_PYTHONAPP): install_Python
+ 
+ installextras: $(srcdir)/Extras.install.py
+ 	$(INSTALL) -d "$(DESTDIR)$(prefix)/share/doc/python$(VERSION)/examples"
+-	$(RUNSHARED) $(BUILDPYTHON) $(srcdir)/Extras.install.py $(srcdir)/../Tools \
++	python3 $(srcdir)/Extras.install.py $(srcdir)/../Tools \
+ 		"$(DESTDIR)$(prefix)/share/doc/python$(VERSION)/examples/Tools" ; \
+ 		chmod -R ugo+rX,go-w "$(DESTDIR)$(prefix)/share/doc/python$(VERSION)/examples/Tools"
+ 
+diff --git a/Mac/PythonLauncher/Makefile.in b/Mac/PythonLauncher/Makefile.in
+index 4c05f26e83..4b47edcb00 100644
+--- a/Mac/PythonLauncher/Makefile.in
++++ b/Mac/PythonLauncher/Makefile.in
+@@ -73,4 +73,4 @@ Python\ Launcher: $(OBJECTS)
+ 	$(CC) $(LDFLAGS) -o "Python Launcher" $(OBJECTS) -framework AppKit -framework Carbon
+ 
+ Info.plist: $(srcdir)/Info.plist.in
+-	sed 's/%VERSION%/'"`$(RUNSHARED) $(BUILDPYTHON) -c 'import platform; print(platform.python_version())'`"'/g' < $(srcdir)/Info.plist.in > Info.plist
++	sed 's/%VERSION%/$(PLATFORM_PYTHON_VERSION)/g' < $(srcdir)/Info.plist.in > Info.plist
+diff --git a/configure b/configure
+index a7d2975f1f..86a8c0f23b 100755
+--- a/configure
++++ b/configure
+@@ -3397,6 +3395,9 @@ if test "$cross_compiling" = yes; then
+ 	*-*-vxworks*)
+ 		_host_cpu=$host_cpu
+ 		;;
++  *-*-darwin*)
++    _host_cpu=
++    ;;
+ 	*)
+ 		# for now, limit cross builds to known configurations
+ 		MACHDEP="unknown"
+@@ -6251,7 +6252,8 @@ fi
+ if test "$cross_compiling" = yes; then
+     case "$READELF" in
+ 	readelf|:)
+-	as_fn_error $? "readelf for the host is required for cross builds" "$LINENO" 5
++	# as_fn_error $? "readelf for the host is required for cross builds" "$LINENO" 5
++    READELF=
+ 	;;
+     esac
+ fi
+@@ -9517,7 +9519,19 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+   conftest.$ac_objext conftest.beam conftest.$ac_ext
+ fi
+ 
++  case $CARCH in
++    aarch64)
++      MACOSX_DEFAULT_ARCH="arm64"
++      ;;
++    x86_64)
++      MACOSX_DEFAULT_ARCH="x86_64"
++      ;;
++    *)
++      as_fn_error $? "Unexpected \$CRACH: $CARCH"
++      ;;
++  esac
+ 
++: <<'END'
+     if test "${ac_osx_32bit}" = "yes"; then
+     	case `/usr/bin/arch` in
+     	i386)
+@@ -9547,6 +9561,7 @@ fi
+     	esac
+ 
+     fi
++END
+ 
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT" -lSystem -lSystemStubs -arch_only ${MACOSX_DEFAULT_ARCH}"
+     LIBTOOL_CRUFT=$LIBTOOL_CRUFT' -install_name $(PYTHONFRAMEWORKINSTALLDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK)'
+@@ -13752,7 +13767,7 @@ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_buggy_getaddrinfo" >&5
+ $as_echo "$ac_cv_buggy_getaddrinfo" >&6; }
+ 
+-if test $have_getaddrinfo = no || test "$ac_cv_buggy_getaddrinfo" = yes
++if test $have_getaddrinfo = no || (test "$ac_cv_buggy_getaddrinfo" = yes && test "$cross_compiling" = no)
+ then
+ 	if test $ipv6 = yes
+ 	then

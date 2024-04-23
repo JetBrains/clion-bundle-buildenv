@@ -1,0 +1,26 @@
+pkgname=(expat{,-dev})
+pkgver=2.6.2
+pkgrel=1
+pkgdesc='An XML parser library'
+arch=(aarch64 x86_64)
+url='https://libexpat.github.io'
+license=(MIT)
+options=(strip)
+source=("https://github.com/libexpat/libexpat/releases/download/R_${pkgver//./_}/expat-$pkgver.tar.xz")
+sha256sums=('ee14b4c5d8908b1bec37ad937607eab183d4d9806a08adee472c3c3121d27364')
+
+build() {
+  mkdir -p "$srcdir/build-$CHOST"
+  cd "$srcdir/build-$CHOST"
+
+  "../$pkgname-$pkgver/configure" \
+    --prefix="$PREFIX" \
+    --host="$CHOST" \
+    --build="$MACHTYPE" \
+    --enable-shared \
+    --disable-static
+
+  install_for_package
+}
+
+package_dylib_with_dev
