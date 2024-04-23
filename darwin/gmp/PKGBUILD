@@ -1,0 +1,26 @@
+pkgname=(gmp{,-dev})
+pkgver=6.3.0
+pkgrel=1
+pkgdesc='GNU multiple precision arithmetic library'
+arch=(aarch64 x86_64)
+url='https://gmplib.org'
+license=('LGPL-3.0-or-later' 'GPL-2.0-or-later')
+options=(strip)
+source=("https://gmplib.org/download/gmp/gmp-$pkgver.tar.xz")
+sha256sums=(a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898)
+
+build() {
+  mkdir -p "$srcdir/build-$CHOST"
+  cd "$srcdir/build-$CHOST"
+
+  "../$pkgname-$pkgver/configure" \
+    --prefix="$PREFIX" \
+    --host=$CHOST \
+    --build=$MACHTYPE \
+    --disable-static \
+    --with-pic
+
+  install_for_package
+}
+
+package_dylib_with_dev
