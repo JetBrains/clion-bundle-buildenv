@@ -26,4 +26,4 @@ build() {
   install_for_package
 }
 
-package_application_with_dev
+package_dylib_with_dev
