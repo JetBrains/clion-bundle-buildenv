@@ -15,6 +15,7 @@ source=(
   "configure.patch"
   "disable-native.patch"
   "python.patch"
+  "perf.patch"
 )
 
 sha256sums=(
@@ -22,12 +23,14 @@ sha256sums=(
   "85eb62d3bd0044ffae17101e1d00c77d2ba9eb5c0934c8cd1e4a2827ff1b6d84"
   "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
   "f44531ec20fcd4e8eff2ac1c30416505baa11f6fa177e6e9171384d184966a7c"
+  "8ef25d10aa5fd22158aea4327bfbf4767edc5212465bef694583e7241a90b080"
 )
 
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
   patch -p1 <../configure.patch
   patch -p1 <../python.patch
+  patch -p1 <../perf.patch
 
   if [ "$CARCH" == "aarch64" ]; then
     patch -p1 <../disable-native.patch
