@@ -17,6 +17,7 @@ source=(
   "python.patch"
   "perf.patch"
   "fix-31727.patch"
+  "CPP-30085.patch"
 )
 
 sha256sums=(
@@ -26,6 +27,7 @@ sha256sums=(
   "f44531ec20fcd4e8eff2ac1c30416505baa11f6fa177e6e9171384d184966a7c"
   "8ef25d10aa5fd22158aea4327bfbf4767edc5212465bef694583e7241a90b080"
   "3ee610cb3e37e6b01d3bb454a4abd006e52fefa85d085aa4240a6d83dbfd8707"
+  "bec359253ec4b5eae2ae0a8280566bc1da4b50d56a77090472fd4eea74a5e75f"
 )
 
 prepare() {

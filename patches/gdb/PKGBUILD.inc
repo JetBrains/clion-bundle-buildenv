@@ -17,7 +17,9 @@ source+=('gdb-fix-using-gnu-print.patch'
 
          'perf.patch'
 
-         'fix-31727.patch')
+         'fix-31727.patch'
+
+         'CPP-30085.patch')
 
 md5sums+=('b43570a387098fe57681fdb6032ab37c'
           '0094c8e11f4df1a0e78ea7926628223c'
@@ -25,4 +27,5 @@ md5sums+=('b43570a387098fe57681fdb6032ab37c'
           '241f843c093567e3f04b690a2023c68a'
           '7acec8129b8cc4c0bb8d34cbab27e18d'
           '8e75ee649e945cf2c839ac457efd08e2'
-          '7e1154eeb40730c16fcfe256ba43748d')
+          '7e1154eeb40730c16fcfe256ba43748d'
+          '74a6fff5be0d1630f813f25bd7ab6e77')
