@@ -15,17 +15,12 @@ source+=('gdb-fix-using-gnu-print.patch'
 
          '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch'
 
-         'perf.patch'
 
-         'fix-31727.patch'
-
-         'CPP-30085.patch')
+         'fix-31727.patch')
 
 md5sums+=('b43570a387098fe57681fdb6032ab37c'
           '0094c8e11f4df1a0e78ea7926628223c'
-          '05cf28cc032408f88a99b407d6dc3098'
+          '886ec40b7e5146d560b9be762208a8b7'
           '241f843c093567e3f04b690a2023c68a'
           '7acec8129b8cc4c0bb8d34cbab27e18d'
-          '8e75ee649e945cf2c839ac457efd08e2'
-          '7e1154eeb40730c16fcfe256ba43748d'
-          '74a6fff5be0d1630f813f25bd7ab6e77')
+          '7e1154eeb40730c16fcfe256ba43748d')

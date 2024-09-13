@@ -1,7 +1,7 @@
 # Centos-based image with makepkg, ccache and mingw-w64 toolchain
 # for building PKGBUILD packages.
 
-FROM fedora:35
+FROM fedora:40
 
 RUN groupadd -r --gid 1001 build \
  && useradd --no-log-init --create-home -g build -r --uid 1001 build \
@@ -32,10 +32,9 @@ RUN yum -y update \
 
 RUN yum -y update \
  && yum -y install \
-      mingw32-gcc \
-      mingw32-gcc-c++ \
       mingw64-gcc \
       mingw64-gcc-c++ \
+      mingw64-libstdc++ \
  && yum clean all
 
 RUN yum -y update \

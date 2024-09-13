@@ -41,6 +41,10 @@ RUN apt-get -y update \
       xz-utils \
  && apt-get clean
 
+# /usr/bin/curl: /usr/local/lib/libcurl.so.4: no version information available (required by /usr/bin/curl)
+# /usr/bin/curl: symbol lookup error: /usr/bin/curl: undefined symbol: curl_easy_header, version CURL_OPENSSL_4
+RUN rm /usr/local/lib/libcurl.so.4
+
 # makepkg has /usr/lib/ccache/bin directory hardcoded
 RUN apt-get -y update \
  && apt-get -y install \
