@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=15.1
+pkgver=15.2
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 i686 x86_64)
@@ -22,7 +22,7 @@ makedepends=("gmp" "mpfr" "libiconv")
 
 options=('!staticlibs' 'strip')
 source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('494e3beaac44e66367c3e443a4414529')
+md5sums=('85c722e2f2baea2b7820a6a7eaea2ce8')
 source "PKGBUILD.inc"
 
 if [ $CARCH == aarch64 ]; then

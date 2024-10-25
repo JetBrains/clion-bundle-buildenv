@@ -1,5 +1,5 @@
 pkgname=gdb
-pkgver=15.1
+pkgver=15.2
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 x86_64 universal)
@@ -15,15 +15,13 @@ source=(
   "configure.patch"
   "disable-native.patch"
   "python.patch"
-  "fix-31727.patch"
 )
 
 sha256sums=(
-  "38254eacd4572134bca9c5a5aa4d4ca564cbbd30c369d881f733fb6b903354f2"
+  "83350ccd35b5b5a0cba6b334c41294ea968158c573940904f00b92f76345314d"
   "85eb62d3bd0044ffae17101e1d00c77d2ba9eb5c0934c8cd1e4a2827ff1b6d84"
   "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
   "f44531ec20fcd4e8eff2ac1c30416505baa11f6fa177e6e9171384d184966a7c"
-  "3ee610cb3e37e6b01d3bb454a4abd006e52fefa85d085aa4240a6d83dbfd8707"
 )
 
 prepare() {
