@@ -16,6 +16,7 @@ source=(
   "disable-native.patch"
   "python.patch"
   "fix-31727.patch"
+  "cpp-41749.patch"
 )
 
 sha256sums=(
@@ -24,6 +25,7 @@ sha256sums=(
   "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
   "f44531ec20fcd4e8eff2ac1c30416505baa11f6fa177e6e9171384d184966a7c"
   "3ee610cb3e37e6b01d3bb454a4abd006e52fefa85d085aa4240a6d83dbfd8707"
+  "e5c9787f0013ebca68ad19046b0dbc0e5ffc0d03034996287965c2cc5b7f64cc"
 )
 
 prepare() {
