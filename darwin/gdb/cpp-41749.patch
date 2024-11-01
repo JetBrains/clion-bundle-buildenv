@@ -1,0 +1,14 @@
+diff --git a/gdbsupport/filestuff.cc b/gdbsupport/filestuff.cc
+index 5c427e11b02..fcc93ab7514 100644
+--- a/gdbsupport/filestuff.cc
++++ b/gdbsupport/filestuff.cc
+@@ -151,7 +151,8 @@ fdwalk (int (*func) (void *, int), void *arg)
+ #endif /* _SC_OPEN_MAX */
+       }
+ 
+-    for (fd = 0; fd < max; ++fd)
++    int fd_limit = std::min (10240, max);
++    for (fd = 0; fd < fd_limit; ++fd)
+       {
+ 	struct stat sb;
+ 	int result;
