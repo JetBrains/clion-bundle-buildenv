@@ -23,4 +23,4 @@ md5sums+=('b43570a387098fe57681fdb6032ab37c'
           '886ec40b7e5146d560b9be762208a8b7'
           '241f843c093567e3f04b690a2023c68a'
           '7acec8129b8cc4c0bb8d34cbab27e18d'
-          '8447f820ca00a5d90a2827878e137817')
+          '6bd96b5cc6e8cd091973b0dbb82af7f2')
