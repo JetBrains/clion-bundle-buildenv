@@ -1,0 +1,38 @@
+Subject: [PATCH] Set handle inheritance based on environment variable
+
+Added logic to determine whether handles should be inherited by checking the environment variable "JB_GDB_LAUNCH_INFERIORS_WITH_HANDLES_INHERITING". This allows dynamic control of handle inheritance behavior based on the environment variable's value.
+---
+Index: gdb/nat/windows-nat.c
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gdb/nat/windows-nat.c b/gdb/nat/windows-nat.c
+--- a/gdb/nat/windows-nat.c	(revision f5e259f32f011dc563b3da9e279acaee3aafba8e)
++++ b/gdb/nat/windows-nat.c	(date 1732059777188)
+@@ -849,11 +849,24 @@
+ 	}
+     }
+ 
++  BOOL should_inherit_handles = FALSE;
++
++  const char *handles_inheriting_envvar =
++      getenv("JB_GDB_LAUNCH_INFERIORS_WITH_HANDLES_INHERITING");
++
++  if (handles_inheriting_envvar)
++  {
++      should_inherit_handles = strcmp(handles_inheriting_envvar, "1") == 0
++        || strcmp(handles_inheriting_envvar, "true") == 0
++        || strcmp(handles_inheriting_envvar, "yes") == 0;
++  }
++  
++
+   return do_create_process (image,
+ 			    command_line, /* command line */
+ 			    nullptr,	  /* Security */
+ 			    nullptr,	  /* thread */
+-			    TRUE,	  /* inherit handles */
++			    should_inherit_handles,	  /* inherit handles */
+ 			    flags,	  /* start flags */
+ 			    environment,  /* environment */
+ 			    cur_dir,	  /* current directory */

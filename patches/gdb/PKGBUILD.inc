@@ -13,10 +13,14 @@ source+=('gdb-fix-using-gnu-print.patch'
          # Bugzilla #13669: https://sourceware.org/bugzilla/attachment.cgi?id=8993&action=diff
          'CPP-10461-gdb-limit-cp_print_value_fields-recursion.patch'
 
-         '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch')
+         '0005-W32-Always-check-USERPROFILE-if-HOME-is-not-set.patch'
+
+         'RIDER-70201-win-change-handle-inheritance.patch')
+
 
 md5sums+=('b43570a387098fe57681fdb6032ab37c'
           '0094c8e11f4df1a0e78ea7926628223c'
           '886ec40b7e5146d560b9be762208a8b7'
           '241f843c093567e3f04b690a2023c68a'
-          '7acec8129b8cc4c0bb8d34cbab27e18d')
+          '7acec8129b8cc4c0bb8d34cbab27e18d'
+          '8447f820ca00a5d90a2827878e137817')
