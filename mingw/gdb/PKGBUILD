@@ -21,8 +21,14 @@ depends=("mingw-w64-runtime"
 makedepends=("gmp" "mpfr" "libiconv")
 
 options=('!staticlibs' 'strip')
-source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('85c722e2f2baea2b7820a6a7eaea2ce8')
+source=(
+  "https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz"
+  'RIDER-70201-win-change-handle-inheritance.patch'
+)
+md5sums=(
+  '85c722e2f2baea2b7820a6a7eaea2ce8'
+  '6bd96b5cc6e8cd091973b0dbb82af7f2'
+)
 source "PKGBUILD.inc"
 
 if [ $CARCH == aarch64 ]; then
