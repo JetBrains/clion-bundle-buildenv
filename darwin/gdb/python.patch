@@ -1,8 +1,8 @@
 diff --git a/gdb/configure b/gdb/configure
-index bdc84be..182a172 100755
+index 1531f62f76a..44cce598121 100755
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -22600,7 +22600,7 @@ fi
+@@ -28178,7 +28178,7 @@ fi
    # Otherwise fallback on the old way of trying different versions of
    # python in turn.
  
@@ -12,14 +12,14 @@ index bdc84be..182a172 100755
  
  
 diff --git a/gdb/python/python.c b/gdb/python/python.c
-index 9d55811..3c42e94 100644
+index acd80e5515c..2d97c38abbd 100644
 --- a/gdb/python/python.c
 +++ b/gdb/python/python.c
-@@ -2075,6 +2075,7 @@ do_start_initialization ()
-     return false;
- #endif
- #else
-+  PyImport_AppendInittab ("_gdb", init__gdb_module);
-   Py_Initialize ();
- #endif
+@@ -2345,6 +2345,7 @@ py_initialize_catch_abort ()
  
+   TRY_SJLJ
+     {
++      PyImport_AppendInittab ("_gdb", init__gdb_module);
+       Py_Initialize ();
+       py_isinitialized = true;
+     }

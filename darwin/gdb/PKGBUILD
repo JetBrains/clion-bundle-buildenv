@@ -1,5 +1,5 @@
 pkgname=gdb
-pkgver=15.2
+pkgver=16.1
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 x86_64 universal)
@@ -19,10 +19,10 @@ source=(
 )
 
 sha256sums=(
-  "83350ccd35b5b5a0cba6b334c41294ea968158c573940904f00b92f76345314d"
+  "c2cc5ccca029b7a7c3879ce8a96528fdfd056b4d884f2b0511e8f7bc723355c6"
   "85eb62d3bd0044ffae17101e1d00c77d2ba9eb5c0934c8cd1e4a2827ff1b6d84"
   "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
-  "f44531ec20fcd4e8eff2ac1c30416505baa11f6fa177e6e9171384d184966a7c"
+  "818a17f3c1a43ca8db94c4f3515e758bbe34b023d5e0bc131b5ba6a4081d86b5"
   "e5c9787f0013ebca68ad19046b0dbc0e5ffc0d03034996287965c2cc5b7f64cc"
 )
 
@@ -30,10 +30,7 @@ prepare() {
   cd "$srcdir/$pkgname-$pkgver"
   patch -p1 <../configure.patch
   patch -p1 <../python.patch
-
-  if [ "$CARCH" == "aarch64" ]; then
-    patch -p1 <../disable-native.patch
-  fi
+  patch -p1 <../disable-native.patch
 }
 
 build() {
