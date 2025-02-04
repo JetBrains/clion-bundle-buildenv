@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=16.1
+pkgver=16.2
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 i686 x86_64)
@@ -26,7 +26,7 @@ source=(
   'RIDER-70201-win-change-handle-inheritance.patch'
 )
 md5sums=(
-  '87c47779841e183907ec65db9428aa95'
+  '05e4a7e3b177432771aa7277af9bccee'
   '6bd96b5cc6e8cd091973b0dbb82af7f2'
 )
 source "PKGBUILD.inc"

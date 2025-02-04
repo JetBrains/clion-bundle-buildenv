@@ -1,5 +1,5 @@
 pkgname=gdb
-pkgver=16.1
+pkgver=16.2
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 x86_64 universal)
@@ -19,7 +19,7 @@ source=(
 )
 
 sha256sums=(
-  "c2cc5ccca029b7a7c3879ce8a96528fdfd056b4d884f2b0511e8f7bc723355c6"
+  "4002cb7f23f45c37c790536a13a720942ce4be0402d929c9085e92f10d480119"
   "85eb62d3bd0044ffae17101e1d00c77d2ba9eb5c0934c8cd1e4a2827ff1b6d84"
   "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
   "818a17f3c1a43ca8db94c4f3515e758bbe34b023d5e0bc131b5ba6a4081d86b5"
