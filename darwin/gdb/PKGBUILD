@@ -30,7 +30,10 @@ prepare() {
   cd "$srcdir/$pkgname-$pkgver"
   patch -p1 <../configure.patch
   patch -p1 <../python.patch
-  patch -p1 <../disable-native.patch
+
+  if [ "$CARCH" == "aarch64" ]; then
+    patch -p1 <../disable-native.patch
+  fi
 }
 
 build() {
