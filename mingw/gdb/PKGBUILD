@@ -6,7 +6,7 @@
 # Contributor: Ray Donnelly <mingw.android@gmail.com>
 
 pkgname=gdb
-pkgver=15.2
+pkgver=16.2
 pkgrel=1
 pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 i686 x86_64)
@@ -26,14 +26,20 @@ source=(
   'RIDER-70201-win-change-handle-inheritance.patch'
 )
 md5sums=(
-  '85c722e2f2baea2b7820a6a7eaea2ce8'
+  '05e4a7e3b177432771aa7277af9bccee'
   '6bd96b5cc6e8cd091973b0dbb82af7f2'
 )
 source "PKGBUILD.inc"
 
-if [ $CARCH == aarch64 ]; then
-  source+=('aarch64.patch')
-  md5sums+=('bfdfc9bc58123879a07fd923f2a709e4')
+if [ "$CARCH" == aarch64 ]; then
+  source+=(
+    'aarch64.patch'
+    'clang14.patch'
+  )
+  md5sums+=(
+    'bfdfc9bc58123879a07fd923f2a709e4'
+    'ffbd60e253aeae8e5d1f207b9958f084'
+  )
 fi
 
 prepare() {

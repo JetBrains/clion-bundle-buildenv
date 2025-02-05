@@ -1,0 +1,24 @@
+diff --git a/gdb/arch/amd64-linux-tdesc.c b/gdb/arch/amd64-linux-tdesc.c
+index e9c4a99806d..adf3ca71131 100644
+--- a/gdb/arch/amd64-linux-tdesc.c
++++ b/gdb/arch/amd64-linux-tdesc.c
+@@ -21,6 +21,7 @@
+ #include "arch/amd64-linux-tdesc.h"
+ #include "arch/amd64.h"
+ #include "arch/x86-linux-tdesc-features.h"
++#include <unordered_map>
+ 
+ 
+ /* See arch/amd64-linux-tdesc.h.  */
+diff --git a/gdb/arch/i386-linux-tdesc.c b/gdb/arch/i386-linux-tdesc.c
+index 9f12e59d214..2225a77e727 100644
+--- a/gdb/arch/i386-linux-tdesc.c
++++ b/gdb/arch/i386-linux-tdesc.c
+@@ -21,6 +21,7 @@
+ #include "arch/i386-linux-tdesc.h"
+ #include "arch/i386.h"
+ #include "arch/x86-linux-tdesc-features.h"
++#include <unordered_map>
+ 
+ /* See arch/i386-linux-tdesc.h.  */
+ 
