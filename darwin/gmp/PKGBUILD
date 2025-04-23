@@ -6,7 +6,7 @@ arch=(aarch64 x86_64)
 url='https://gmplib.org'
 license=('LGPL-3.0-or-later' 'GPL-2.0-or-later')
 options=(strip)
-source=("https://gmplib.org/download/gmp/gmp-$pkgver.tar.xz")
+source=("https://ftp.gnu.org/gnu/gmp/gmp-$pkgver.tar.xz")
 sha256sums=(a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898)
 
 build() {
