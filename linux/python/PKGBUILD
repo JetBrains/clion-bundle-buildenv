@@ -9,7 +9,7 @@
 # Contributor: Jason Chu <jason@archlinux.org>
 
 pkgname=python
-pkgver=3.8.5
+pkgver=3.12.9
 pkgrel=1
 _pybasever=${pkgver%.*}
 pkgdesc="Next generation of the python high-level scripting language"
@@ -33,7 +33,7 @@ source=("https://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz
         '0003-make-install-Don-t-compile-__pycache__.patch'
         '0004-python-packages-hints.patch'
         '0005-python-config-libpython.patch')
-md5sums=('35b5a3d0254c1c59be9736373d429db7'
+md5sums=('880942124f7d5c01e7b65cbad62dc873'
          '5c364c89632fd5080f6ec067d1df886e'
          'ae5fc24e9afa693f967a6f4687f662e8'
          '14b0bd9e47a0976374927f08c65b93b4'

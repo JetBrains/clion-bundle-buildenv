@@ -2,7 +2,7 @@
 
 _realname=python3
 pkgname=${_realname}-embed
-pkgver=3.11.0
+pkgver=3.12.9
 pkgrel=1
 _pybasever=${pkgver%.*}
 pkgdesc="A high-level scripting language (prebuilt; win32)"
@@ -12,18 +12,18 @@ url="https://www.python.org/"
 options=('!staticlibs' '!strip')
 
 if [ "${CARCH}" == aarch64 ]; then
-  _archsuffix=arm64; _embed_zip_md5='e3dbbd5d63c6cb203adc6c0c8ca5f5f7'
+  _archsuffix=arm64; _embed_zip_md5='b5c1583bb0dc258799570a57a31a269d'
 elif [ "${CARCH}" == x86_64 ]; then
-  _archsuffix=amd64; _embed_zip_md5='7df0f4244e5a66760b7caaed58e86c93'
+  _archsuffix=amd64; _embed_zip_md5='f34996cc1f44c98729ef6ce92d05e41c'
 else
-  _archsuffix=win32; _embed_zip_md5='0888959642cc8af087d88da3866490a5'
+  _archsuffix=win32; _embed_zip_md5='a8015f8d166ea9a1fa9a3cf3b26c958d'
 fi
 
 source=(https://www.python.org/ftp/python/${pkgver}/Python-${pkgver}.tar.xz
         https://www.python.org/ftp/python/${pkgver}/python-${pkgver}-embed-${_archsuffix}.zip
         'python-config.sh.in')
 noextract=(python-${pkgver}-embed-${_archsuffix}.zip)
-md5sums=('fe92acfa0db9b9f5044958edb451d463'
+md5sums=('880942124f7d5c01e7b65cbad62dc873'
          "${_embed_zip_md5}"
          'a83b453497b1c994271cdcdd91641ef3')
 

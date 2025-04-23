@@ -1,6 +1,6 @@
 pkgbase=python
 pkgname=($pkgbase{,-dev})
-pkgver=3.12.2
+pkgver=3.12.9
 pkgrel=1
 pkgdesc='Interpreted, interactive, object-oriented programming language'
 arch=(aarch64 x86_64)
@@ -10,7 +10,7 @@ options=(!staticlibs strip)
 depends=(xz)
 makedepends=(xz{,-dev})
 source=("https://www.python.org/ftp/python/$pkgver/Python-$pkgver.tar.xz")
-sha256sums=(be28112dac813d2053545c14bf13a16401a21877f1a69eb6ea5d84c4a0f3d870)
+sha256sums=(7220835d9f90b37c006e9842a8dff4580aaca4318674f947302b8d28f3f81112)
 
 _source_src_subdir="${pkgbase^}-$pkgver"
 
