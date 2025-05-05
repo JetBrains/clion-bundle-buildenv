@@ -1,29 +1,21 @@
 pkgname=(zlib{,-dev})
 pkgver=1.3.1
 pkgrel=1
-pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (mingw-w64)"
+pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP"
 arch=(aarch64 x86_64)
 license=(ZLIB)
 url="http://www.zlib.net"
 options=(strip !staticlibs)
-source=("https://github.com/madler/zlib/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32')
-
-prepare() {
-  cd "$srcdir/$pkgname}-$pkgver"
-  sed -i "s#/usr/bin/libtool#$(which $CHOST-libtool)#g" ./configure
-}
+source=("https://github.com/madler/zlib/releases/download/v$pkgver/zlib-$pkgver.tar.gz")
+sha256sums=('9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23')
 
 build() {
   mkdir -p "$srcdir/build-$CHOST"
   cd "$srcdir/build-$CHOST"
 
-  "../$pkgname-$pkgver/configure" \
-    --prefix="$PREFIX" \
-    --host=$CHOST \
-    --build=$MACHTYPE
+  "../$pkgname-$pkgver/configure" --prefix="$PREFIX"
 
-  install_for_pacakge
+  install_for_package
 }
 
 package_dylib_with_dev

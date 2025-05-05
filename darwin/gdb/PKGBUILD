@@ -5,8 +5,8 @@ pkgdesc="GNU Debugger (mingw-w64)"
 arch=(aarch64 x86_64 universal)
 url="https://www.gnu.org/software/gdb/"
 license=(GPL)
-depends=(expat gmp libiconv mpfr python)
-makedepends=(expat{,-dev} gmp{,-dev} libiconv{,-dev} mpfr{,-dev} python{,-dev})
+depends=(expat gmp libiconv mpfr python zlib)
+makedepends=(expat{,-dev} gmp{,-dev} libiconv{,-dev} mpfr{,-dev} python{,-dev} zlib{,-dev})
 
 options=(!staticlibs strip)
 
@@ -58,6 +58,7 @@ build() {
     --disable-sim \
     --disable-tui \
     --disable-unit-tests \
+    --with-system-zlib \
     --enable-targets=all \
     --with-lib{`
       `expat,`
