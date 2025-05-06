@@ -42,6 +42,7 @@ build() {
 
   CFLAGS="$CFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
   CXXFLAGS="$CXXFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
+  DYLD_LIBRARY_PATH="$MAKEDEPENDS_PREFIX/lib" \
   LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib -lpython3" \
   ../$pkgname-$pkgver/configure \
     --prefix="$PREFIX" \
