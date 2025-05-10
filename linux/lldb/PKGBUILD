@@ -70,6 +70,7 @@ _cmake_escape_semicolon() {
 }
 
 build() {
+  set -x
   mkdir -p "${srcdir}"/build-${CHOST}
   cd "${srcdir}"/build-${CHOST}
 
@@ -88,12 +89,28 @@ build() {
     -DLLDB_ENABLE_LZMA=ON \
     -DLLVM_INCLUDE_EXAMPLES=OFF \
     -DLLVM_INCLUDE_BENCHMARKS=OFF \
-    -DLLVM_INCLUDE_TESTS=OFF \
     -DLLVM_APPEND_VC_REV=OFF \
     -DLLDB_VERSION_STRING="$(_llvm_pkgversion | _cmake_escape_semicolon)" \
+    $(
+      if [ -n "$CIDR_TEST_XML" ]; then
+        echo -DLLVM_INCLUDE_TESTS=ON -DCIDR_TEST_XML=$CIDR_TEST_XML
+      else
+        echo -DLLVM_INCLUDE_TESTS=OFF
+      fi
+    ) \
     "$srcdir/$_llvm_repository_name/llvm"
 
-  make
+  cmake --build . --verbose --target lldb lldb-argdumper lldb-dap lldb-server
+
+  if [ -n "$CIDR_TEST_XML" ]; then
+    # suppressing the exit code, as test results gonna be processed by teamcity, at least before the tests go stable
+    cmake --build . --verbose --parallel --target check-lldb-xml ||:
+
+    if [ ! -f "$CIDR_TEST_XML" ]; then
+      echo "error: $CIDR_TEST_XML was not generated, probably something is wrong with test execution" >&2
+      exit 1
+    fi
+  fi
 
   # # Disable automatic installation of components that go into subpackages
   # sed -i '/\(clang\|lld\|lldb\)\/cmake_install.cmake/d' tools/cmake_install.cmake
