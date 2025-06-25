@@ -40,11 +40,9 @@ build() {
   mkdir -p "$srcdir/build-$CHOST"
   cd "$srcdir/build-$CHOST"
 
-  python=$(cd "$MAKEDEPENDS_PREFIX/bin"; ls -1 python3* | head -1)
-
-  CFLAGS="$CFLAGS -I$MAKEDEPENDS_PREFIX/include/$python -I$MAKEDEPENDS_PREFIX/include" \
-  CXXFLAGS="$CXXFLAGS -I$MAKEDEPENDS_PREFIX/include/$python -I$MAKEDEPENDS_PREFIX/include" \
-  LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib -lpython3 -rpath $MAKEDEPENDS_PREFIX" \
+  CFLAGS="$CFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
+  CXXFLAGS="$CXXFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
+  LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib -lpython3" \
   ../$pkgname-$pkgver/configure \
     --prefix="$PREFIX" \
     --host="$CHOST" \
@@ -57,7 +55,6 @@ build() {
     --disable-gold \
     --disable-gprof \
     --disable-ld \
-    --disable-shared \
     --disable-sim \
     --disable-tui \
     --disable-unit-tests \
@@ -69,10 +66,10 @@ build() {
       `iconv,`
       `lzma,`
       `mpfr,`
+      `python,`
       `zlib`
     `}-prefix="$MAKEDEPENDS_PREFIX" \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
-    --with-python="$MAKEDEPENDS_PREFIX/bin/$python" \
     --without-zstd
 
   make -j4 V=1
