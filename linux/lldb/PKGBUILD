@@ -70,7 +70,6 @@ _cmake_escape_semicolon() {
 }
 
 build() {
-  set -x
   mkdir -p "${srcdir}"/build-${CHOST}
   cd "${srcdir}"/build-${CHOST}
 
@@ -126,7 +125,8 @@ check() {
 package() {
   cd "${srcdir}"/build-${CHOST}
 
-  make -C "${srcdir}"/build-${CHOST}/tools/lldb DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --build . --verbose --target \
+    install-{liblldb,lldb,lldb-dap,lldb-argdumper,lldb-server,lldb-python-scripts}
 
   # This resolves to something like ${PREFIX}/lib/python3.6/site-packages
   local python_site_packages=$(${PREFIX}/bin/python -c \
@@ -139,26 +139,6 @@ package() {
     -Wl,-rpath='$ORIGIN/../../..' \
     -Wl,--no-as-needed -L${pkgdir}${PREFIX}/lib -llldb \
     -o "${pkgdir}${python_site_packages}/lldb/_lldb.so"
-
-  # No one knows what the lldb-argdumper symlink in python site-packages is for anyway
-  # http://lists.llvm.org/pipermail/lldb-dev/2015-February/006625.html
-  rm "${pkgdir}${python_site_packages}/lldb/lldb-argdumper"
-
-  # LLDB 9
-  rm -f "${pkgdir}${PREFIX}/bin/lldb-instr"
-  rm -f "${pkgdir}${PREFIX}/bin/lldb-mi"
-  rm -f "${pkgdir}${PREFIX}/bin/lldb-vscode"
-
-  # # https://bugs.archlinux.org/task/50759
-  # sed -i "/import_module('_lldb')/s/_lldb/lldb.&/" \
-  #   "${pkgdir}${python_site_packages}/lldb/__init__.py"
-
-  # # Remove bundled six library
-  # rm "${pkgdir}${python_site_packages}/six.py"
-
-  # # Compile Python scripts
-  # python2 -m compileall "${pkgdir}${PREFIX}/lib/python2.7/site-packages/lldb"
-  # python2 -O -m compileall "${pkgdir}${PREFIX}/lib/python2.7/site-packages/lldb"
 
   install -Dm644 "$srcdir/$_llvm_repository_name/llvm/LICENSE.TXT" \
     "${pkgdir}${PREFIX}/share/licenses/llvm/LICENSE"
