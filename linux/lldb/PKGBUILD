@@ -97,6 +97,7 @@ build() {
         echo -DLLVM_INCLUDE_TESTS=OFF
       fi
     ) \
+    -DZLIB_ROOT="$PREFIX" \
     "$srcdir/$_llvm_repository_name/llvm"
 
   cmake --build . --verbose --target lldb lldb-argdumper lldb-dap lldb-server
