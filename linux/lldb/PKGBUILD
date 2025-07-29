@@ -76,7 +76,7 @@ build() {
 
   CFLAGS="${CPPFLAGS} ${CFLAGS}" \
   CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}" \
-  cmake \
+  cmake -GNinja \
     -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
