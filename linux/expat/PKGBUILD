@@ -7,15 +7,15 @@
 # Contributor: Judd Vinet <jvinet@zeroflux.org>
 
 pkgname=expat
-pkgver=2.2.3
+pkgver=2.7.1
 pkgrel=1
 pkgdesc='An XML parser library'
-arch=(aarch64 i686 x86_64)
+arch=(aarch64 x86_64)
 url='http://expat.sourceforge.net/'
 license=(custom)
 #depends=(glibc)
-source=(https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.bz2)
-md5sums=('f053af63ef5f39bd9b78d01fbc203334')
+source=(https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.gz)
+sha256sums=('0cce2e6e69b327fc607b8ff264f4b66bdf71ead55a87ffd5f3143f535f15cfa2')
 options=('!staticlibs')
 
 build() {
