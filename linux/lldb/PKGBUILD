@@ -73,13 +73,33 @@ build() {
   mkdir -p "${srcdir}"/build-${CHOST}
   cd "${srcdir}"/build-${CHOST}
 
+  # we don't need pip for the bundled python, but need some python packages for builds and tests
+  # so let's download needed packages via system python and add them to PYTHONPATH for bundled one
+  pip_packages_dir=$PWD/python_packages
+  bundle_python=$PREFIX/bin/python
+  bundle_python_version=$("$bundle_python" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+
+  # packaging: for lldb build
+  pip_packages=('packaging')
+  if [ -n "$CIDR_TEST_XML" ]; then
+    # psutil: for llvm test timeouts
+    # pexpect ptyprocess: for lldb tests
+    pip_packages+=('psutil' 'pexpect' 'ptyprocess') # psutil: for llvm test timeouts
+  fi
+
+  python3.13 -m pip download "${pip_packages[@]}" --python-version "$bundle_python_version" \
+    --only-binary=:all: --dest "$pip_packages_dir"
+  python3.13 -m pip install "$pip_packages_dir/"*.whl --target "$pip_packages_dir"
+
+  export PYTHONPATH="$pip_packages_dir:$PYTHONPATH"
+
   CFLAGS="${CPPFLAGS} ${CFLAGS}" \
   CXXFLAGS="${CPPFLAGS} ${CXXFLAGS}" \
   cmake -GNinja \
     -DCMAKE_VERBOSE_MAKEFILE=TRUE \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
-    -DPython3_EXECUTABLE=${PREFIX}/bin/python \
+    -DPython3_EXECUTABLE="$bundle_python" \
     -DLLVM_ENABLE_PROJECTS="clang;lldb" \
     -DLLVM_TARGETS_TO_BUILD="$(if [ "$CARCH" == "aarch64" ]; then echo AArch64; else echo X86; fi)" \
     -DLLDB_ENABLE_LIBEDIT=OFF \
