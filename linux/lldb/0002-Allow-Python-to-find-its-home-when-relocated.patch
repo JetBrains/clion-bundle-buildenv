@@ -7,11 +7,21 @@ Subject: [PATCH 2/4] Allow Python to find its home when relocated
 diff --git a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 --- a/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
 +++ b/source/Plugins/ScriptInterpreter/Python/ScriptInterpreterPython.cpp
-@@ -159,6 +159,22 @@ private:
+@@ -159,5 +159,31 @@ private:
      if (g_python_home != nullptr) {
        Py_SetPythonHome(g_python_home);
      }
 +#elif PY_MAJOR_VERSION >= 3
++    const char *jb_lldb_python_program_path = ::getenv("JB_LLDB_PYTHON_PROGRAM_PATH");
++    if (jb_lldb_python_program_path != nullptr) {
++      static wchar_t *g_jb_python_prog_path = Py_DecodeLocale(jb_lldb_python_program_path, nullptr);
++      if (g_jb_python_prog_path == nullptr) {
++        return;
++      }
++      Py_SetProgramName(g_jb_python_prog_path);
++      return;
++    }
++
 +    // Make the program relocatable, that is, compute Python location relative
 +    // to the running executable (LLDB or a frontend).
 +    const std::string executable = llvm::sys::fs::getMainExecutable("",
