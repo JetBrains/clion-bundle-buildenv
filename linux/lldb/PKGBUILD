@@ -31,16 +31,8 @@ license=('custom:University of Illinois/NCSA Open Source License')
 makedepends=('python' 'swig' 'libxml2' 'xz')
 depends=(zlib python libxml2 xz)
 options=(!staticlibs !debug)
-
-source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm_git_ref"
-        '0001-build-Disable-SOVERSION-for-liblldb.so.patch'
-        '0002-Allow-Python-to-find-its-home-when-relocated.patch'
-        '0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch')
-
-sha256sums=('SKIP'
-            'b00f39b06ad8041b7043ec277f3932aac7a9ddd3c5c095ca2954c02415954d6c'
-            '67b95fa9dbb225ff0df34afc9a3e529d7391ceebd9e2d12a8b195bf570a2f0cf'
-            '88e5e4b65bcf05d59de1a136236e71de44c72c46c260aa63558f6122772bd8e1')
+source=("$_llvm_repository_name::$_llvm_git_repository#$_llvm_git_reftype=$_llvm_git_ref")
+sha256sums=('SKIP')
 
 pkgver() {
   cd "$srcdir/$_llvm_repository_name"
@@ -52,13 +44,6 @@ pkgver() {
   else # tag
     echo "$_llvm_git_ref"
   fi | sed 's/[^a-z0-9]/./gI'
-}
-
-prepare() {
-  cd "$srcdir/$_llvm_repository_name/lldb"
-  patch -p1 -i "${srcdir}/0001-build-Disable-SOVERSION-for-liblldb.so.patch"
-  patch -p1 -i "${srcdir}/0002-Allow-Python-to-find-its-home-when-relocated.patch"
-  patch -p1 -i "${srcdir}/0003-python-Make-compatible-with-Python-3-w.r.t.-integer-.patch"
 }
 
 _llvm_pkgversion() {
