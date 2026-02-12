@@ -116,7 +116,7 @@ package() {
 
   # This resolves to something like ${PREFIX}/lib/python3.6/site-packages
   local python_site_packages=$(${PREFIX}/bin/python -c \
-    'from distutils import sysconfig; print(sysconfig.get_python_lib(True, False));')
+    'import sysconfig; print(sysconfig.get_path("platlib"));')
 
   # TeamCity doesn't handle symlinks in artifact dependencies;
   # replace symlink with empty shared object depending.
