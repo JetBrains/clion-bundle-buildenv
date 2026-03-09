@@ -11,7 +11,6 @@ makedepends=(expat{,-dev} gmp{,-dev} libiconv{,-dev} mpfr{,-dev} python{,-dev} z
 options=(!staticlibs strip)
 
 source=(
-  "https://ftp.gnu.org/gnu/gdb/gdb-$pkgver.tar.xz"
   "configure.patch"
   "disable-native.patch"
   "python.patch"
@@ -19,14 +18,22 @@ source=(
 )
 
 sha256sums=(
-  "bcfcd095528a987917acf9fff3f1672181694926cc18d609c99d0042c00224c5"
   "85eb62d3bd0044ffae17101e1d00c77d2ba9eb5c0934c8cd1e4a2827ff1b6d84"
   "cdb0c60e28e9d8acbf29b585f2ec2361bdb359d9400ee5e75d1ae627f66e89c8"
   "818a17f3c1a43ca8db94c4f3515e758bbe34b023d5e0bc131b5ba6a4081d86b5"
   "e5c9787f0013ebca68ad19046b0dbc0e5ffc0d03034996287965c2cc5b7f64cc"
 )
 
+if [[ -z "${GDB_SOURCE_DIR:-}" ]]; then
+    source=("https://ftp.gnu.org/gnu/gdb/gdb-$pkgver.tar.xz" "${source[@]}")
+    sha256sums=("bcfcd095528a987917acf9fff3f1672181694926cc18d609c99d0042c00224c5" "${sha256sums[@]}")
+fi
+
 prepare() {
+  if [[ -n "${GDB_SOURCE_DIR:-}" ]]; then
+      ln -sfn "$GDB_SOURCE_DIR" "$srcdir/$pkgname-$pkgver"
+  fi
+
   cd "$srcdir/$pkgname-$pkgver"
   patch -p1 <../configure.patch
   patch -p1 <../python.patch

@@ -21,8 +21,15 @@ depends=("mingw-w64-runtime"
 makedepends=("gmp" "mpfr" "libiconv")
 
 options=('!staticlibs' 'strip')
-source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
-md5sums=('f7a7e2d0a6d28622ac69a3623b23876b')
+
+if [[ -z "${GDB_SOURCE_DIR:-}" ]]; then
+    source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
+    md5sums=('f7a7e2d0a6d28622ac69a3623b23876b')
+else
+    source=()
+    md5sums=()
+fi
+
 source "PKGBUILD.inc"
 
 if [ "$CARCH" == aarch64 ]; then
@@ -37,6 +44,10 @@ if [ "$CARCH" == aarch64 ]; then
 fi
 
 prepare() {
+  if [[ -n "${GDB_SOURCE_DIR:-}" ]]; then
+      ln -sfn "$GDB_SOURCE_DIR" "$srcdir/${pkgname}-${pkgver}"
+  fi
+
   cd ${srcdir}/${pkgname}-${pkgver}
 
   local s
