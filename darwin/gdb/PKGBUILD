@@ -35,11 +35,11 @@ prepare() {
   fi
 
   cd "$srcdir/$pkgname-$pkgver"
-  patch -p1 <../configure.patch
-  patch -p1 <../python.patch
+  patch -p1 <"$srcdir/configure.patch"
+  patch -p1 <"$srcdir/python.patch"
 
   if [ "$CARCH" == "aarch64" ]; then
-    patch -p1 <../disable-native.patch
+    patch -p1 <"$srcdir/disable-native.patch"
   fi
 }
 
@@ -50,7 +50,7 @@ build() {
   CFLAGS="$CFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
   CXXFLAGS="$CXXFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
   LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib -lpython3" \
-  ../$pkgname-$pkgver/configure \
+  "$srcdir/$pkgname-$pkgver/configure" \
     --prefix="$PREFIX" \
     --host="$CHOST" \
     --build="$MACHTYPE" \
