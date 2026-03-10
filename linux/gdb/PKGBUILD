@@ -15,12 +15,11 @@ license=(GPL3)
 depends=(libiconv gmp mpfr expat xz zlib python libipt)
 options=('!staticlibs' 'strip')
 
-if [[ -z "${GDB_SOURCE_DIR:-}" ]]; then
+if [[ -n "${GDB_SOURCE_DIR:-}" ]]; then
+    pkgver=$(cat "$GDB_SOURCE_DIR/gdb/version.in")
+else
     source=("https://ftp.gnu.org/gnu/gdb/${pkgname}-${pkgver}.tar.xz")
     md5sums=('f7a7e2d0a6d28622ac69a3623b23876b')
-else
-    source=()
-    md5sums=()
 fi
 
 source "PKGBUILD.inc"
@@ -30,7 +29,7 @@ prepare() {
       ln -sfn "$GDB_SOURCE_DIR" "$srcdir/gdb-$pkgver"
   fi
 
-  cd gdb-$pkgver
+  cd "$srcdir/gdb-$pkgver"
 
   local s
   for s in "${source[@]}"; do
@@ -48,7 +47,7 @@ build() {
   mkdir -p "${srcdir}/build-${CHOST}"
   cd "${srcdir}/build-${CHOST}"
 
-  ../gdb-${pkgver}/configure \
+  "$srcdir/gdb-${pkgver}/configure" \
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --prefix=${PREFIX} \
     --enable-targets=all \

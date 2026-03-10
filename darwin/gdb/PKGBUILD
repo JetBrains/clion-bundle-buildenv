@@ -24,7 +24,9 @@ sha256sums=(
   "e5c9787f0013ebca68ad19046b0dbc0e5ffc0d03034996287965c2cc5b7f64cc"
 )
 
-if [[ -z "${GDB_SOURCE_DIR:-}" ]]; then
+if [[ -n "${GDB_SOURCE_DIR:-}" ]]; then
+    pkgver=$(cat "$GDB_SOURCE_DIR/gdb/version.in")
+else
     source=("https://ftp.gnu.org/gnu/gdb/gdb-$pkgver.tar.xz" "${source[@]}")
     sha256sums=("bcfcd095528a987917acf9fff3f1672181694926cc18d609c99d0042c00224c5" "${sha256sums[@]}")
 fi
