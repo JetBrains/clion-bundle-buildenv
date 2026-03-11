@@ -47,15 +47,19 @@ prepare() {
       ln -sfn "$GDB_SOURCE_DIR" "$srcdir/${pkgname}-${pkgver}"
   fi
 
-  cd ${srcdir}/${pkgname}-${pkgver}
+  cd "$srcdir/${pkgname}-${pkgver}"
 
-  local s
-  for s in "${source[@]}"; do
-    if [[ "${s}" == *.patch  ]]; then
-      msg2 "Applying patch %s" "${s}"
-      patch -p1 -i ${srcdir}/"${s}"
-    fi
-  done
+  if [[ -f .jetbrains-patches-applied ]]; then
+      msg2 "Branch already contains patches, skipping application"
+  else
+      local s
+      for s in "${source[@]}"; do
+        if [[ "${s}" == *.patch  ]]; then
+          msg2 "Applying patch %s" "${s}"
+          patch -p1 -i ${srcdir}/"${s}"
+        fi
+      done
+  fi
 
   # hack! - libiberty configure tests for header files using "$CPP $CPPFLAGS"
   sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" libiberty/configure

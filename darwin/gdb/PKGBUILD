@@ -37,11 +37,16 @@ prepare() {
   fi
 
   cd "$srcdir/$pkgname-$pkgver"
-  patch -p1 <"$srcdir/configure.patch"
-  patch -p1 <"$srcdir/python.patch"
 
-  if [ "$CARCH" == "aarch64" ]; then
-    patch -p1 <"$srcdir/disable-native.patch"
+  if [[ -f .jetbrains-patches-applied ]]; then
+      msg2 "Branch already contains patches, skipping application"
+  else
+      patch -p1 <"$srcdir/configure.patch"
+      patch -p1 <"$srcdir/python.patch"
+
+      if [ "$CARCH" == "aarch64" ]; then
+        patch -p1 <"$srcdir/disable-native.patch"
+      fi
   fi
 }
 
