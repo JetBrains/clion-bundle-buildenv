@@ -1,28 +1,23 @@
-# Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
-#
-# This work is derived from MinGW-W64 packaging project.
-#
-# Maintainer: Alexey Pavlov <Alexpux@gmail.com>
-# Contributor: Renato Silva <br.renatosilva@gmail.com>
-
+# Do not edit PKGBUILD directly — it is generated from PKGBUILD.template by
+# scripts/sync-mingw-packages.sh using upstream.conf. Edit the template or conf instead.
 pkgname=libiconv
-pkgver=1.17
+pkgver=1.18
 pkgrel=1
 arch=(aarch64 i686 x86_64)
 url='https://www.gnu.org/software/libiconv/'
-source=("https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz"
-        0002-fix-cr-for-awk-in-configure.all.patch
-        fix-pointer-buf.patch)
-sha256sums=('8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313'
-            '89d5c0f666e50a0186cfb142ba7b77e8fe1ac4d65bdfd9ae14ae8d2f0045a87c'
-            '7105be2643864f48022cc9ef5869637d1906c0edc2518f3e5eb6db12fcb71f1a')
+source=(https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.18.tar.gz
+        0003-add-cp65001-as-utf8-alias.patch
+  0002-fix-cr-for-awk-in-configure.all.patch
+  fix-pointer-buf.patch)
+sha256sums=(3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8
+            cb2b1cca44c9b9bd11c3bd33997c10d22dff263542275324c88f34b59910ef87
+  89d5c0f666e50a0186cfb142ba7b77e8fe1ac4d65bdfd9ae14ae8d2f0045a87c
+  6b6e2393840f4dc6067587165777b1a07978f4c05247d7c1010a45ad251bbeeb)
 options=('!libtool' 'staticlibs')
-#makedepends=(gcc)
 
 prepare() {
   cd $srcdir/${pkgname}-${pkgver}
-  patch -p1 -i ${srcdir}/0002-fix-cr-for-awk-in-configure.all.patch
-  patch -p1 -i ${srcdir}/fix-pointer-buf.patch
+  apply_patches
 }
 
 build() {
@@ -46,7 +41,7 @@ build() {
 
 package() {
   pkgdesc='Character encoding conversion library (mingw-w64)'
-  license=(LGPL2 documentation:'GPL3') # This is LGPL except for documentation, see README
+  license=(LGPL2 documentation:'GPL3')
 
   cd "${srcdir}/build-${CHOST}"
   make install DESTDIR="${pkgdir}"
@@ -56,7 +51,6 @@ package() {
   rm -f  "${pkgdir}${PREFIX}"/share/doc/libiconv/*.1.*
   rm -fr "${pkgdir}${PREFIX}"/share/man/man1
 
-  # Licenses
   install -Dm644 "${srcdir}/${pkgname}-${pkgver}/README"                 "${pkgdir}${PREFIX}/share/licenses/${pkgname}/README"
   install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING"                "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING"
   install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING.LIB"            "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.LIB"

@@ -1,0 +1,56 @@
+pkgname=winpthreads
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="MinGW-w64 winpthreads"
+arch=(x86_64)
+url='https://mingw-w64.sourceforge.io/'
+license=('MIT' 'BSD')
+options=('strip' 'staticlibs' '!emptydirs')
+depends=(crt)
+
+source=(
+  {{SOURCE_URL}}
+  {{PATCH_LIST}}
+)
+
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+  {{CHECKSUMS}}
+)
+
+prepare() {
+  cd "${srcdir}/mingw-w64"
+  apply_patches
+
+  cd "${srcdir}/mingw-w64/mingw-w64-libraries/${pkgname}"
+  autoreconf -vfi
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../mingw-w64/mingw-w64-libraries/${pkgname}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-static \
+    --enable-shared \
+    "CPPFLAGS=${CPPFLAGS//-D__USE_MINGW_ANSI_STDIO=1/}"
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR=${pkgdir} install-strip
+  make DESTDIR=${PREFIX}/sysroot install
+
+  mkdir -p ${pkgdir}${PREFIX}/${CHOST}
+  mv ${pkgdir}${PREFIX}/{include,lib} \
+    ${pkgdir}${PREFIX}/${CHOST}
+
+  install_copying
+}

@@ -1,0 +1,33 @@
+pkgname=manifest
+pkgver=6.4
+pkgrel=1
+pkgdesc='Default Windows application manifest (mingw-w64)'
+arch=(any)
+url='https://cygwin.com/'
+license=('BSD')
+
+_git_tag="release-$(echo $pkgver | tr . _)"
+_git_repo_name='windows-default-manifest'
+
+source=("git://sourceware.org/git/cygwin-apps/$_git_repo_name#tag=${_git_tag}")
+sha256sums=('SKIP')
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../$_git_repo_name/configure \
+    --prefix=${PREFIX}/${CHOST} \
+    --build=${MACHTYPE} \
+    --host=${CHOST} \
+    --target=${CHOST}
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

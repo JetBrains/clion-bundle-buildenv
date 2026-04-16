@@ -1,0 +1,46 @@
+pkgname=mpc
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="Multiple precision complex arithmetic library (mingw-w64)"
+url='http://www.multiprecision.org'
+license=('LGPL')
+arch=(x86_64)
+makedepends=(gmp mpfr)
+options=('strip' 'staticlibs' '!emptydirs')
+
+source=(
+  {{SOURCE_URL}}
+)
+
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+)
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-static \
+    --disable-shared \
+    --with-gmp=${PREFIX} \
+    --with-mpfr=${PREFIX}
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

@@ -1,0 +1,39 @@
+pkgname=zlib
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="Compression library implementing the deflate compression method found in gzip and PKZIP (mingw-w64)"
+arch=(aarch64 i686 x86_64)
+license=(ZLIB)
+url="http://www.zlib.net/"
+options=('staticlibs')
+
+source=({{SOURCE_URL}}
+        {{PATCH_LIST}})
+sha256sums=({{SOURCE_CHECKSUM}}
+            {{CHECKSUMS}})
+
+prepare() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  grep -A 24 '^  Copyright' zlib.h > LICENSE
+
+  # Root-level patches (build system, link flags, largefile)
+  apply_patches_matching '[0-9][0-9]-*.patch' .
+
+  # Minizip patches (shared lib, pkg-config) — applied in subdirectory per upstream
+  apply_patches_matching '[0-9][0-9]-*.patch' contrib/minizip
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  CHOST=${CHOST} ./configure \
+    --prefix=${PREFIX} \
+    --static
+
+  make -j1 all
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make install DESTDIR="${pkgdir}"
+  install -Dm644 LICENSE "${pkgdir}${PREFIX}/share/licenses/${pkgname}/LICENSE"
+}

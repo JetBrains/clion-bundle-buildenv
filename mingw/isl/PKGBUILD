@@ -1,0 +1,55 @@
+# Do not edit PKGBUILD directly — it is generated from PKGBUILD.template by
+# scripts/sync-mingw-packages.sh using upstream.conf. Edit the template or conf instead.
+pkgname=isl
+pkgver=0.27
+pkgrel=1
+pkgdesc="Library for manipulating sets and relations of integer points bounded by linear constraints"
+arch=(x86_64)
+url="https://isl.gforge.inria.fr/"
+license=('MIT')
+options=('staticlibs')
+makedepends=(gmp)
+
+source=(
+  https://libisl.sourceforge.io/isl-0.27.tar.xz
+  isl-0.14.1-no-undefined.patch
+)
+
+sha256sums=(
+  6d8babb59e7b672e8cb7870e874f3f7b813b6e00e6af3f8b04f7579965643d5c
+  83655a7202f0a0dcce1782d4b365252bf1ad12a522b7ad82ab578ee5ec46433b
+)
+
+prepare() {
+  cd $srcdir/${pkgname}-${pkgver}
+  apply_patches
+  autoreconf -fi
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-static \
+    --disable-shared \
+    --with-gmp-prefix=${PREFIX}
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

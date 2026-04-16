@@ -1,0 +1,36 @@
+pkgname=xz
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="Library and command line tools for XZ and LZMA compressed files (mingw-w64)"
+arch=(aarch64 i686 x86_64)
+url="https://tukaani.org/xz"
+license=(partial:'PublicDomain' partial:'LGPL2.1+' partial:'GPL2+')
+makedepends=("libiconv")
+options=('staticlibs' 'strip')
+
+source=({{SOURCE_URL}})
+sha256sums=({{SOURCE_CHECKSUM}})
+
+build() {
+  [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
+  mkdir -p ${srcdir}/build-${CARCH} && cd ${srcdir}/build-${CARCH}
+  ../${pkgname}-${pkgver}/configure \
+    --prefix=${PREFIX} \
+    --target=${CHOST} \
+    --host=${CHOST} \
+    --disable-shared \
+    --disable-rpath \
+    --disable-lzma-links
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${CARCH}"
+  make DESTDIR="${pkgdir}" install
+
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING.GPLv2 ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.GPLv2
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING.GPLv3 ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.GPLv3
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING.LGPLv2.1 ${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING.LGPLv2.1
+}
