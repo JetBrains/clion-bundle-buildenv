@@ -25,7 +25,7 @@ RUN /tmp/util.sh yum_install_clean \
       perl
 
 # zlib
-RUN build_dir="/tmp/zlib" && source_dir="$build_dir/_source" && mkdir -p "$build_dir" "$source_dir" \
+RUN --mount=type=secret,id=github_token build_dir="/tmp/zlib" && source_dir="$build_dir/_source" && mkdir -p "$build_dir" "$source_dir" \
     && /tmp/util.sh get_github_release 'madler/zlib' | tar xzf - --strip=1 -C "$source_dir" \
     && cd "$build_dir" && "$source_dir/configure" --prefix=/usr/local \
     && make -j && make -j install \
@@ -40,7 +40,7 @@ RUN build_dir="/tmp/openssl" && source_dir="$build_dir/_source" && mkdir -p "$bu
     && rm -rf "$build_dir"
 
 # python
-RUN build_dir="/tmp/cpython" && install_dir='/usr/local' && source_dir="$build_dir/_source" \
+RUN --mount=type=secret,id=github_token build_dir="/tmp/cpython" && install_dir='/usr/local' && source_dir="$build_dir/_source" \
     && mkdir -p "$build_dir" "$source_dir" \
     && /tmp/util.sh get_github_release 'python/cpython' | tar xzf - --strip=1 -C "$source_dir" \
     && cd "$build_dir" && "$source_dir/configure" \
@@ -54,11 +54,11 @@ RUN build_dir="/tmp/cpython" && install_dir='/usr/local' && source_dir="$build_d
     && rm -rf "$build_dir"
 
 # CMake
-RUN /tmp/util.sh get_github_release 'Kitware/CMake' "cmake-%v%-linux-$(uname -m).tar.gz" 'v\(3.*\)' \
+RUN --mount=type=secret,id=github_token /tmp/util.sh get_github_release 'Kitware/CMake' "cmake-%v%-linux-$(uname -m).tar.gz" 'v\(3.*\)' \
       | tar xvzf - --strip=1 -C /usr/local
 
 # ninja
-RUN build_dir="/tmp/ninja" && source_dir="$build_dir/_source" && mkdir -p "$build_dir" "$source_dir" \
+RUN --mount=type=secret,id=github_token build_dir="/tmp/ninja" && source_dir="$build_dir/_source" && mkdir -p "$build_dir" "$source_dir" \
     && /tmp/util.sh get_github_release 'ninja-build/ninja' | tar xzf - --strip=1 -C "$source_dir" \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=NO -B "$build_dir" -S "$source_dir" \
     && cmake --build "$build_dir" --parallel --target ninja \
@@ -66,7 +66,7 @@ RUN build_dir="/tmp/ninja" && source_dir="$build_dir/_source" && mkdir -p "$buil
     && rm -rf "$build_dir"
 
 # sccache
-RUN /tmp/util.sh get_github_release 'mozilla/sccache' "sccache-v%v%-$(uname -m)-unknown-linux-musl.tar.gz" \
+RUN --mount=type=secret,id=github_token /tmp/util.sh get_github_release 'mozilla/sccache' "sccache-v%v%-$(uname -m)-unknown-linux-musl.tar.gz" \
       | tar xvzf - --strip=1 -C /usr/local/bin
 
 RUN /tmp/util.sh yum_install_clean \
@@ -76,20 +76,20 @@ RUN /tmp/util.sh yum_install_clean \
       gettext
 
 # git
-RUN build_dir="/tmp/git" && mkdir -p "$build_dir" \
+RUN --mount=type=secret,id=github_token build_dir="/tmp/git" && mkdir -p "$build_dir" \
     && /tmp/util.sh get_github_release 'git/git' '' '^v\(2\.49\.[0-9]\+\)$' | tar xzf - --strip=1 -C "$build_dir" \
     && cd "$build_dir" && make configure && ./configure --prefix=/usr && make -j && make -j install \
     && rm -rf "$build_dir"
 
 # ssh is ancient and doesn't support new key format (in case we map .ssh from host)
-RUN build_dir="/tmp/ssh" && mkdir -p "$build_dir" \
+RUN --mount=type=secret,id=github_token build_dir="/tmp/ssh" && mkdir -p "$build_dir" \
     && /tmp/util.sh get_github_release 'openssh/openssh-portable' '' '^V_\([0-9]\+_[0-9]\+_P[0-9]\+\)$' \
       | tar xzf - --strip=1 -C "$build_dir" \
     && cd "$build_dir" && autoreconf && ./configure --prefix=/usr && make -j && make -j install \
     && rm -rf "$build_dir"
 
 # libarchive for pacman and fresh bsdtar
-RUN build_dir="/tmp/libarchive" && source_dir="$build_dir/_source" && mkdir -p "$build_dir" "$source_dir" \
+RUN --mount=type=secret,id=github_token build_dir="/tmp/libarchive" && source_dir="$build_dir/_source" && mkdir -p "$build_dir" "$source_dir" \
     && /tmp/util.sh get_github_release 'libarchive/libarchive' | tar xzf - --strip=1 -C "$source_dir" \
     && cd "$build_dir" && cmake -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
