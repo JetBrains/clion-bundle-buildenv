@@ -1,0 +1,61 @@
+pkgname=binutils
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="A set of programs to assemble and manipulate binary and object files (mingw-w64)"
+arch=(x86_64)
+url="https://www.gnu.org/software/binutils/"
+license=('GPL')
+makedepends=(libiconv zlib)
+options=('staticlibs' 'strip')
+_sourcedir=binutils-with-gold-${pkgver}
+
+source=(
+  {{SOURCE_URL}}
+  {{PATCH_LIST}}
+)
+
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+  {{CHECKSUMS}}
+)
+
+prepare() {
+  cd "${srcdir}/${_sourcedir}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${_sourcedir}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --target=${CHOST} \
+    --prefix=${PREFIX} \
+    --with-libiconv-prefix=${PREFIX}/${CHOST} \
+    --enable-static \
+    --enable-64-bit-bfd \
+    --enable-install-libiberty \
+    --enable-deterministic-archives \
+    --disable-gold \
+    --disable-lto \
+    --disable-nls \
+    --disable-rpath \
+    --disable-shared \
+    --disable-multilib
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install-strip
+  install_copying
+}

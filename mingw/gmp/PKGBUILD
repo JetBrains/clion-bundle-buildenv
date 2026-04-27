@@ -1,13 +1,15 @@
+# Do not edit PKGBUILD directly — it is generated from PKGBUILD.template by
+# scripts/sync-mingw-packages.sh using upstream.conf. Edit the template or conf instead.
 pkgname=(gmp)
-pkgver=6.2.1
+pkgver=6.3.0
 pkgrel=1
 pkgdesc="A free library for arbitrary precision arithmetic"
 arch=(aarch64 x86_64)
 url="https://gmplib.org/"
 license=(LGPL3 GPL)
 
-source=("https://gmplib.org/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.xz")
-sha256sums=('fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2')
+source=(https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz)
+sha256sums=(a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898)
 
 options=('staticlibs' 'strip')
 

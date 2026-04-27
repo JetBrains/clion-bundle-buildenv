@@ -1,0 +1,99 @@
+pkgname='gcc'
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="GCC for the MinGW-w64"
+arch=(x86_64)
+url="https://gcc.gnu.org"
+license=(GPL)
+makedepends=(mpc libiconv crt headers winpthreads manifest)
+
+source=(
+  {{SOURCE_URL}}
+  {{PATCH_LIST}}
+)
+
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+  {{CHECKSUMS}}
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+
+  sed -i 's/${prefix}\/mingw\//${prefix}\//g' configure
+
+  # libgcc/config/i386/cpuinfo.c does #include "cpuid.h" which resolves to the
+  # host compiler's cpuid.h (missing newer bit_* constants) instead of GCC's own
+  # gcc/config/i386/cpuid.h.  Symlink it so the quoted include finds it first.
+  ln -sf ../../../gcc/config/i386/cpuid.h libgcc/config/i386/cpuid.h
+
+  find libstdc++-v3 -type f -exec \
+    sed -i "{}" \
+      -e 's/\(__out\)\([^0-9a-zA-Z_]\)/___out\2/g' \
+      -e 's/\(__in\)\([^0-9a-zA-Z_]\)/___in\2/g' \;
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  export lt_cv_deplibs_check_method='pass_all'
+
+  CFLAGS+=" -fno-stack-protector"
+  CPPFLAGS+=" -DCOM_NO_WINDOWS_H"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-checking=release \
+    --enable-fully-dynamic-string \
+    --enable-languages='c,c++' \
+    --with-arch=nocona \
+    --with-tune=generic \
+    --enable-libatomic \
+    --enable-libgomp \
+    --enable-libstdcxx-filesystem-ts \
+    --enable-libstdcxx-time \
+    --enable-seh-exceptions \
+    --enable-shared \
+    --enable-static \
+    --enable-threads=posix \
+    --enable-version-specific-runtime-libs \
+    --disable-bootstrap \
+    --disable-graphite \
+    --disable-libada \
+    --disable-libstdcxx-pch \
+    --disable-libstdcxx-debug \
+    --disable-libquadmath \
+    --disable-lto \
+    --disable-nls \
+    --disable-multilib \
+    --disable-rpath \
+    --disable-symvers \
+    --disable-werror \
+    --disable-win32-registry \
+    --with-gnu-as \
+    --with-gnu-ld \
+    --with-system-libiconv \
+    --with-system-libz \
+    --with-gmp=${PREFIX} \
+    --with-mpfr=${PREFIX} \
+    --with-mpc=${PREFIX}
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

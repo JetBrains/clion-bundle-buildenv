@@ -1,0 +1,127 @@
+# Do not edit PKGBUILD directly — it is generated from PKGBUILD.template by
+# scripts/sync-mingw-packages.sh using upstream.conf. Edit the template or conf instead.
+pkgname='gcc'
+pkgver=15.2.0
+pkgrel=1
+pkgdesc="GCC for the MinGW-w64"
+arch=(x86_64)
+url="https://gcc.gnu.org"
+license=(GPL)
+makedepends=(mpc libiconv crt headers winpthreads manifest)
+
+source=(
+  https://ftp.gnu.org/gnu/gcc/gcc-15.2.0/gcc-15.2.0.tar.xz
+  0003-Windows-Follow-Posix-dir-exists-semantics-more-close.patch
+  0005-Windows-Don-t-ignore-native-system-header-dir.patch
+  0007-Build-EXTRA_GNATTOOLS-for-Ada.patch
+  0008-Prettify-linking-no-undefined.patch
+  0011-Enable-shared-gnat-implib.patch
+  0012-Handle-spaces-in-path-for-default-manifest.patch
+  0014-gcc-9-branch-clone_function_name_1-Retain-any-stdcall-suffix.patch
+  0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch
+  0021-PR14940-Allow-a-PCH-to-be-mapped-to-a-different-addr.patch
+  0140-gcc-diagnostic-color.patch
+  0200-add-m-no-align-vector-insn-option-for-i386.patch
+  2001-fix-building-rust-on-mingw-w64.patch
+  3001-fix-codeview-crashes.patch
+  9002-native-tls.patch
+)
+
+sha256sums=(
+  438fd996826b0c82485a29da03a72d71d6e3541a83ec702df4271f6fe025d24e
+  3fc35067823f87e48dd3bfd265e7593000dc110fa9ad5f16c81b896765fc897a
+  f7da015a69cff58fbc4b39c7072dfff334a01024470bb092ba31ad648899adf0
+  90d5cb570083f9dea4ac0f0f87e3e8d2230f5052e6f9b946061a20a224a9d195
+  8a40ea004a803b7e6aabd6c58d859502a57c87755dbcfedbdfed161f2fb7eb62
+  5ef4148acc4a2b7ed648d4fe75fab5545e84b4b93a12d6ba4e4ea6061dd635fa
+  e98805ead7d78ee2a92f237894c4b2b7ddc1688e1b517d8c04f28d440202e40f
+  fd9bdecb2bbc4796bbc9f00b708dac42ef9e3464a06d6d27e5475cee117de5be
+  ad1f7b5e7afaaec008b7cbd14feea13a10989fa91bda7003af72d457619bb199
+  a2abb2c2d793b42c457275e5f5c406d21a61ef07441f696d91a775d01072e17c
+  ba3649f29049f6d4eea4a481975d9f6851c0c2604d847881b46084a943c4c8f2
+  1484911163634f30324827619c873a6267b377abba0df8bbedfd128163c53ea4
+  a411f59953553a3d01dd64c79b1acbb91eca092c4cb01bfd26b1c51c3eb798e8
+  f21f9ab731e9cab8fd4ca8c289497f859ef7004e6fa0507877dc2559ac2071c3
+  d977683efc6f6b4dd675a8f1978416d22d5b5d1fa53614b9a18bc18efa231391
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+
+  sed -i 's/${prefix}\/mingw\//${prefix}\//g' configure
+
+  # libgcc/config/i386/cpuinfo.c does #include "cpuid.h" which resolves to the
+  # host compiler's cpuid.h (missing newer bit_* constants) instead of GCC's own
+  # gcc/config/i386/cpuid.h.  Symlink it so the quoted include finds it first.
+  ln -sf ../../../gcc/config/i386/cpuid.h libgcc/config/i386/cpuid.h
+
+  find libstdc++-v3 -type f -exec \
+    sed -i "{}" \
+      -e 's/\(__out\)\([^0-9a-zA-Z_]\)/___out\2/g' \
+      -e 's/\(__in\)\([^0-9a-zA-Z_]\)/___in\2/g' \;
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  export lt_cv_deplibs_check_method='pass_all'
+
+  CFLAGS+=" -fno-stack-protector"
+  CPPFLAGS+=" -DCOM_NO_WINDOWS_H"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-checking=release \
+    --enable-fully-dynamic-string \
+    --enable-languages='c,c++' \
+    --with-arch=nocona \
+    --with-tune=generic \
+    --enable-libatomic \
+    --enable-libgomp \
+    --enable-libstdcxx-filesystem-ts \
+    --enable-libstdcxx-time \
+    --enable-seh-exceptions \
+    --enable-shared \
+    --enable-static \
+    --enable-threads=posix \
+    --enable-version-specific-runtime-libs \
+    --disable-bootstrap \
+    --disable-graphite \
+    --disable-libada \
+    --disable-libstdcxx-pch \
+    --disable-libstdcxx-debug \
+    --disable-libquadmath \
+    --disable-lto \
+    --disable-nls \
+    --disable-multilib \
+    --disable-rpath \
+    --disable-symvers \
+    --disable-werror \
+    --disable-win32-registry \
+    --with-gnu-as \
+    --with-gnu-ld \
+    --with-system-libiconv \
+    --with-system-libz \
+    --with-gmp=${PREFIX} \
+    --with-mpfr=${PREFIX} \
+    --with-mpc=${PREFIX}
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

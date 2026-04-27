@@ -1,0 +1,39 @@
+pkgname=expat
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="An XML parser library (mingw-w64)"
+arch=(aarch64 i686 x86_64)
+url="https://libexpat.github.io/"
+license=(MIT)
+options=('strip' 'staticlibs')
+
+source=({{SOURCE_URL}}
+        {{PATCH_LIST}})
+sha256sums=({{SOURCE_CHECKSUM}}
+            {{CHECKSUMS}})
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --prefix=${PREFIX} \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --disable-shared \
+    --enable-static
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING" "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING"
+}

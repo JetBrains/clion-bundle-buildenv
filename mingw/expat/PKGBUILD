@@ -1,31 +1,22 @@
-# Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
-#
-# This work is derived from MinGW-W64 packaging project.
-#
-# Maintainer: Alexey Pavlov <alexpux@gmail.com>
-# Contributor: Renato Silva <br.renatosilva@gmail.com>
-
+# Do not edit PKGBUILD directly — it is generated from PKGBUILD.template by
+# scripts/sync-mingw-packages.sh using upstream.conf. Edit the template or conf instead.
 pkgname=expat
-pkgver=2.2.1
+pkgver=2.7.3
 pkgrel=1
 pkgdesc="An XML parser library (mingw-w64)"
 arch=(aarch64 i686 x86_64)
 url="https://libexpat.github.io/"
 license=(MIT)
-#makedepends=("gcc" "pkg-config")
 options=('strip' 'staticlibs')
-source=(https://github.com/libexpat/libexpat/releases/download/R_$(echo $pkgver | tr . _)/$pkgname-$pkgver.tar.bz2
-        001-fix-extension.patch
-        002-fix-tests.patch)
-md5sums=('d9c3baeab58774cefc2f04faf29f2cf8'
-         'f0896e172059ce210ce70d2a37f4a04e'
-         '64340503ab966d5059db5ae564b7b6ec')
+
+source=(https://github.com/libexpat/libexpat/releases/download/R_2_7_3/expat-2.7.3.tar.xz
+        )
+sha256sums=(71df8f40706a7bb0a80a5367079ea75d91da4f8c65c58ec59bcdfbf7decdab9f
+            )
 
 prepare() {
   cd "${srcdir}/${pkgname}-${pkgver}"
-  patch -p1 -i ${srcdir}/001-fix-extension.patch
-  patch -p1 -i ${srcdir}/002-fix-tests.patch
-  autoreconf -fiv
+  apply_patches
 }
 
 build() {
@@ -41,11 +32,6 @@ build() {
     --enable-static
 
   make
-}
-
-check() {
-  cd "${srcdir}/build-${CHOST}"
-  make check
 }
 
 package() {

@@ -1,0 +1,61 @@
+pkgname=make
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="GNU make utility to maintain groups of programs (mingw-w64)"
+arch=(x86_64)
+url="https://www.gnu.org/software/make"
+license=('GPL')
+depends=(crt winpthreads)
+options=('staticlibs' 'strip')
+
+source=(
+  {{SOURCE_URL}}
+  {{PATCH_LIST}}
+)
+
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+  {{CHECKSUMS}}
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+
+  sed -i "/bin_PROGRAMS/ { s:make:mingw32-make:g }" Makefile.am
+  # Rename automake variable prefixes to match the new program name
+  # (mingw32-make → mingw32_make_ prefix). Without this, automake -Werror
+  # fails because make_SOURCES et al. don't match any bin_PROGRAMS entry.
+  # No ^ anchor — variables also appear inside if/endif blocks (indented).
+  sed -i 's/make_SOURCES/mingw32_make_SOURCES/g; s/make_LDADD/mingw32_make_LDADD/g; s/make_LDFLAGS/mingw32_make_LDFLAGS/g' Makefile.am
+  autoreconf -vfi
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-case-insensitive-file-system \
+    --enable-job-server \
+    CPPFLAGS=-DMAKE_LOAD \
+    CFLAGS=-mthreads \
+    ac_cv_dos_paths=yes
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}

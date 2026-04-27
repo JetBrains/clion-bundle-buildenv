@@ -1,0 +1,43 @@
+pkgname=crt
+pkgver={{PKGVER}}
+pkgrel=1
+pkgdesc="MinGW-w64 CRT"
+arch=(x86_64)
+url='https://mingw-w64.sourceforge.io/'
+license=('custom')
+options=('!strip' 'staticlibs' '!buildflags' '!emptydirs')
+depends=('headers')
+
+source=(
+  {{SOURCE_URL}}
+)
+
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+)
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../mingw-w64/mingw-w64-crt/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX}/${CHOST} \
+    --enable-wildcard \
+    --disable-dependency-tracking \
+    --disable-lib32 \
+    --enable-lib64 \
+    --with-default-msvcrt=msvcrt \
+    CFLAGS="-Wno-expansion-to-defined"
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR=${pkgdir} install
+  make DESTDIR=${PREFIX}/sysroot install
+  install_copying
+}

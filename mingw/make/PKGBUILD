@@ -1,0 +1,73 @@
+# Do not edit PKGBUILD directly — it is generated from PKGBUILD.template by
+# scripts/sync-mingw-packages.sh using upstream.conf. Edit the template or conf instead.
+pkgname=make
+pkgver=4.4.1
+pkgrel=1
+pkgdesc="GNU make utility to maintain groups of programs (mingw-w64)"
+arch=(x86_64)
+url="https://www.gnu.org/software/make"
+license=('GPL')
+depends=(crt winpthreads)
+options=('staticlibs' 'strip')
+
+source=(
+  https://ftp.gnu.org/gnu/make/make-4.4.1.tar.gz
+  make-linebuf-mingw.patch
+  make-4.3_undef-HAVE_STRUCT_DIRENT_D_TYPE.patch
+  make-4.4-timestamps.patch
+  make-4.2.1-Makefile.am-gcc-only-link-libgnumake-1.dll.a.patch
+  005-fix-default-cxx.patch
+  006-fix-build-with-gcc-15.patch
+)
+
+sha256sums=(
+  dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3
+  578860779efd8aedfd7362b2f6bb73bf1a5ca57ee1d9f4a7d26b83c570d92db1
+  952b8decffb25b6083bbda262578f93f2b480789b9d0baaabb7b3a77d7b86fc1
+  d13abf8697abaca71634f7de302d14e65b9236b0181a3ac081663d33e647d303
+  f28d1596ac8f60bbe6042f3467627646ae7e7243e4f73652f9682255758ecdb9
+  bd6a597d76b35a48020dc335040c96f562439970595a21014469b73b3b6c805a
+  c5125d642ca6ae9b5788648aa51ecc7a44e829cf443b44768c9a66c85d85689d
+)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+
+  sed -i "/bin_PROGRAMS/ { s:make:mingw32-make:g }" Makefile.am
+  # Rename automake variable prefixes to match the new program name
+  # (mingw32-make → mingw32_make_ prefix). Without this, automake -Werror
+  # fails because make_SOURCES et al. don't match any bin_PROGRAMS entry.
+  # No ^ anchor — variables also appear inside if/endif blocks (indented).
+  sed -i 's/make_SOURCES/mingw32_make_SOURCES/g; s/make_LDADD/mingw32_make_LDADD/g; s/make_LDFLAGS/mingw32_make_LDFLAGS/g' Makefile.am
+  autoreconf -vfi
+}
+
+build() {
+  [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+  ../${pkgname}-${pkgver}/configure \
+    --host=${CHOST} \
+    --build=${MACHTYPE} \
+    --prefix=${PREFIX} \
+    --enable-case-insensitive-file-system \
+    --enable-job-server \
+    CPPFLAGS=-DMAKE_LOAD \
+    CFLAGS=-mthreads \
+    ac_cv_dos_paths=yes
+
+  make VERBOSE=1
+}
+
+check() {
+  cd "${srcdir}/build-${CHOST}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+  install_copying
+}
