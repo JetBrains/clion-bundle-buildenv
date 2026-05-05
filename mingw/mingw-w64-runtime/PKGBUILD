@@ -15,13 +15,22 @@ md5sums=('3edacf7e64e1b7a634666ac043f6b13c')
 package() {
   install -dm755 ${pkgdir}${PREFIX}/bin
 
-  install -m755 -t ${pkgdir}${PREFIX}/bin/ $(
-    if [ $CARCH = aarch64 ]; then
-      echo "$CROSS_ROOT/$CROSS_TRIPLE/bin/"{libc++,libssp-0,libunwind}.dll
-    else
-      echo "$($CHOST-gcc -print-sysroot)/mingw/bin/"{libgcc*-1,libssp-0,libstdc++-6,libwinpthread-1}.dll
-    fi
-  )
+  if [ $CARCH = aarch64 ]; then
+    install -m755 -t ${pkgdir}${PREFIX}/bin/ \
+      "$CROSS_ROOT/$CROSS_TRIPLE/bin/"{libc++,libssp-0,libunwind}.dll
+  else
+    # `gcc -print-file-name` resolves runtime DLLs portably across mingw
+    # layouts: Ubuntu (split <chost>/lib + lib/gcc/<chost>/<ver>/), xPack
+    # (baked sysroot, <chost>/{bin,lib}/), MSYS2/Fedora (<sysroot>/mingw/bin).
+    # libgcc_s file name varies by ABI (libgcc_s_seh-1.dll on x86_64,
+    # libgcc_s_dw2-1.dll on i686), so glob in the libgcc directory.
+    local libgcc_dir="$(dirname "$($CHOST-gcc -print-libgcc-file-name)")"
+    install -m755 -t ${pkgdir}${PREFIX}/bin/ \
+      "$($CHOST-gcc -print-file-name=libwinpthread-1.dll)" \
+      "$($CHOST-gcc -print-file-name=libssp-0.dll)" \
+      "$($CHOST-gcc -print-file-name=libstdc++-6.dll)" \
+      "$libgcc_dir/"libgcc_s_*-1.dll
+  fi
 
   install -Dm644 "${srcdir}/COPYING.MinGW-w64-runtime.txt" "${pkgdir}${PREFIX}/share/licenses/${pkgname}/COPYING"
 }
