@@ -1,5 +1,13 @@
 PREFIX=${PREFIX-/win}
 
+# Keep static archives, libtool archives, pkgconfig and the toolchain include
+# tree in the bundle.  On Windows the *.a/*.dll.a files are not just static
+# libs — they are import libs the linker needs to resolve every -l<name> flag
+# (Win32: -lkernel32, -luser32, ...; GCC runtime: -lstdc++, -lssp, -latomic,
+# -lgomp, -lwinpthread, ...).  Without them the bundled toolchain cannot link
+# anything at all.
+KEEP_DEV_FILES=1
+
 _makepkg_mingw_conf_name="${BASH_SOURCE}"
 
 source $(dirname ${_makepkg_mingw_conf_name})/../makepkg.conf.inc

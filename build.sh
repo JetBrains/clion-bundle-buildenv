@@ -487,11 +487,13 @@ do_bundle() {
     message 'Removing l10n files...'
     rm -rvf ${PREFIX#/}/share/locale
 
-    message 'Removing leftover development files...'
-    find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
-    find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
-    rm -rvf ${PREFIX#/}/lib/pkgconfig
-    rm -rvf ${PREFIX#/}/include
+    if [[ -z "${KEEP_DEV_FILES:-}" ]]; then
+        message 'Removing leftover development files...'
+        find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
+        find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
+        rm -rvf ${PREFIX#/}/lib/pkgconfig
+        rm -rvf ${PREFIX#/}/include
+    fi
 
     # Remove empty directories
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
