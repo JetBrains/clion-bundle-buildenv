@@ -495,6 +495,13 @@ do_bundle() {
         rm -rvf ${PREFIX#/}/include
     fi
 
+    # Per-flavor bundle shaping (extract extra makedepends payload, relocate
+    # files where downstream consumers expect them, etc.).  Defined by
+    # ${MAKEPKG_CONF} when needed; absent for vanilla flavors.
+    if declare -F finalize_bundle >/dev/null; then
+        execute 'finalize_bundle' finalize_bundle
+    fi
+
     # Remove empty directories
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
