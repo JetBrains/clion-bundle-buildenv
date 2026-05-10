@@ -25,7 +25,6 @@ build() {
     --host=${CHOST} \
     --build=${MACHTYPE} \
     --prefix=${PREFIX}/${CHOST} \
-    --enable-wildcard \
     --disable-dependency-tracking \
     --disable-lib32 \
     --enable-lib64 \
