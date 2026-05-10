@@ -1,0 +1,50 @@
+Backport of upstream commit 8e7bb4ae7a18 by Marc Glisse <marc.glisse at inria.fr>
+
+The "long long reliability test 1" conftest declared `void g(){}`
+(K&R empty parens) and then called g() with six arguments.  Under
+the C23 default of gcc 15, `void g(){}` is interpreted as
+`void g(void)` and the six-argument call is rejected as a hard
+error.  
+
+Applied
+to both acinclude.m4 (for the record) and the pre-generated
+configure script (gmp 6.3.0 ships its autoconf
+output, no autoreconf is run by this package).
+---
+ acinclude.m4 | 2 +-
+ configure    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/acinclude.m4 b/acinclude.m4
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -609,7 +609,7 @@ GMP_PROG_CC_WORKS_PART([$1], [long long reliability test 1],
+
+ #if defined (__GNUC__) && ! defined (__cplusplus)
+ typedef unsigned long long t1;typedef t1*t2;
+-void g(){}
++void g(int,t1 const*,t1,t2,t1 const*,int){}
+ void h(){}
+ static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
+ {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
+diff --git a/configure b/configure
+--- a/configure
++++ b/configure
+@@ -6568,7 +6568,7 @@ if test "$gmp_prog_cc_works" = yes; then
+
+ #if defined (__GNUC__) && ! defined (__cplusplus)
+ typedef unsigned long long t1;typedef t1*t2;
+-void g(){}
++void g(int,t1 const*,t1,t2,t1 const*,int){}
+ void h(){}
+ static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
+ {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
+@@ -8187,7 +8187,7 @@ if test "$gmp_prog_cc_works" = yes; then
+
+ #if defined (__GNUC__) && ! defined (__cplusplus)
+ typedef unsigned long long t1;typedef t1*t2;
+-void g(){}
++void g(int,t1 const*,t1,t2,t1 const*,int){}
+ void h(){}
+ static __inline__ t1 e(t2 rp,t2 up,int n,t1 v0)
+ {t1 c,x,r;int i;if(v0){c=1;for(i=1;i<n;i++){x=up[i];r=x+1;rp[i]=r;}}return c;}
