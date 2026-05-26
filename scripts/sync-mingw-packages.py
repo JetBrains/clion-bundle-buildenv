@@ -16,6 +16,7 @@ Examples:
 
 from __future__ import annotations
 
+import hashlib
 import subprocess
 import sys
 import tempfile
@@ -54,7 +55,7 @@ class UpstreamData:
 
 # ── Upstream config ──────────────────────────────────────────────────
 
-def read_upstream_conf(path: Path) -> tuple[str, str]:
+def read_upstream_conf(path: Path) -> tuple[str, str, list[str]]:
     conf: dict[str, str] = {}
     for line in path.read_text().splitlines():
         line = line.strip()
@@ -67,7 +68,11 @@ def read_upstream_conf(path: Path) -> tuple[str, str]:
         raise ValueError(f"UPSTREAM_COMMIT not set in {path}")
     if not pkg_path:
         raise ValueError(f"UPSTREAM_PACKAGE_PATH not set in {path}")
-    return commit, pkg_path
+    # LOCAL_PATCHES: semicolon-separated list of patch filenames shipped in this
+    # repo (alongside upstream.conf) that should be wired into the
+    # generated PKGBUILD's source=()/sha256sums=() after the upstream ones.
+    local_patches = conf.get("LOCAL_PATCHES", "").strip(";").split(";")
+    return commit, pkg_path, local_patches
 
 
 # ── Fetch & parse ────────────────────────────────────────────────────
@@ -143,6 +148,18 @@ def download_patches(data: UpstreamData, pkg_dir: Path, commit: str, pkg_path: s
         (pkg_dir / patch.name).write_bytes(content)
 
 
+def append_local_patches(data: UpstreamData, pkg_dir: Path, names: list[str]):
+    for name in names:
+        path = pkg_dir / name
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"LOCAL_PATCHES references {name!r} but {path} does not exist"
+            )
+        cksum = hashlib.sha256(path.read_bytes()).hexdigest()
+        print(f"  local patch: {name}")
+        data.patches.append(Patch(name, cksum))
+
+
 # ── Template rendering ───────────────────────────────────────────────
 
 def render_template(template_path: Path, data: UpstreamData) -> str:
@@ -177,7 +194,7 @@ def sync_package(pkg_dir: Path):
         print(f"skip: {pkg_name} (no PKGBUILD.template)")
         return
 
-    commit, pkg_path = read_upstream_conf(upstream_conf)
+    commit, pkg_path, local_patches = read_upstream_conf(upstream_conf)
     print(f"==> Syncing {pkg_name} from {pkg_path}@{commit[:12]}...")
 
     # Fetch and parse upstream PKGBUILD
@@ -189,9 +206,10 @@ def sync_package(pkg_dir: Path):
 
     data = classify_sources(raw)
     print(f"  version: {data.pkgver}")
-    print(f"  patches: {len(data.patches)}")
+    print(f"  upstream patches: {len(data.patches)}")
 
     download_patches(data, pkg_dir, commit, pkg_path)
+    append_local_patches(data, pkg_dir, local_patches)
 
     pkgbuild = render_template(template_path, data)
     (pkg_dir / "PKGBUILD").write_text(pkgbuild)

@@ -6,10 +6,21 @@ arch=(aarch64 x86_64)
 url="https://gmplib.org/"
 license=(LGPL3 GPL)
 
-source=({{SOURCE_URL}})
-sha256sums=({{SOURCE_CHECKSUM}})
+source=(
+  {{SOURCE_URL}}
+  {{PATCH_LIST}}
+)
+sha256sums=(
+  {{SOURCE_CHECKSUM}}
+  {{CHECKSUMS}}
+)
 
 options=('staticlibs' 'strip')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+}
 
 build() {
   [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"

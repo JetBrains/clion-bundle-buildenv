@@ -8,10 +8,21 @@ arch=(aarch64 x86_64)
 url="https://gmplib.org/"
 license=(LGPL3 GPL)
 
-source=(https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz)
-sha256sums=(a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898)
+source=(
+  https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz
+  0001-acinclude-c23-prototype.patch
+)
+sha256sums=(
+  a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
+  525b0f36cbe85075767d6a843ba9988aaebbf5f4320f544875f61fb433092abc
+)
 
 options=('staticlibs' 'strip')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  apply_patches
+}
 
 build() {
   [[ -d "${srcdir}/build-${CHOST}" ]] && rm -rf "${srcdir}/build-${CHOST}"
