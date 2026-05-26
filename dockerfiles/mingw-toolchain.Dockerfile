@@ -38,13 +38,11 @@ RUN apt-get update \
       git \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# xPack GCC 14.3 cross-compiler instead of Ubuntu's GCC 13-based packages.
+# xPack GCC 15.2.0-2 (posix-threaded) cross-compiler instead of Ubuntu's GCC 13-based packages.
 # Ubuntu 24.04 ships gcc-mingw-w64 based on GCC 13, which cannot compile
 # GCC 15's libgcc (missing __builtin_stack_address, newer cpuid.h constants).
-# xPack 14.3 is win32-threaded — fine here because the toolchain build
-# compiles only C (binutils, make, gcc), no C++ that touches std::mutex.
-ARG XPACK_MINGW_GCC_VERSION=14.3.0-1
-ARG XPACK_MINGW_GCC_SHA256=7679c2f81dfb564479f7158dc99751fe03efd3ce03dbfd8372f1e0feb21fcfd4
+ARG XPACK_MINGW_GCC_VERSION=15.2.0-2
+ARG XPACK_MINGW_GCC_SHA256=daf373cbea59bb04cc610cdc26ef98828eb5c5eee3407d448d3b26272fa816d5
 RUN curl -fsSL -o /tmp/xpack-mingw.tar.gz \
       "https://github.com/xpack-dev-tools/mingw-w64-gcc-xpack/releases/download/v${XPACK_MINGW_GCC_VERSION}/xpack-mingw-w64-gcc-${XPACK_MINGW_GCC_VERSION}-linux-x64.tar.gz" \
  && echo "${XPACK_MINGW_GCC_SHA256}  /tmp/xpack-mingw.tar.gz" | sha256sum -c - \
