@@ -89,7 +89,7 @@ build() {
     --with-{gmp,mpfr}=${PREFIX} \
     --disable-tui
 
-  make
+  make CFLAGS="-g -O0" CXXFLAGS="-g -O0"
 }
 
 package() {
