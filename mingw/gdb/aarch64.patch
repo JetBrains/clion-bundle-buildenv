@@ -1,35 +1,65 @@
 diff --git a/bfd/configure b/bfd/configure
-index 31dfac5..8b9d59d 100755
+index ee588238500..49e0fc3a117 100755
 --- a/bfd/configure
 +++ b/bfd/configure
-@@ -13536,7 +13536,7 @@ selarchs=
- TDEFINES=
- for targ in $target $canon_targets
- do
--    if test $targ = all; then
-+    if test $targ = all || true; then
+@@ -15403,7 +15403,14 @@ do
          all_targets=true
  	assocvecs="$assocvecs $targ_defvec $targ_selvecs"
      elif test $targ != plugin; then
+-	. $srcdir/config.bfd
++	case "${host}" in
++	  aarch64-*-mingw*)
++	    # BFD config not available for aarch64 cross-builds
++	    ;;
++	  *)
++	    . $srcdir/config.bfd
++	    ;;
++	esac
+ 	if test $targ = $target; then
+ 	    defvec=$targ_defvec
+ 	fi
 diff --git a/gdb/configure b/gdb/configure
-index bdc84be..65a9ef5 100755
+index d0bdba6eb36..774d11a2d2f 100755
 --- a/gdb/configure
 +++ b/gdb/configure
-@@ -17934,7 +17934,7 @@ fi
+@@ -24878,11 +24878,19 @@ CPPFLAGS=$OLD_CPPFLAGS
  # configuration.
  gdb_host_obs=posix-hdep.o
  
 -if test "${target}" = "${host}"; then
-+if test "${target}" = "${host} && false"; then
-   gdb_native=yes
- else
-   gdb_native=no
-@@ -18007,7 +18007,7 @@ gdb_osabi=
+-  gdb_native=yes
+-else
+-  gdb_native=no
+-fi
++case "${host}" in
++  aarch64-*-mingw*)
++    # aarch64-mingw native support not yet available in configure.nat
++    gdb_native=no
++    ;;
++  *)
++    if test "${target}" = "${host}"; then
++      gdb_native=yes
++    else
++      gdb_native=no
++    fi
++    ;;
++esac
+ 
+ . $srcdir/configure.host
+ 
+@@ -25122,7 +25130,14 @@ gdb_osabi=
  targ=$target; . ${srcdir}/configure.tgt
  
  # Fetch the default architecture and default target vector from BFD.
 -targ=$target; . $srcdir/../bfd/config.bfd
-+#targ=$target; . $srcdir/../bfd/config.bfd
++case "${host}" in
++  aarch64-*-mingw*)
++    # BFD config not available for aarch64 cross-builds
++    ;;
++  *)
++    targ=$target; . $srcdir/../bfd/config.bfd
++    ;;
++esac
  
  # We only want the first architecture, so strip off the others if
  # there is more than one.
@@ -94,16 +124,19 @@ diff --git a/opcodes/configure b/opcodes/configure
 index 9dc87d6..a7e3fed 100755
 --- a/opcodes/configure
 +++ b/opcodes/configure
-@@ -12489,10 +12489,10 @@ all_targets=false
- selarchs=
- for targ in $target $canon_targets
- do
--    if test "x$targ" = "xall" ; then
-+    if test "x$targ" = "xall" || true ; then
+@@ -13928,7 +13928,14 @@ do
+     if test "x$targ" = "xall" ; then
          all_targets=true
      else
 -	. $srcdir/../bfd/config.bfd
-+#	. $srcdir/../bfd/config.bfd
++	case "${host}" in
++	  aarch64-*-mingw*)
++	    # BFD config not available for aarch64 cross-builds
++	    ;;
++	  *)
++	    . $srcdir/../bfd/config.bfd
++	    ;;
++	esac
  	selarchs="$selarchs $targ_archs"
      fi
  done
