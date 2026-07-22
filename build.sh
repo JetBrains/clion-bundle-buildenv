@@ -487,20 +487,11 @@ do_bundle() {
     message 'Removing l10n files...'
     rm -rvf ${PREFIX#/}/share/locale
 
-    if [[ -z "${KEEP_DEV_FILES:-}" ]]; then
-        message 'Removing leftover development files...'
-        find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
-        find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
-        rm -rvf ${PREFIX#/}/lib/pkgconfig
-        rm -rvf ${PREFIX#/}/include
-    fi
-
-    # Per-flavor bundle shaping (extract extra makedepends payload, relocate
-    # files where downstream consumers expect them, etc.).  Defined by
-    # ${MAKEPKG_CONF} when needed; absent for vanilla flavors.
-    if declare -F finalize_bundle >/dev/null; then
-        execute 'finalize_bundle' finalize_bundle
-    fi
+    message 'Removing leftover development files...'
+    find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
+    find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
+    rm -rvf ${PREFIX#/}/lib/pkgconfig
+    rm -rvf ${PREFIX#/}/include
 
     # Remove empty directories
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
