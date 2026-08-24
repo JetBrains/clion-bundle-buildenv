@@ -1,4 +1,4 @@
-source "$(dirname "${BASH_SOURCE[0]}")/makepkg2.conf.inc"
+source "$(dirname "${BASH_SOURCE[0]}")/makepkg-base.conf.inc"
 
 # brew install bash coreutils git libarchive makepkg python3.12 m4 texinfo
 export PATH="`
