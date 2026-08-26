@@ -1,9 +1,15 @@
 # MinGW cross-compilation packages
 
-PKGBUILD-based build of a MinGW-w64 toolchain (GCC, binutils, make, and dependencies).
+PKGBUILD-based build of a MinGW-w64 toolchain (GCC, binutils, make, and dependencies)
+and of GDB cross-compiled for Windows.
 Packages here are based on versions synced from [MSYS2 MINGW-packages](https://github.com/msys2/MINGW-packages)
 
-Packages get cross-compiled for `x86_64-w64-mingw32` on Linux.
+Packages get cross-compiled for `x86_64-w64-mingw32`, `i686-w64-mingw32` and
+`aarch64-w64-mingw32` on Linux.
+
+For how to actually run a build (`build.sh` invocation, Docker image, which config
+to pass), see the [root README](../README.md#mingw-w64-docker). This file only
+covers keeping the packages below in sync with upstream.
 
 ## Package layout
 
