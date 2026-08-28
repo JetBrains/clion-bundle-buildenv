@@ -1,4 +1,5 @@
 #!/bin/bash
+set -Eeuo pipefail
 
 # Author: Eldar Abusalimov <Eldar.Abusalimov@jetbrains.com>
 
@@ -36,7 +37,7 @@ _status() {
     local status="${package:+${package}: }${2}"
     local items=("${@:3}")
 
-    if [[ -n ${TEAMCITY_VERSION} ]]; then
+    if [[ -n ${TEAMCITY_VERSION:-} ]]; then
         case "${type}" in
             block_open)  local teamcity_args="blockOpened name='${status}'" ;;
             block_close) local teamcity_args="blockClosed name='${status}'" ;;
@@ -94,7 +95,8 @@ _package_info() {
     test -f "${PKG_ROOT_DIR}/${package}/PKGBUILD" || failure "Unknown package: ${PKG_ROOT_DIR}/${package}/PKGBUILD"
     for property in "${properties[@]}"; do
         eval "${property}=()"
-        local value=($(
+        local value
+        value=($(
             source "${MAKEPKG_CONF}" > /dev/null && \
             cd "${PKG_ROOT_DIR}/${package}" && \
             source "PKGBUILD" > /dev/null
@@ -200,7 +202,7 @@ execute(){
     local command="${2}"
     local arguments=("${@:3}")
     block_open "${status}"
-    ${command} ${arguments[@]} || failure "${status} failed"
+    ${command} "${arguments[@]}" || failure "${status} failed"
     block_close "${status}"
 }
 
@@ -211,7 +213,7 @@ execute_cd(){
     local arguments=("${@:4}")
     block_open "${status}"
     pushd "${d}" > /dev/null
-    ${command} ${arguments[@]} || failure "${status} failed"
+    ${command} "${arguments[@]}" || failure "${status} failed"
     popd > /dev/null
     block_close "${status}"
 }
@@ -353,13 +355,15 @@ PKG_ROOT_DIR="${PKG_ROOT_DIR:-$(pwd)}"
 if [ ! -d "${PKG_ROOT_DIR}" ]; then
     error "${PKG_ROOT_DIR}: Directory doesn't exist"
 fi
-export PKG_ROOT_DIR=$(readlink -e "${PKG_ROOT_DIR}")
+PKG_ROOT_DIR=$(realpath "${PKG_ROOT_DIR}") || failure "${PKG_ROOT_DIR}: Could not resolve path"
+export PKG_ROOT_DIR
 
 MAKEPKG_CONF="${MAKEPKG_CONF:-${PKG_ROOT_DIR}/makepkg.conf}"
 if [ ! -f "${MAKEPKG_CONF}" ]; then
     error "${MAKEPKG_CONF}: File not found"
 fi
-export MAKEPKG_CONF=$(readlink -e "${MAKEPKG_CONF}")
+MAKEPKG_CONF=$(realpath "${MAKEPKG_CONF}") || failure "${MAKEPKG_CONF}: Could not resolve path"
+export MAKEPKG_CONF
 
 
 source "${MAKEPKG_CONF}"
@@ -367,7 +371,7 @@ source "${MAKEPKG_CONF}"
 MAKEPKG_OPTS+=(--config "${MAKEPKG_CONF}")
 
 
-[[ -n ${CHOST} ]] || CHOST=$(gcc -dumpmachine)
+[[ -n ${CHOST:-} ]] || CHOST=$(gcc -dumpmachine)
 [[ "${CHOST}" == *-w64-mingw* ]] && ISMINGW=1 || ISMINGW=0
 
 if [ ! -n "${PREFIX}" ]; then
@@ -376,7 +380,8 @@ fi
 export PATH="$PATH:$PREFIX/bin"
 
 # makepkg environmental variables
-export DESTDIR=$(readlink -m ${DESTDIR:-artifacts-${CHOST}})
+DESTDIR=$(readlink -m ${DESTDIR:-artifacts-${CHOST}}) || failure "Could not resolve DESTDIR"
+export DESTDIR
 export PKGDEST=${PKGDEST:-${DESTDIR}/makepkg/pkg}      #-- Destination: where all packages will be placed
 export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where source files will be cached
 export LOGDEST=${LOGDEST:-${DESTDIR}/makepkg/log}      #-- Log files: where all log files will be placed
@@ -412,7 +417,8 @@ fi
 git_config user.name  "${GIT_COMMITTER_NAME}"
 git_config user.email "${GIT_COMMITTER_EMAIL}"
 
-export TMPDIR=$(mktemp -d)
+TMPDIR=$(mktemp -d) || failure "Could not create temporary directory"
+export TMPDIR
 trap "rm -rf ${TMPDIR}" INT QUIT TERM HUP EXIT
 
 export PACMAN=false  # just to be sure makepkg won't call it
@@ -454,22 +460,22 @@ do_bundle() {
         unset package
 
         message 'Removing dependency binaries...'
-        [[ -d ${PREFIX#/}/bin ]] || continue
+        if [[ -d ${PREFIX#/}/bin ]]; then
+            find_and_rm -L ${PREFIX#/}/bin -xtype l
 
-        find_and_rm -L ${PREFIX#/}/bin -xtype l
-
-        while read -rd '' binary ; do
-            case "$(file -bi "$binary")" in
-                *text/x-shellscript*) ;;
-                *)
-                     if (( ISMINGW )) && [[ "$binary" != *.exe ]]; then
-                         continue
-                     fi
-                     ;;
-            esac
-            rm -vf "$binary"
-        done < <(find ${PREFIX#/}/bin ! -type d -print0)
-        unset binary
+            while read -rd '' binary ; do
+                case "$(file -bi "$binary")" in
+                    *text/x-shellscript*) ;;
+                    *)
+                         if (( ISMINGW )) && [[ "$binary" != *.exe ]]; then
+                             continue
+                         fi
+                         ;;
+                esac
+                rm -vf "$binary"
+            done < <(find ${PREFIX#/}/bin ! -type d -print0)
+            unset binary
+        fi
     fi
 
     for package in "${target_packages[@]}"; do
@@ -487,18 +493,27 @@ do_bundle() {
     message 'Removing l10n files...'
     rm -rvf ${PREFIX#/}/share/locale
 
-    message 'Removing leftover development files...'
-    find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
-    find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
-    rm -rvf ${PREFIX#/}/lib/pkgconfig
-    rm -rvf ${PREFIX#/}/include
+    if [[ -z "${KEEP_DEV_FILES:-}" ]]; then
+        message 'Removing leftover development files...'
+        find_and_rm  ${PREFIX#/} ! -type d -name "*.a"
+        find_and_rm  ${PREFIX#/} ! -type d -name "*.la"
+        rm -rvf ${PREFIX#/}/lib/pkgconfig
+        rm -rvf ${PREFIX#/}/include
+    fi
+
+    # Per-flavor bundle shaping (extract extra makedepends payload, relocate
+    # files where downstream consumers expect them, etc.).  Defined by
+    # ${MAKEPKG_CONF} when needed; absent for vanilla flavors.
+    if declare -F finalize_bundle >/dev/null; then
+        execute 'finalize_bundle' finalize_bundle
+    fi
 
     # Remove empty directories
     find ${PREFIX#/} -depth -type d -exec rmdir '{}' \; 2>/dev/null
 
     execute "Archiving ${BUNDLE_TARBALL}" tar -Jcvf "${BUNDLE_TARBALL}" ${PREFIX#/}
 
-    if [[ -n ${TEAMCITY_VERSION} ]]; then
+    if [[ -n ${TEAMCITY_VERSION:-} ]]; then
         local pkgname pkgver
         local tgt_tags=()
         local dep_tags=()

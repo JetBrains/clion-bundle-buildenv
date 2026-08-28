@@ -1,5 +1,5 @@
 #
-# Common bits for makepkg.conf.inc
+# Common bits for makepkg-darwin.conf.inc
 #
 
 #set -Eexuo pipefail
@@ -153,10 +153,10 @@ STRIP_BINARIES="--strip-all"
 STRIP_SHARED="--strip-unneeded"
 #-- Options to be used when stripping static libraries. See `man strip' for details.
 STRIP_STATIC="--strip-debug"
-##-- Manual (man and info) directories to compress (if zipman is specified)
-#MAN_DIRS=(${PREFIX#/}{{,/local}{,/share},/opt/*}/{man,info})
-##-- Doc directories to remove (if !docs is specified)
-#DOC_DIRS=(${PREFIX#/}{,/local}{,/share}/{doc,gtk-doc})
+#-- Manual (man and info) directories to compress (if zipman is specified)
+MAN_DIRS=(${PREFIX#/}{{,/local}{,/share},/opt/*}/{man,info})
+#-- Doc directories to remove (if !docs is specified)
+DOC_DIRS=(${PREFIX#/}{,/local}{,/share}/{doc,gtk-doc})
 ##-- Files to be removed from all packages (if purge is specified)
 #PURGE_TARGETS=(${PREFIX#/}{,/share}/info/dir .packlist *.pod)
 #

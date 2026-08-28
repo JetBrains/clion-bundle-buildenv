@@ -33,4 +33,5 @@ build() {
 package_mpfr() {
   cd "${srcdir}/build-${CHOST}"
   make DESTDIR="${pkgdir}" install
+  install_copying
 }
