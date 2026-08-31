@@ -87,6 +87,17 @@ find_and_rm() {
     done < <(find "$@" -print0)
 }
 
+# Portable stand-in for GNU `readlink -m`: canonicalizes a path without
+# requiring it (or its leaf component) to exist. `realpath -m` isn't a
+# portable substitute either (no -m on BSD realpath), so resolve the parent
+# directory chain physically and append the leaf name literally.
+resolve_path() {
+    local target="${1}" dir base
+    dir=$(dirname -- "${target}")
+    base=$(basename -- "${target}")
+    mkdir -p "${dir}" && (cd "${dir}" && printf '%s/%s\n' "$(pwd -P)" "${base}")
+}
+
 
 # Get package information
 _package_info() {
@@ -99,20 +110,18 @@ _package_info() {
         value=($(
             source "${MAKEPKG_CONF}" > /dev/null && \
             cd "${PKG_ROOT_DIR}/${package}" && \
-            source "PKGBUILD" > /dev/null
+            source "./PKGBUILD" > /dev/null
             eval echo "\${${property}[@]}"))
         eval "${property}=(\"\${value[@]}\")"
     done
 }
 
-# Package provides another
-_package_provides() {
-    local package="${1}"
-    local another="${2}"
-    local pkgname provides
-    _package_info "${package}" pkgname provides
-    for pkg_name in "${pkgname[@]}";  do [[ "${pkg_name}" = "${another}" ]] && return 0; done
-    for provided in "${provides[@]}"; do [[ "${provided}" = "${another}" ]] && return 0; done
+# Resolve a dependency name to its on-disk package directory.
+_resolve_package() {
+    local name="${1}"
+
+    test -f "${PKG_ROOT_DIR}/${name}/PKGBUILD" && { printf '%s\n' "${name}"; return 0; }
+
     return 1
 }
 
@@ -123,6 +132,7 @@ _build_add() {
 
     local depends makedepends
     local seen_package
+    local dependency resolved_dependency
 
     for seen_package in "${seen_packages[@]}"; do
         [[ "${seen_package}" = "${package}" ]] && return 0
@@ -140,7 +150,8 @@ _build_add() {
     message "Resolving ${kind} dependencies" "${depends[@]}"
 
     for dependency in "${depends[@]}"; do
-        _build_add ${include_makedepends} "${dependency}"
+        resolved_dependency=$(_resolve_package "${dependency}") || failure "Unknown package: ${PKG_ROOT_DIR}/${dependency}/PKGBUILD"
+        _build_add ${include_makedepends} "${resolved_dependency}"
     done
     sorted_packages+=("${package}")
 }
@@ -380,7 +391,7 @@ fi
 export PATH="$PATH:$PREFIX/bin"
 
 # makepkg environmental variables
-DESTDIR=$(readlink -m ${DESTDIR:-artifacts-${CHOST}}) || failure "Could not resolve DESTDIR"
+DESTDIR=$(resolve_path "${DESTDIR:-artifacts-${CHOST}}") || failure "Could not resolve DESTDIR"
 export DESTDIR
 export PKGDEST=${PKGDEST:-${DESTDIR}/makepkg/pkg}      #-- Destination: where all packages will be placed
 export SRCDEST=${SRCDEST:-${DESTDIR}/makepkg/src}      #-- Source cache: where source files will be cached
@@ -430,6 +441,7 @@ do_build_install() {
     message "packages to build:" "${make_packages[@]}"
 
     local package
+    local base_dir=/
 
     for package in "${make_packages[@]}"; do
         if (( ! NOMAKEPKG )); then
@@ -439,11 +451,22 @@ do_build_install() {
 
         if (( ! NOINSTALL )); then
             execute "install" \
-                bsdtar -xvf "${PKGDEST}/$(pkgfilename)" -C / ${PREFIX#/}
+                extract_pkg_into_prefix "${PKGDEST}/$(pkgfilename)" "${base_dir}"
         fi
     done
 }
 
+
+# Extract a built package's pkgfile so its ${PREFIX#/} contents land under
+# ${base_dir} (default: cwd, i.e. the bundle staging dir when called from
+# do_bundle; "/" when called from do_build_install to populate the real
+# build root). The tar already contains a ${PREFIX#/}/... subtree, so a
+# bsdtar pattern-extract selects just that subtree and nothing else.
+extract_pkg_into_prefix() {
+    local pkgfile="${1}"
+    local base_dir="${2:-.}"
+    bsdtar -xvf "${pkgfile}" -C "${base_dir}" ${PREFIX#/}
+}
 
 do_bundle() {
     message "target packages:" "${target_packages[@]}"
@@ -455,40 +478,49 @@ do_bundle() {
 
         for package in "${dependency_packages[@]}"; do
             execute "extract (dep)" \
-                bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
+                extract_pkg_into_prefix "${PKGDEST}/$(pkgfilename)"
         done
         unset package
 
         message 'Removing dependency binaries...'
         if [[ -d ${PREFIX#/}/bin ]]; then
-            find_and_rm -L ${PREFIX#/}/bin -xtype l
+            # No -L/-xtype here: -xtype needs GNU find (absent on BSD/macOS
+            # find). Plain `-type l` is equivalent only because no PKGBUILD
+            # in this repo builds a directory-symlink layout in bin/ — if
+            # one ever does, this under-prunes.
+            find_and_rm ${PREFIX#/}/bin -type l
 
-            while read -rd '' binary ; do
-                case "$(file -bi "$binary")" in
-                    *text/x-shellscript*) ;;
-                    *)
-                         if (( ISMINGW )) && [[ "$binary" != *.exe ]]; then
-                             continue
-                         fi
-                         ;;
-                esac
-                rm -vf "$binary"
-            done < <(find ${PREFIX#/}/bin ! -type d -print0)
-            unset binary
+            if [[ -z "${KEEP_DEP_BINARIES:-}" ]]; then
+                while read -rd '' binary ; do
+                    case "$(file -bi "$binary")" in
+                        *text/x-shellscript*) ;;
+                        *)
+                             if (( ISMINGW )) && [[ "$binary" != *.exe ]]; then
+                                 continue
+                             fi
+                             ;;
+                    esac
+                    rm -vf "$binary"
+                done < <(find ${PREFIX#/}/bin ! -type d -print0)
+                unset binary
+            fi
         fi
     fi
 
     for package in "${target_packages[@]}"; do
         execute "extract" \
-            bsdtar -xvf "${PKGDEST}/$(pkgfilename)" ${PREFIX#/}
+            extract_pkg_into_prefix "${PKGDEST}/$(pkgfilename)"
     done
     unset package
 
     message 'Removing shared library symlinks...'
-    [[ -d ${PREFIX#/}/lib ]] && find_and_rm -L ${PREFIX#/}/lib -xtype l
+    # No -L/-xtype here: see the bin/ prune above for why.
+    [[ -d ${PREFIX#/}/lib ]] && find_and_rm ${PREFIX#/}/lib -type l
 
-    message 'Removing doc and man directories...'
-    rm -rvf "${DOC_DIRS[@]}" "${MAN_DIRS[@]}"
+    if [[ -z "${KEEP_DOC_FILES:-}" ]]; then
+        message 'Removing doc and man directories...'
+        rm -rvf "${DOC_DIRS[@]}" "${MAN_DIRS[@]}"
+    fi
 
     message 'Removing l10n files...'
     rm -rvf ${PREFIX#/}/share/locale

@@ -10,6 +10,11 @@ set -Eeuo pipefail
 # Author: Renato Silva <br.renatosilva@gmail.com>
 # Author: Qian Hong <fracting@gmail.com>
 
+# Darwin (macOS) build entrypoint: builds and bundles the darwin package
+# tree, running bare-metal on a Mac build agent -- no Docker image, unlike
+# build-linux-mingw.sh's Linux/MinGW path. Kept separate rather than merged
+# into build-linux-mingw.sh; see CPP-51495.
+
 if tput init >/dev/null 2>&1; then
   # Enable colors
   normal=$(tput sgr0)
@@ -90,15 +95,6 @@ execute_cd () {
   popd > /dev/null
   block_close "${status}"
 }
-
-## Git configuration
-#git_config () {
-#    local name="${1}"
-#    local value="${2}"
-#    test -n "$(git config ${name})" && return 0
-#    git config --global "${name}" "${value}" && return 0
-#    failure 'Could not configure Git for makepkg'
-#}
 
 _index_packages() {
   local -r pkg_root_dir=$1

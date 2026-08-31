@@ -7,7 +7,7 @@ Packages here are based on versions synced from [MSYS2 MINGW-packages](https://g
 Packages get cross-compiled for `x86_64-w64-mingw32`, `i686-w64-mingw32` and
 `aarch64-w64-mingw32` on Linux.
 
-For how to actually run a build (`build.sh` invocation, Docker image, which config
+For how to actually run a build (`build-linux-mingw.sh` invocation, Docker image, which config
 to pass), see the [root README](../README.md#mingw-w64-docker). This file only
 covers keeping the packages below in sync with upstream.
 
