@@ -65,7 +65,7 @@ if [ "$(uname)" = "Darwin" ]; then
 fi
 
 # Stage repo into a tmp dir, dropping .git so the worktree's broken .git
-# pointer doesn't leak into the container. Without this, build.sh's
+# pointer doesn't leak into the container. Without this, build-linux-mingw.sh's
 # `git config user.name` follows /workdir/.git -> a host path the container
 # can't see and fatals "not a git repository". Tar-pipe is fast (<1 MB).
 #
@@ -127,10 +127,10 @@ fi
 # Run the build or shell
 if [ -z "$PACKAGES" ]; then
   # --shell: drop into bash
-  echo "Dropping into container shell. Run './build.sh --help' to verify build script is available."
+  echo "Dropping into container shell. Run './build-linux-mingw.sh --help' to verify build script is available."
   docker run "${docker_run_args[@]}" "$DOCKER_IMAGE" /bin/bash
 else
-  # Build: run build.sh with specified packages
+  # Build: run build-linux-mingw.sh with specified packages
   echo "Building packages: $PACKAGES"
   docker run "${docker_run_args[@]}" "$DOCKER_IMAGE" \
     bash -exu -c "
@@ -147,7 +147,7 @@ else
         export DESTDIR=/artifact-build/artifacts-mingw
         mkdir -p \$DESTDIR
       fi
-      ./build.sh -P 'mingw' -c 'mingw/makepkg-mingw64.conf' -- $PACKAGES
+      ./build-linux-mingw.sh -P 'mingw' -c 'mingw/makepkg-mingw64.conf' -- $PACKAGES
     "
 
   # On macOS: copy artifacts from Docker volume back to host

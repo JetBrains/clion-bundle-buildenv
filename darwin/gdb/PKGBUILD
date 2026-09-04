@@ -42,6 +42,10 @@ prepare() {
       msg2 "Branch already contains patches, skipping application"
   else
       patch -p1 <"$srcdir/configure.patch"
+      # Forces have_libpython=yes unconditionally in gdb/configure, which
+      # short-circuits the fallback block that would otherwise compute and
+      # persist PYTHON_CFLAGS/PYTHON_LIBS -- that's why build() below has to
+      # pass python include/lib flags globally instead (CPP-51495).
       patch -p1 <"$srcdir/python.patch"
 
       if [ "$CARCH" == "aarch64" ]; then
