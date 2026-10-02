@@ -21,8 +21,22 @@ case "$CARCH" in
   ;;
 esac
 
+: "${DEVELOPER_DIR:=/Library/Developer/CommandLineTools}"
+export DEVELOPER_DIR
+
 CHOST=$CARCH-apple-$(clang -dumpmachine | cut -d- -f3)
 SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+
+if [ -z "${_DARWIN_TOOLCHAIN_LOGGED:-}" ]; then
+  export _DARWIN_TOOLCHAIN_LOGGED=1
+  {
+    echo "xcrun --find ld: $(xcrun --find ld)"
+    echo "ld -v: $(ld -v 2>&1)"
+    echo "xcrun --show-sdk-path: $(xcrun --show-sdk-path)"
+    echo "DEVELOPER_DIR=$DEVELOPER_DIR"
+    echo "SDKROOT=$SDKROOT"
+  } >&2
+fi
 
 export MACOSX_DEPLOYMENT_TARGET='10.14'
 
@@ -34,6 +48,7 @@ export LDFLAGS="$common_flags"
 INSTALL_NAME_TOOL=$(which install_name_tool)
 
 export AR=$(which ar)
+export RANLIB=$(which ranlib)
 export CC=$(which clang)
 export CXX=$(which clang++)
 export OTOOL=$(which otool)

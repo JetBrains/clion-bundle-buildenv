@@ -55,12 +55,21 @@ prepare() {
 }
 
 build() {
+  # gdb's python auto-detection searches PATH for `python` and `python3` and
+  # would link a host python (e.g. Homebrew's) in addition to ours. Seeding its
+  # cache variable with "missing" makes it conclude there is none; libpython
+  # comes from CONFIG_LDFLAGS at make time. Exported so that the nested
+  # gdb/configure launched from make sees it as well.
+  local -x ac_cv_path_python_prog_path=missing
+
   mkdir -p "$srcdir/build-$CHOST"
   cd "$srcdir/build-$CHOST"
 
   CFLAGS="$CFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
   CXXFLAGS="$CXXFLAGS -I$MAKEDEPENDS_PREFIX/include/python3.12 -I$MAKEDEPENDS_PREFIX/include" \
-  LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib -lpython3" \
+  LDFLAGS="$LDFLAGS -L$MAKEDEPENDS_PREFIX/lib" \
+  RANLIB="$RANLIB" \
+  AR="$AR" \
   "$srcdir/$pkgname-$pkgver/configure" \
     --prefix="$PREFIX" \
     --host="$CHOST" \
@@ -90,7 +99,10 @@ build() {
     --with-pkgversion="GDB${PKGVERSION:+; ${PKGVERSION}}" \
     --without-zstd
 
-  make -j4 V=1
+  # gdb/Makefile.in adds CONFIG_LDFLAGS only to gdb's own link, whereas LDFLAGS is
+  # exported to every nested configure, whose test programs cannot resolve the
+  # @rpath-relative libpython3.
+  make -j4 V=1 CONFIG_LDFLAGS="-lpython3"
   install_for_package
 }
 
