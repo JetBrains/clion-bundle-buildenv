@@ -33,6 +33,8 @@ build() {
     --without-ensurepip
 
   install_for_package
+
+  rm -rf "$(temp_destdir)$PREFIX"/lib/python*/ensurepip
 }
 
 package_application_with_dev
