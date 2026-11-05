@@ -10,7 +10,7 @@
 
 pkgname=python
 pkgver=3.12.9
-pkgrel=1
+pkgrel=2
 _pybasever=${pkgver%.*}
 pkgdesc="Next generation of the python high-level scripting language"
 arch=(aarch64 i686 x86_64)
@@ -103,6 +103,8 @@ package() {
         find "$dir" -maxdepth 1 -name "$LD_PRELOAD" -type f -exec readlink -e {} \;
     done | head -1)
   LD_PRELOAD="$ld_preload" make DESTDIR="${pkgdir}" install
+
+  rm -rf "$(pwd)"/Lib/ensurepip
 
   LD_PRELOAD="$ld_preload" LD_LIBRARY_PATH=$(pwd) ./python -E \
     -c 'import shutil, sys; shutil.make_archive(sys.argv[1], "zip", sys.argv[2])' \
