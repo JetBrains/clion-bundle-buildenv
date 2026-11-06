@@ -1,7 +1,7 @@
 pkgbase=python
 pkgname=($pkgbase{,-dev})
 pkgver=3.12.2
-pkgrel=1
+pkgrel=2
 pkgdesc='Interpreted, interactive, object-oriented programming language'
 arch=(aarch64 x86_64)
 url='https://www.python.org'
@@ -30,9 +30,11 @@ build() {
     --enable-universalsdk \
     --with-computed-gotos \
     --with-universal-archs=universal2 \
-    --with-ensurepip
+    --without-ensurepip
 
   install_for_package
+
+  rm -rf "$(temp_destdir)$PREFIX"/lib/python*/ensurepip
 }
 
 package_application_with_dev
