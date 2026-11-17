@@ -9,8 +9,8 @@
 # Contributor: Jason Chu <jason@archlinux.org>
 
 pkgname=python
-pkgver=3.12.9
-pkgrel=2
+pkgver=3.12.16
+pkgrel=1
 _pybasever=${pkgver%.*}
 pkgdesc="Next generation of the python high-level scripting language"
 arch=(aarch64 i686 x86_64)
@@ -32,7 +32,7 @@ source=("https://www.python.org/ftp/python/${pkgver%rc*}/Python-${pkgver}.tar.xz
         '0002-Suppress-writing-bytecode-files-by-default.patch'
         '0003-make-install-Don-t-compile-__pycache__.patch'
         '0005-python-config-libpython.patch')
-md5sums=('880942124f7d5c01e7b65cbad62dc873'
+md5sums=('f1a0a43031cc68f5149bd17d9f36860e'
          '5c364c89632fd5080f6ec067d1df886e'
          'c752570fc981c2a29273c9fdb51263eb'
          '54d00a12379b5b3178aa0ff358a09fdf'
